@@ -1,6 +1,6 @@
 {
   "name": "app-template",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -12,9 +12,7 @@
     "setup": "npm install && npm run check:env",
     "check:env": "node -e \"console.log('.env.local exists:', require('fs').existsSync('.env.local')); if(!require('fs').existsSync('.env.local')) { console.log('\\n⚠️  Please copy .env.example to .env.local and fill in your Supabase credentials'); process.exit(1); }\"",
     "db:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_ID > types/database/database.types.ts",
-    "audit": "npm audit --audit-level moderate",
-    "seo:test": "next build && next-sitemap",
-    "lighthouse": "lhci autorun",
+    "audit": "npm audit --audit-level moderate && npx audit-ci --moderate",
     "prepare": "husky"
   },
   "dependencies": {
@@ -68,13 +66,7 @@
     "typescript": "^5"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "git add"
-    ],
-    "*.{js,jsx,ts,tsx,json,css,md}": [
-      "prettier --write",
-      "git add"
-    ]
+    "*.{js,jsx,ts,tsx}": ["eslint --fix", "git add"],
+    "*.{js,jsx,ts,tsx,json,css,md}": ["prettier --write", "git add"]
   }
 }
