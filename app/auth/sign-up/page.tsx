@@ -4,7 +4,7 @@ import { generateMetadata as generateSEOMetadata } from "@/lib/seo";
 import { Metadata } from "next";
 
 export const metadata: Metadata = generateSEOMetadata({
-  title: "Sign Up - App Template", 
+  title: "Sign Up - App Template",
   description: "Create your account to get started with our powerful platform.",
   canonical: "/auth/sign-up",
   noIndex: true, // Don't index auth pages

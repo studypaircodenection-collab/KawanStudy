@@ -1,23 +1,27 @@
-'use client';
+"use client";
 
-import { generateWebsiteSchema, generateOrganizationSchema, generateWebAppSchema } from '@/lib/seo';
+import {
+  generateWebsiteSchema,
+  generateOrganizationSchema,
+  generateWebAppSchema,
+} from "@/lib/seo";
 
 interface StructuredDataProps {
-  type?: 'website' | 'organization' | 'webapp' | 'all';
+  type?: "website" | "organization" | "webapp" | "all";
 }
 
-export function StructuredData({ type = 'all' }: StructuredDataProps) {
+export function StructuredData({ type = "all" }: StructuredDataProps) {
   const schemas = [];
-  
-  if (type === 'website' || type === 'all') {
+
+  if (type === "website" || type === "all") {
     schemas.push(generateWebsiteSchema());
   }
-  
-  if (type === 'organization' || type === 'all') {
+
+  if (type === "organization" || type === "all") {
     schemas.push(generateOrganizationSchema());
   }
-  
-  if (type === 'webapp' || type === 'all') {
+
+  if (type === "webapp" || type === "all") {
     schemas.push(generateWebAppSchema());
   }
 
