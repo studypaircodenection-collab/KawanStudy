@@ -7,8 +7,8 @@ Thank you for considering contributing to this project! Here's how you can help.
 1. **Fork and Clone**
 
    ```bash
-   git clone https://github.com/your-username/mycarbon.git
-   cd mycarbon
+   git clone https://github.com/your-username/app-template.git
+   cd app-template
    ```
 
 2. **Install Dependencies**

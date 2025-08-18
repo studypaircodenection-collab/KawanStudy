@@ -7,7 +7,7 @@ A modern Next.js starter template with authentication, UI components, and develo
 ```bash
 # Clone and setup
 git clone <your-repo>
-cd mycarbon
+cd app-template
 npm run setup
 
 # Copy environment variables
