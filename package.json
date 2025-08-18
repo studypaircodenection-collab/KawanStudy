@@ -58,7 +58,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "audit-ci": "^7.4.0",
+    "audit-ci": "^7.1.0",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
     "husky": "^9.1.7",
