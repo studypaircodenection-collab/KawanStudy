@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/lib/context/theme-provder";
 import { StructuredData } from "@/components/seo/structured-data";
 import { WebVitals } from "@/components/seo/web-vitals";
+import AuthProvider from "@/lib/context/auth-provider";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -39,16 +40,18 @@ export default function RootLayout({
       </head>
       <body className="bg-background text-foreground">
         <WebVitals />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <main className="min-h-screen flex flex-col items-center">
-            {children}
-          </main>
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <main className="min-h-screen flex flex-col items-center">
+              {children}
+            </main>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

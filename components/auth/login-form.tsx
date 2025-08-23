@@ -20,7 +20,8 @@ import {
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/lib/context/auth-provider";
 import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,6 +43,8 @@ export function LoginForm({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { setClaims } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -57,13 +60,51 @@ export function LoginForm({
     try {
       setIsLoading(true);
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: form.getValues("email"),
         password: form.getValues("password"),
       });
-      if (error) throw error;
-      // Update this route to redirect to an authenticated route. The user already has an active session.
-      router.push("/dashboard");
+
+      if (data.user) {
+        console.log("User logged in:", data.user);
+
+        // Fetch user profile data
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", data.user.id)
+          .single();
+
+        if (profileError) {
+          console.error("Error fetching profile:", profileError);
+          // Set basic claims if profile fetch fails
+          setClaims({
+            sub: data.user.id,
+            email: data.user.email || "",
+            role: data.user.user_metadata?.role || "user",
+          });
+        } else {
+          console.log("Profile data:", profile);
+          // Set complete claims with profile data
+          setClaims({
+            sub: data.user.id,
+            email: data.user.email || "",
+            full_name: profile.full_name || "",
+            username: profile.username || "",
+            avatar_url: profile.avatar_url || "",
+            role: data.user.user_metadata?.role || "user",
+            created_at: profile.created_at,
+            updated_at: profile.updated_at,
+          });
+        }
+
+        if (error) {
+          setError(error.message);
+        }
+        // Get redirect URL from sear chParams or default to dashboard
+        const redirectTo = searchParams.get("redirect") || "/dashboard";
+        router.push(redirectTo);
+      }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
@@ -71,17 +112,17 @@ export function LoginForm({
     }
   };
 
-  const handleOAuthLogin = async (
-    e: React.FormEvent,
-    provider: "google" | "github"
-  ) => {
+  const handleOAuthLogin = async (e: React.FormEvent, provider: "google") => {
     e.preventDefault();
     const supabase = createClient();
     setIsLoading(true);
     setError(null);
 
     try {
-      const options: Record<string, any> = {
+      const options: Record<
+        string,
+        string | number | boolean | object | null | undefined
+      > = {
         redirectTo: `${window.location.origin}/auth/oauth?next=/dashboard`,
       };
 
@@ -98,11 +139,6 @@ export function LoginForm({
       });
 
       if (error) throw error;
-
-      // Optional: handle provider-specific returned data
-      if (data && provider === "google") {
-        console.log("Google login data:", data);
-      }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
@@ -111,8 +147,8 @@ export function LoginForm({
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
+    <div className={cn("flex", className)} {...props}>
+      <Card className="w-full max-w-sm border-0">
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
@@ -173,21 +209,11 @@ export function LoginForm({
             <Button
               variant={"outline"}
               onClick={(e) => handleOAuthLogin(e, "google")}
-              size={"sm"}
+              size={"lg"}
               disabled={isLoading}
               className="flex-1"
             >
               {isLoading ? "Logging in..." : "Google Login"}
-            </Button>
-
-            <Button
-              onClick={(e) => handleOAuthLogin(e, "github")}
-              variant={"outline"}
-              size={"sm"}
-              disabled={isLoading}
-              className="flex-1"
-            >
-              {isLoading ? "Logging in..." : "Github Login"}
             </Button>
           </div>
           <div className="mt-4 text-center text-sm">

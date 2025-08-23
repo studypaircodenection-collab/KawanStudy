@@ -5,7 +5,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 This project uses Supabase for auth and some server-side features. Create a `.env.local` file (copy from `.env.example`) and fill in the values before running the app. Required variables:
 
 - `NEXT_PUBLIC_SUPABASE_URL` — Your Supabase project URL (public).
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY` — Your Supabase publishable/anon key (public).
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Your Supabase anon key (public).
 
 If you use any server-only Supabase keys (for example a service role key), store them without the `NEXT_PUBLIC_` prefix and never commit them. See `.env.example` for a template.
 
