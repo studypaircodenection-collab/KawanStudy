@@ -2,14 +2,14 @@ import { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "App Template - Next.js Starter",
-    short_name: "App Template",
+    name: "kawanstudy - Peer Study & Tutoring",
+    short_name: "kawanstudy",
     description:
-      "A modern, production-ready Next.js template with Supabase authentication, TypeScript, Tailwind CSS, and comprehensive testing.",
+      "A peer-to-peer campus study site for students to find tutors, study with others, and earn points, badges, and leaderboard ranks.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",
-    theme_color: "#000000",
+    theme_color: "#0055ff",
     icons: [
       {
         src: "/icon-192.png",
@@ -22,7 +22,7 @@ export default function manifest(): MetadataRoute.Manifest {
         type: "image/png",
       },
     ],
-    categories: ["business", "productivity", "developer"],
+    categories: ["education", "social", "productivity", "gamification"],
     orientation: "portrait-primary",
     scope: "/",
     lang: "en",
