@@ -11,19 +11,20 @@ interface Claims {
   role?: string;
   session_id?: string;
   user_metadata?: {
+    username?: string;
     full_name?: string;
     avatar_url?: string;
     role?: string;
-    [key: string]: string | number | boolean | null | undefined;
+    [key: string]: any;
   };
   app_metadata?: {
     provider?: string;
     providers?: string[];
-    [key: string]: string | number | boolean | string[] | null | undefined;
+    [key: string]: any;
   };
   created_at?: string;
   updated_at?: string;
-  [key: string]: string | number | boolean | object | null | undefined;
+  [key: string]: any;
 }
 
 type AuthContextValue = {

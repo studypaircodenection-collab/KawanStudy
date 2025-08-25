@@ -20,30 +20,33 @@ export interface SEOConfig {
 }
 
 export const defaultSEO: SEOConfig = {
-  title: "App Template - Next.js Starter with Supabase Auth",
+  title: "kawanstudy - Find Study Partners, Tutors & Level Up Your Learning",
   description:
-    "A modern, production-ready Next.js template with Supabase authentication, TypeScript, Tailwind CSS, and comprehensive testing.",
+    "A peer-to-peer campus study site for students to find tutors, study with others, and earn points, badges, and leaderboard ranks. Gamify your learning experience!",
   keywords: [
-    "nextjs",
-    "typescript",
-    "supabase",
-    "authentication",
-    "tailwind",
-    "template",
-    "starter",
-    "react",
-    "app router",
+    "study",
+    "campus",
+    "peer-to-peer",
+    "tutoring",
+    "students",
+    "leaderboard",
+    "badges",
+    "points",
+    "gamification",
+    "education",
+    "social learning",
+    "kawanstudy",
   ],
   image: "/og-image.png",
   openGraph: {
     type: "website",
-    siteName: "App Template",
+    siteName: "kawanstudy",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    site: "@your_twitter_handle",
-    creator: "@your_twitter_handle",
+    site: "@kawanstudy", // Update to your actual Twitter handle
+    creator: "@kawanstudy", // Update to your actual Twitter handle
   },
 };
 
@@ -106,8 +109,9 @@ export function generateWebsiteSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: defaultSEO.openGraph?.siteName,
-    description: defaultSEO.description,
+    name: "kawanstudy",
+    description:
+      "A peer-to-peer campus study site for students to find tutors, study with others, and earn points, badges, and leaderboard ranks.",
     url: baseUrl,
     potentialAction: {
       "@type": "SearchAction",
@@ -126,14 +130,14 @@ export function generateOrganizationSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: defaultSEO.openGraph?.siteName,
-    description: defaultSEO.description,
+    name: "kawanstudy",
+    description:
+      "A peer-to-peer campus study site for students to find tutors, study with others, and earn points, badges, and leaderboard ranks.",
     url: baseUrl,
-    logo: `${baseUrl}/logo.png`,
+    logo: `${baseUrl}/icon-192.png`,
     sameAs: [
-      // Add your social media URLs here
-      // 'https://twitter.com/your_handle',
-      // 'https://github.com/your_username',
+      "https://twitter.com/kawanstudy", // Update to your actual social URLs
+      "https://github.com/kawanstudy",
     ],
   };
 }
@@ -144,10 +148,11 @@ export function generateWebAppSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: defaultSEO.title,
-    description: defaultSEO.description,
+    name: "kawanstudy",
+    description:
+      "A peer-to-peer campus study site for students to find tutors, study with others, and earn points, badges, and leaderboard ranks.",
     url: baseUrl,
-    applicationCategory: "BusinessApplication",
+    applicationCategory: "EducationalApplication",
     operatingSystem: "Web Browser",
     offers: {
       "@type": "Offer",
