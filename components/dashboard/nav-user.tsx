@@ -9,7 +9,7 @@ import {
   Sparkles,
   UserRoundIcon,
 } from "lucide-react";
-
+import { useAuth } from "@/lib/context/auth-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -43,12 +43,14 @@ interface DisplayUser {
 
 export function NavUser({ user }: { user: DisplayUser }) {
   const { isMobile } = useSidebar();
+  const { setClaims } = useAuth();
 
   const router = useRouter();
 
   const logout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
+    setClaims(null);
     router.push("/auth/login");
   };
 
@@ -64,7 +66,7 @@ export function NavUser({ user }: { user: DisplayUser }) {
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage
                   src={user.user_metadata?.avatar_url}
-                  alt={user.user_metadata?.full_name}
+                  alt={user.user_metadata?.username}
                 />
                 <AvatarFallback className="rounded-lg">
                   <UserRoundIcon className="size-4" />
@@ -92,7 +94,7 @@ export function NavUser({ user }: { user: DisplayUser }) {
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage
                     src={user.user_metadata?.avatar_url}
-                    alt={user.user_metadata?.full_name}
+                    alt={user.user_metadata?.username}
                   />
                   <AvatarFallback className="rounded-lg">
                     <UserRoundIcon className="size-4" />
@@ -100,7 +102,7 @@ export function NavUser({ user }: { user: DisplayUser }) {
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">
-                    {user.user_metadata?.full_name}
+                    {user.user_metadata?.username}
                   </span>
                   <span className="truncate text-xs">{user.email}</span>
                 </div>

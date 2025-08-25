@@ -157,7 +157,7 @@ const UiTMLibrary = () => {
 
   useEffect(() => {
     FetchData();
-  }, []);
+  });
 
   return (
     <div className="space-y-4">

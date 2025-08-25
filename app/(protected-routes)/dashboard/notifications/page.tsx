@@ -448,7 +448,7 @@ export default function NotificationsPage() {
           )}
         </div>
       )}
-      <Button
+      {notifications.length > 0 ? <Button
         variant="destructive"
         onClick={() => {
           if (
@@ -461,7 +461,7 @@ export default function NotificationsPage() {
       >
         <Trash2 className="h-4 w-4" />
         Clear All Notifications
-      </Button>
+      </Button> : null}
     </div>
   );
 }

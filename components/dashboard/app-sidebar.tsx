@@ -129,8 +129,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           avatar_url: claims?.avatar_url || "",
           role: claims?.role || "user",
         },
-        app_metadata: claims?.app_metadata || {},
-        aud: claims?.aud || "authenticated",
         created_at: claims?.created_at || new Date().toISOString(),
         updated_at: claims?.updated_at || new Date().toISOString(),
       }

@@ -349,11 +349,12 @@ const NotificationPopup = () => {
                       <X className="h-4 w-4 mr-2" />
                       Clear all
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                   </>
                 )}
-                <DropdownMenuSeparator />
+
                 <DropdownMenuItem asChild>
-                  <Link href="/dashboard/settings/notifications">
+                  <Link href="/dashboard/settings">
                     <Settings className="h-4 w-4 mr-2" />
                     Notification settings
                   </Link>

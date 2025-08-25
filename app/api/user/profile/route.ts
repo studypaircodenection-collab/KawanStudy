@@ -15,11 +15,32 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Example: Get user profile data
-    // Replace this with your actual database queries
+    // Get comprehensive user profile data including gamification
     const { data: profile, error: profileError } = await supabase
-      .from("profiles") // Assuming you have a profiles table
-      .select("*")
+      .from("profiles")
+      .select(
+        `
+        id,
+        full_name,
+        username,
+        email,
+        phone,
+        bio,
+        location,
+        university,
+        year_of_study,
+        major,
+        avatar_url,
+        total_points,
+        current_streak,
+        longest_streak,
+        level,
+        experience_points,
+        last_activity_date,
+        created_at,
+        updated_at
+      `
+      )
       .eq("id", user.id)
       .single();
 
@@ -63,20 +84,72 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { full_name, avatar_url } = body;
+    const {
+      full_name,
+      username,
+      email,
+      phone,
+      bio,
+      location,
+      university,
+      year_of_study,
+      major,
+      avatar_url,
+    } = body;
 
-    // Validate input
+    // Validate required fields
     if (!full_name || typeof full_name !== "string") {
       return NextResponse.json({ error: "Invalid full_name" }, { status: 400 });
     }
 
-    // Update user profile
+    if (!username || typeof username !== "string") {
+      return NextResponse.json({ error: "Invalid username" }, { status: 400 });
+    }
+
+    if (!email || typeof email !== "string") {
+      return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+    }
+
+    // Check if username is already taken by another user
+    if (username) {
+      const { data: existingUser, error: checkError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("username", username)
+        .neq("id", user.id)
+        .single();
+
+      if (checkError && checkError.code !== "PGRST116") {
+        console.error("Username check error:", checkError);
+        return NextResponse.json(
+          { error: "Failed to validate username" },
+          { status: 500 }
+        );
+      }
+
+      if (existingUser) {
+        return NextResponse.json(
+          { error: "Username is already taken" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Update user profile with all fields
     const { data: profile, error: updateError } = await supabase
       .from("profiles")
       .upsert({
         id: user.id,
         full_name,
-        avatar_url: avatar_url || null,
+        username,
+        email,
+        phone: phone || null,
+        bio: bio || "",
+        location: location || null,
+        university: university || null,
+        year_of_study: year_of_study || null,
+        major: major || null,
+        avatar_url: avatar_url || "/api/placeholder/100/100",
         updated_at: new Date().toISOString(),
       })
       .select()
@@ -90,7 +163,10 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ profile });
+    return NextResponse.json({
+      profile,
+      message: "Profile updated successfully",
+    });
   } catch (error) {
     console.error("API error:", error);
     return NextResponse.json(

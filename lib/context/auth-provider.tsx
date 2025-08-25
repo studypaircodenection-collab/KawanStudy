@@ -3,28 +3,22 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 interface Claims {
-  email?: string;
-  sub?: string;
-  aud?: string;
-  iat?: number;
-  exp?: number;
-  role?: string;
-  session_id?: string;
-  user_metadata?: {
-    username?: string;
-    full_name?: string;
-    avatar_url?: string;
-    role?: string;
-    [key: string]: any;
+  sub: string;
+  email: string;
+  full_name?: string | "N/A";
+  username?: string | "N/A";
+  phone?: string | "N/A";
+  bio?: string | "N/A";
+  location?: string | "N/A";
+  avatar_url?: string | "N/A";
+  academic?: {
+    university?: string | "N/A";
+    major?: string | "N/A";
+    year_of_study?: string | "N/A";
   };
-  app_metadata?: {
-    provider?: string;
-    providers?: string[];
-    [key: string]: any;
-  };
-  created_at?: string;
-  updated_at?: string;
-  [key: string]: any;
+  role: string | "N/A";
+  created_at?: string | "N/A";
+  updated_at?: string | "N/A";
 }
 
 type AuthContextValue = {

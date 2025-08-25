@@ -13,23 +13,47 @@ export interface Database {
         Row: {
           id: string;
           full_name: string | null;
+          username: string | null;
+          email: string | null;
+          phone: string | null;
+          bio: string | null;
+          location: string | null;
+          university: string | null;
+          year_of_study: string | null;
+          major: string | null;
           avatar_url: string | null;
-          updated_at: string | null;
           created_at: string;
+          updated_at: string | null;
         };
         Insert: {
           id: string;
           full_name?: string | null;
+          username?: string | null;
+          email?: string | null;
+          phone?: string | null;
+          bio?: string | null;
+          location?: string | null;
+          university?: string | null;
+          year_of_study?: string | null;
+          major?: string | null;
           avatar_url?: string | null;
-          updated_at?: string | null;
           created_at?: string;
+          updated_at?: string | null;
         };
         Update: {
           id?: string;
           full_name?: string | null;
+          username?: string | null;
+          email?: string | null;
+          phone?: string | null;
+          bio?: string | null;
+          location?: string | null;
+          university?: string | null;
+          year_of_study?: string | null;
+          major?: string | null;
           avatar_url?: string | null;
-          updated_at?: string | null;
           created_at?: string;
+          updated_at?: string | null;
         };
       };
       user_data: {
