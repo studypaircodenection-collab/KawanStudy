@@ -1,12 +1,8 @@
 import {
   BookOpen,
-  Calculator,
-  Calendar,
-  CreditCard,
   ListTodoIcon,
   LucideCalculator,
   Settings,
-  Smile,
   User,
 } from "lucide-react";
 import { Input } from "../ui/input";

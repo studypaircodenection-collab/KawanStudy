@@ -3,7 +3,7 @@
 import { SidebarIcon } from "lucide-react";
 import DashboardBreadcrumbs from "@/components/dashboard/dashboard-breadcrumbs";
 import { SearchForm } from "@/components/dashboard/search-form";
-
+import NotificationPopup from "./notification-popup";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -25,6 +25,7 @@ export function SiteHeader() {
         <Separator orientation="vertical" className="mr-2 h-4" />
         <DashboardBreadcrumbs />
         <SearchForm />
+        <NotificationPopup />
       </div>
     </header>
   );
