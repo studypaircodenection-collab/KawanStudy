@@ -92,8 +92,8 @@ const data = {
       icon: LucideCalculator,
     },
     {
-      title: "Schedule Generator",
-      url: "/dashboard/schedule-generator",
+      title: "Schedule Manager",
+      url: "/dashboard/schedule-manager",
       icon: ListTodoIcon,
     },
   ],

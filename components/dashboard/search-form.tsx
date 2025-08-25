@@ -74,11 +74,11 @@ export function SearchForm() {
               </CommandItem>
               <CommandItem asChild>
                 <Link
-                  href="/dashboard/schedule-generator"
+                  href="/dashboard/schedule-manager"
                   onClick={() => setOpen(false)}
                 >
                   <ListTodoIcon />
-                  <span>Schedule generator</span>
+                  <span>Schedule Manager</span>
                 </Link>
               </CommandItem>
               <CommandItem asChild>

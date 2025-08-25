@@ -13,6 +13,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Search, BookOpen, Calendar, Building2 } from "lucide-react";
+import { Text } from "../../ui/typography";
 
 interface Paper {
   title: string;
@@ -163,7 +164,7 @@ const UiTMLibrary = () => {
       <div className="flex flex-col space-y-4">
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <BookOpen className="h-8 w-8 text-blue-600" />
-          Past Year Exam Papers
+          UiTM Past Year Exam Papers
         </h1>
 
         {/* Search Form */}
@@ -330,7 +331,7 @@ const UiTMLibrary = () => {
 
           <div className="grid lg:grid-cols-2 gap-4">
             {papers.map((paper, idx) => (
-              <Card key={idx} className="hover:shadow-lg transition-shadow">
+              <Card key={idx}>
                 <CardContent className="p-6">
                   <div className="flex gap-4">
                     <img
@@ -382,6 +383,23 @@ const UiTMLibrary = () => {
           </div>
         </div>
       )}
+      <div className="max-w-3xl">
+        <Text as="h3">Disclaimer</Text>
+        <Text as="p" styleVariant="muted">
+          The exam papers provided are for educational purposes only. KawanStudy
+          do not claim ownership of any content or materials on this page. All
+          rights of the respective owners are acknowledged. visit{" "}
+          <a
+            href="https://www.uitm.edu.my"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 hover:underline"
+          >
+            UITM Official Website
+          </a>
+          .
+        </Text>
+      </div>
     </div>
   );
 };
