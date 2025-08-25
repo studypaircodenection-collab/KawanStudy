@@ -12,8 +12,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Trophy, Flame, Star, Target, History, Users } from "lucide-react";
-
+import { Trophy, Flame, Star, Target, Users } from "lucide-react";
+import AchievementBadge from "./achievement-badge";
+import Leaderboard from "./leaderboard";
+import { LeaderboardEntry } from "@/lib/types";
+import Link from "next/link";
 interface GamificationDashboardProps {
   userId?: string;
 }
@@ -24,10 +27,9 @@ export function GamificationDashboard({ userId }: GamificationDashboardProps) {
     leaderboard,
     achievements,
     dailyChallenges,
-    pointHistory,
+
     statsLoading,
     leaderboardLoading,
-    achievementsLoading,
     challengesLoading,
     logActivity,
     completeChallenge,
@@ -200,40 +202,43 @@ export function GamificationDashboard({ userId }: GamificationDashboardProps) {
         {/* Leaderboard */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Leaderboard
+            <CardTitle className="flex items-center gap-2 justify-between flex-wrap">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Leaderboard
+              </div>
+              <Button variant={"ghost"}>
+                <Link href="/dashboard/leaderboard">View Full Leaderboard</Link>
+              </Button>
             </CardTitle>
             <CardDescription>Top students by total points</CardDescription>
           </CardHeader>
           <CardContent>
             {leaderboardLoading ? (
-              <div>Loading leaderboard...</div>
-            ) : (
-              <div className="space-y-3">
-                {leaderboard.slice(0, 5).map((entry) => (
-                  <div key={entry.user_id} className="flex items-center gap-3">
-                    <div className="font-bold text-lg w-8">#{entry.rank}</div>
-                    <div className="flex-1">
-                      <div className="font-medium">
-                        {entry.full_name || entry.username}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Level {entry.level} •{" "}
-                        {entry.total_points.toLocaleString()} pts
-                      </div>
+              <div className="space-y-2">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-4 p-4 border rounded-lg animate-pulse"
+                  >
+                    <div className="h-5 w-5 bg-muted rounded-full"></div>
+                    <div className="h-12 w-12 bg-muted rounded-full"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-muted rounded w-1/3"></div>
+                      <div className="h-3 bg-muted rounded w-1/2"></div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-sm">
-                        {entry.achievement_count} achievements
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {entry.current_streak} day streak
-                      </div>
+                    <div className="space-y-1">
+                      <div className="h-4 bg-muted rounded w-12"></div>
+                      <div className="h-3 bg-muted rounded w-8"></div>
                     </div>
                   </div>
                 ))}
               </div>
+            ) : (
+              <Leaderboard
+                entries={leaderboard as LeaderboardEntry[]}
+                showTop={3}
+              />
             )}
           </CardContent>
         </Card>
@@ -251,23 +256,10 @@ export function GamificationDashboard({ userId }: GamificationDashboardProps) {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {achievements.slice(0, 6).map((achievement) => (
-                <div
+                <AchievementBadge
                   key={achievement.achievement_id}
-                  className="flex items-center gap-3 p-3 border rounded-lg"
-                >
-                  <div className="text-2xl">{achievement.achievement_icon}</div>
-                  <div className="flex-1">
-                    <div className="font-medium">
-                      {achievement.achievement_title}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {achievement.achievement_description}
-                    </div>
-                    <Badge variant="outline" className="mt-1">
-                      {achievement.rarity}
-                    </Badge>
-                  </div>
-                </div>
+                  achievement={achievement}
+                />
               ))}
             </div>
           </CardContent>

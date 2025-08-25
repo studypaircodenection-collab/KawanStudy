@@ -2,7 +2,7 @@
 
 ## Overview
 
-The StudyPair notification system provides a comprehensive notification management solution with real-time updates, multiple notification types, filtering capabilities, and advanced user preferences.
+The KawanStudy notification system provides a comprehensive notification management solution with real-time updates, multiple notification types, filtering capabilities, and advanced user preferences.
 
 ## Features
 

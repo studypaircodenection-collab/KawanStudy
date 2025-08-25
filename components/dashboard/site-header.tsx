@@ -7,6 +7,8 @@ import NotificationPopup from "./notification-popup";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useSidebar } from "@/components/ui/sidebar";
+import Link from "next/link";
+import { MessageCircleIcon } from "lucide-react";
 
 export function SiteHeader() {
   const { toggleSidebar } = useSidebar();
@@ -25,6 +27,11 @@ export function SiteHeader() {
         <Separator orientation="vertical" className="mr-2 h-4" />
         <DashboardBreadcrumbs />
         <SearchForm />
+        <Button size={"icon"} variant={"ghost"} asChild>
+          <Link href="/dashboard/chat">
+            <MessageCircleIcon />
+          </Link>
+        </Button>
         <NotificationPopup />
       </div>
     </header>

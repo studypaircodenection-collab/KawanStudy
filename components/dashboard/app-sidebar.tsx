@@ -9,9 +9,11 @@ import {
   LifeBuoy,
   ListTodoIcon,
   LucideCalculator,
+  MessageCircle,
   NotebookTabsIcon,
   Send,
   SquareTerminal,
+  Trophy,
 } from "lucide-react";
 import { Text } from "@/components/ui/typography";
 import { NavMain } from "@/components/dashboard/nav-main";
@@ -95,6 +97,16 @@ const data = {
       title: "Schedule Manager",
       url: "/dashboard/schedule-manager",
       icon: ListTodoIcon,
+    },
+    {
+      title: "Chat Center",
+      url: "/dashboard/chat",
+      icon: MessageCircle,
+    },
+    {
+      title: "Leaderboard",
+      url: "/dashboard/leaderboard",
+      icon: Trophy,
     },
   ],
   navSecondary: [

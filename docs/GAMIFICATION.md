@@ -1,8 +1,8 @@
-# StudyPair Gamification System
+# KawanStudy Gamification System
 
 ## Overview
 
-The StudyPair gamification system is designed to increase user engagement through points, achievements, daily challenges, and leaderboards.
+The KawanStudy gamification system is designed to increase user engagement through points, achievements, daily challenges, and leaderboards.
 
 ## Features
 

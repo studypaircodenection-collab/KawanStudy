@@ -28,12 +28,10 @@ export interface UserProfile {
 
 // Gamification Types
 export interface PointTransaction {
-  id: string;
-  user_id: string;
+  transaction_id: string;
   points: number;
   transaction_type: "earned" | "spent" | "bonus" | "penalty";
   source: string;
-  source_id: string | null;
   description: string | null;
   created_at: string;
 }
@@ -147,4 +145,55 @@ export interface Claims {
   role?: string;
   created_at?: string;
   updated_at?: string;
+}
+
+// Messaging Types
+export interface Conversation {
+  id: string;
+  participant_1: UserProfile;
+  participant_2: UserProfile;
+  created_at: string;
+  updated_at: string;
+  messages?: Message[];
+}
+
+export interface Message {
+  id: string;
+  conversation_id: string;
+  sender: {
+    id: string;
+    username: string;
+    full_name: string | null;
+    avatar_url: string | null;
+  };
+  content: string;
+  message_type: "text" | "image" | "file";
+  metadata?: Record<string, any>;
+  is_edited: boolean;
+  edited_at?: string;
+  created_at: string;
+}
+
+export interface ConversationSummary {
+  id: string;
+  other_user: {
+    id: string;
+    username: string;
+    full_name: string | null;
+    avatar_url: string | null;
+  };
+  last_message?: {
+    content: string;
+    created_at: string;
+    sender_id: string;
+  };
+  updated_at: string;
+  unread_count: number;
+}
+
+export interface MessageReadStatus {
+  id: string;
+  message_id: string;
+  user_id: string;
+  read_at: string;
 }

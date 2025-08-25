@@ -7,6 +7,7 @@
 \i 002_gamification.sql
 \i 003_gamification_data.sql
 \i 004_user_data.sql
+\i 005_messaging_system.sql
 
 -- Additional utility functions for the complete system
 
