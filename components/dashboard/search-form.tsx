@@ -1,7 +1,10 @@
 import {
+  BookOpen,
   Calculator,
   Calendar,
   CreditCard,
+  ListTodoIcon,
+  LucideCalculator,
   Settings,
   Smile,
   User,
@@ -17,6 +20,7 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "@/components/ui/command";
+import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import React from "react";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -59,17 +63,32 @@ export function SearchForm() {
           <ScrollArea className="h-60">
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading="Suggestions">
-              <CommandItem>
-                <Calendar />
-                <span>Calendar</span>
+              <CommandItem asChild>
+                <Link
+                  href="/dashboard/carrymark-calculator"
+                  onClick={() => setOpen(false)}
+                >
+                  <LucideCalculator />
+                  <span>CarryMark Calculator</span>
+                </Link>
               </CommandItem>
-              <CommandItem>
-                <Smile />
-                <span>Search Emoji</span>
+              <CommandItem asChild>
+                <Link
+                  href="/dashboard/schedule-generator"
+                  onClick={() => setOpen(false)}
+                >
+                  <ListTodoIcon />
+                  <span>Schedule generator</span>
+                </Link>
               </CommandItem>
-              <CommandItem>
-                <Calculator />
-                <span>Calculator</span>
+              <CommandItem asChild>
+                <Link
+                  href="/dashboard/past-year"
+                  onClick={() => setOpen(false)}
+                >
+                  <BookOpen />
+                  <span>Past Year Paper</span>
+                </Link>
               </CommandItem>
             </CommandGroup>
             <CommandSeparator />
@@ -78,11 +97,6 @@ export function SearchForm() {
                 <User />
                 <span>Profile</span>
                 <CommandShortcut>⌘P</CommandShortcut>
-              </CommandItem>
-              <CommandItem>
-                <CreditCard />
-                <span>Billing</span>
-                <CommandShortcut>⌘B</CommandShortcut>
               </CommandItem>
               <CommandItem>
                 <Settings />
