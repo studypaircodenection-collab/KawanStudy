@@ -100,7 +100,7 @@ async function getUserStats(userId: string) {
   const { data, error } = await supabase.rpc("get_user_stats", {
     p_user_id: userId,
   });
-
+  
   if (error) {
     console.error("Error fetching user stats:", error);
     return null;

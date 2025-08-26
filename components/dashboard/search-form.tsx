@@ -86,6 +86,27 @@ export function SearchForm() {
                   <span>Past Year Paper</span>
                 </Link>
               </CommandItem>
+              <CommandItem asChild>
+                <Link href="/dashboard/chat" onClick={() => setOpen(false)}>
+                  <BookOpen />
+                  <span>Chat Center</span>
+                </Link>
+              </CommandItem>
+              <CommandItem asChild>
+                <Link
+                  href="/dashboard/leaderboard"
+                  onClick={() => setOpen(false)}
+                >
+                  <BookOpen />
+                  <span>Leaderboard</span>
+                </Link>
+              </CommandItem>
+              <CommandItem asChild>
+                <Link href="/dashboard/peer" onClick={() => setOpen(false)}>
+                  <BookOpen />
+                  <span>Find Friends</span>
+                </Link>
+              </CommandItem>
             </CommandGroup>
             <CommandSeparator />
             <CommandGroup heading="Settings">

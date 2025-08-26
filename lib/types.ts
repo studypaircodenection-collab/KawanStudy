@@ -197,3 +197,46 @@ export interface MessageReadStatus {
   user_id: string;
   read_at: string;
 }
+
+// Peer Connection Types
+export interface PeerConnection {
+  id: string;
+  requester_id: string;
+  addressee_id: string;
+  status: "pending" | "accepted" | "declined" | "blocked";
+  created_at: string;
+  updated_at: string;
+  requester: UserProfile;
+  addressee: UserProfile;
+}
+
+export interface PeerUser {
+  id: string;
+  username: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  university: string | null;
+  major: string | null;
+  year_of_study: string | null;
+  bio: string | null;
+  connection_status:
+    | "connected"
+    | "pending_sent"
+    | "pending_received"
+    | "not_connected"
+    | "blocked";
+  mutual_connections: number;
+  is_online: boolean;
+  last_seen: string | null;
+  location: string | null;
+}
+
+export interface ConnectionRequest {
+  id: string;
+  requester: UserProfile;
+  addressee: UserProfile;
+  message?: string;
+  status: "pending" | "accepted" | "declined";
+  created_at: string;
+  updated_at: string;
+}
