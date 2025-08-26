@@ -13,12 +13,13 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Bell, Calendar, Users, Trophy } from "lucide-react";
-import { useNotifications } from "@/hooks/use-notifications";
+import { useNotifications } from "@/hooks/use-notifications-db";
 import { NOTIFICATION_TYPES } from "@/types/notification";
 import { toast } from "sonner";
 
 export default function NotificationSetting() {
-  const { notifications, settings, updateSettings } = useNotifications();
+  const { notifications, settings, updateSettings, error, isLoading } =
+    useNotifications();
 
   const [localSettings, setLocalSettings] = useState(settings);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -54,6 +55,35 @@ export default function NotificationSetting() {
 
   return (
     <div className="container mx-auto max-w-4xl ">
+      {/* Loading State */}
+      {isLoading && (
+        <Card className="mb-6">
+          <CardContent className="p-8 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-sm text-gray-500">
+              Loading notification settings...
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <Card className="mb-6 border-red-200">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3 text-red-600">
+              <Bell className="h-5 w-5" />
+              <div>
+                <h3 className="font-medium">
+                  Failed to load notification settings
+                </h3>
+                <p className="text-sm text-red-500 mt-1">{error}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Notification Preferences */}
       <Card className="mb-6">
         <CardHeader>

@@ -36,14 +36,17 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import Link from "next/link";
-import { useNotifications } from "@/hooks/use-notifications";
+import { useNotifications } from "@/hooks/use-notifications-db";
 import { Notification, NOTIFICATION_TYPES } from "@/types/notification";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface NotificationItemProps {
   notification: Notification;
   onMarkAsRead: (id: string) => void;
   onDelete: (id: string) => void;
+  isMarkingAsRead?: boolean;
+  isDeleting?: boolean;
 }
 
 const getTimeAgo = (timestamp: Date): string => {
@@ -79,19 +82,25 @@ const NotificationItem = ({
   notification,
   onMarkAsRead,
   onDelete,
+  isMarkingAsRead = false,
+  isDeleting = false,
 }: NotificationItemProps) => {
   const typeInfo = NOTIFICATION_TYPES[notification.type];
 
   const handleMarkAsRead = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onMarkAsRead(notification.id);
+    if (!isMarkingAsRead) {
+      onMarkAsRead(notification.id);
+    }
   };
 
   const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onDelete(notification.id);
+    if (!isDeleting) {
+      onDelete(notification.id);
+    }
   };
 
   const content = (
@@ -183,12 +192,19 @@ const NotificationItem = ({
                       size="sm"
                       className="h-7 w-7 p-0"
                       onClick={handleMarkAsRead}
+                      disabled={isMarkingAsRead}
                     >
-                      <Check className="h-3 w-3" />
+                      {isMarkingAsRead ? (
+                        <div className="animate-spin rounded-full h-3 w-3 border-b border-gray-600"></div>
+                      ) : (
+                        <Check className="h-3 w-3" />
+                      )}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Mark as read</p>
+                    <p>
+                      {isMarkingAsRead ? "Marking as read..." : "Mark as read"}
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -202,9 +218,16 @@ const NotificationItem = ({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {!notification.isRead && (
-                  <DropdownMenuItem onClick={handleMarkAsRead}>
-                    <Check className="h-4 w-4 mr-2" />
-                    Mark as read
+                  <DropdownMenuItem
+                    onClick={handleMarkAsRead}
+                    disabled={isMarkingAsRead}
+                  >
+                    {isMarkingAsRead ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b border-gray-600 mr-2"></div>
+                    ) : (
+                      <Check className="h-4 w-4 mr-2" />
+                    )}
+                    {isMarkingAsRead ? "Marking as read..." : "Mark as read"}
                   </DropdownMenuItem>
                 )}
                 {notification.link && (
@@ -223,9 +246,14 @@ const NotificationItem = ({
                   onClick={handleDelete}
                   className="text-red-600"
                   variant="destructive"
+                  disabled={isDeleting}
                 >
-                  <X className="h-4 w-4 mr-2" />
-                  Delete
+                  {isDeleting ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b border-red-600 mr-2"></div>
+                  ) : (
+                    <X className="h-4 w-4 mr-2" />
+                  )}
+                  {isDeleting ? "Deleting..." : "Delete"}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -256,9 +284,49 @@ const NotificationPopup = () => {
     clearAllNotifications,
     simulateNewNotification,
     isLoading,
+    error,
+    isActionLoading,
   } = useNotifications();
 
   const [filter, setFilter] = useState<"all" | "unread">("all");
+
+  // Enhanced action handlers with error handling
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      await markAsRead(id);
+    } catch (error) {
+      toast.error("Failed to mark notification as read. Please try again.");
+    }
+  };
+
+  const handleDeleteNotification = async (id: string) => {
+    try {
+      await deleteNotification(id);
+      toast.success("Notification deleted");
+    } catch (error) {
+      toast.error("Failed to delete notification. Please try again.");
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAllAsRead();
+      toast.success("All notifications marked as read");
+    } catch (error) {
+      toast.error(
+        "Failed to mark all notifications as read. Please try again."
+      );
+    }
+  };
+
+  const handleClearAll = async () => {
+    try {
+      await clearAllNotifications();
+      toast.success("All notifications cleared");
+    } catch (error) {
+      toast.error("Failed to clear all notifications. Please try again.");
+    }
+  };
 
   const filteredNotifications = notifications.filter((notification) => {
     if (filter === "unread") return !notification.isRead;
@@ -332,9 +400,18 @@ const NotificationPopup = () => {
               <DropdownMenuContent align="end">
                 {hasUnread && (
                   <>
-                    <DropdownMenuItem onClick={markAllAsRead}>
-                      <CheckCheck className="h-4 w-4 mr-2" />
-                      Mark all as read
+                    <DropdownMenuItem
+                      onClick={handleMarkAllAsRead}
+                      disabled={isActionLoading("mark-all")}
+                    >
+                      {isActionLoading("mark-all") ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b border-gray-600 mr-2"></div>
+                      ) : (
+                        <CheckCheck className="h-4 w-4 mr-2" />
+                      )}
+                      {isActionLoading("mark-all")
+                        ? "Marking all as read..."
+                        : "Mark all as read"}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                   </>
@@ -342,12 +419,19 @@ const NotificationPopup = () => {
                 {hasNotifications && (
                   <>
                     <DropdownMenuItem
-                      onClick={clearAllNotifications}
+                      onClick={handleClearAll}
                       className="text-red-600"
                       variant="destructive"
+                      disabled={isActionLoading("clear-all")}
                     >
-                      <X className="h-4 w-4 mr-2" />
-                      Clear all
+                      {isActionLoading("clear-all") ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b border-red-600 mr-2"></div>
+                      ) : (
+                        <X className="h-4 w-4 mr-2" />
+                      )}
+                      {isActionLoading("clear-all")
+                        ? "Clearing all..."
+                        : "Clear all"}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                   </>
@@ -396,6 +480,14 @@ const NotificationPopup = () => {
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
             <p className="text-sm text-gray-500">Loading notifications...</p>
           </div>
+        ) : error ? (
+          <div className="p-8 text-center">
+            <AlertCircle className="h-8 w-8 text-red-400 mx-auto mb-2" />
+            <p className="text-sm text-red-600 mb-2">
+              Failed to load notifications
+            </p>
+            <p className="text-xs text-gray-500">{error}</p>
+          </div>
         ) : filteredNotifications.length === 0 ? (
           <div className="p-8 text-center">
             <BellIcon className="h-8 w-8 text-gray-400 mx-auto mb-2" />
@@ -417,8 +509,13 @@ const NotificationPopup = () => {
                 <NotificationItem
                   key={notification.id}
                   notification={notification}
-                  onMarkAsRead={markAsRead}
-                  onDelete={deleteNotification}
+                  onMarkAsRead={handleMarkAsRead}
+                  onDelete={handleDeleteNotification}
+                  isMarkingAsRead={isActionLoading(
+                    "mark-read",
+                    notification.id
+                  )}
+                  isDeleting={isActionLoading("delete", notification.id)}
                 />
               ))}
             </div>

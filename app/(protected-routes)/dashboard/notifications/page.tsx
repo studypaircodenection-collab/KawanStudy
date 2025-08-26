@@ -15,8 +15,9 @@ import {
   CheckCheck,
   Clock,
   MoreVertical,
+  AlertCircle,
 } from "lucide-react";
-import { useNotifications } from "@/hooks/use-notifications";
+import { useNotifications } from "@/hooks/use-notifications-db";
 import { Notification, NOTIFICATION_TYPES } from "@/types/notification";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
@@ -45,6 +46,7 @@ export default function NotificationsPage() {
     deleteNotification,
     clearAllNotifications,
     isLoading,
+    error,
   } = useNotifications();
 
   const [filters, setFilters] = useState<NotificationFilters>({
@@ -257,6 +259,17 @@ export default function NotificationsPage() {
             <p className="text-gray-500">Loading notifications...</p>
           </CardContent>
         </Card>
+      ) : error ? (
+        <Card className="border-red-200">
+          <CardContent className="text-center">
+            <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-red-600 mb-2">
+              Failed to load notifications
+            </h3>
+            <p className="text-gray-500 mb-4">{error}</p>
+            <Button onClick={() => window.location.reload()}>Try Again</Button>
+          </CardContent>
+        </Card>
       ) : filteredNotifications.length === 0 ? (
         <Card>
           <CardContent className="text-center">
@@ -448,20 +461,22 @@ export default function NotificationsPage() {
           )}
         </div>
       )}
-      {notifications.length > 0 ? <Button
-        variant="destructive"
-        onClick={() => {
-          if (
-            confirm("Delete all notifications? This action cannot be undone.")
-          ) {
-            clearAllNotifications();
-            toast.success("All notifications deleted");
-          }
-        }}
-      >
-        <Trash2 className="h-4 w-4" />
-        Clear All Notifications
-      </Button> : null}
+      {notifications.length > 0 ? (
+        <Button
+          variant="destructive"
+          onClick={() => {
+            if (
+              confirm("Delete all notifications? This action cannot be undone.")
+            ) {
+              clearAllNotifications();
+              toast.success("All notifications deleted");
+            }
+          }}
+        >
+          <Trash2 className="h-4 w-4" />
+          Clear All Notifications
+        </Button>
+      ) : null}
     </div>
   );
 }
