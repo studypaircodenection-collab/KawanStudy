@@ -203,6 +203,63 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({ data: formattedSentRequests });
 
+      case "status":
+        // Get connection status between current user and target user
+        const targetUserId = searchParams.get("targetUserId");
+
+        if (!targetUserId) {
+          return NextResponse.json(
+            { error: "Target user ID is required" },
+            { status: 400 }
+          );
+        }
+
+        const { data: connectionStatus, error: statusError } = await supabase
+          .from("peer_connections")
+          .select("id, status, requester_id, addressee_id")
+          .or(
+            `and(requester_id.eq.${user.id},addressee_id.eq.${targetUserId}),and(requester_id.eq.${targetUserId},addressee_id.eq.${user.id})`
+          )
+          .maybeSingle();
+
+        if (statusError) {
+          console.error("Error checking connection status:", statusError);
+          return NextResponse.json(
+            { error: "Failed to check connection status" },
+            { status: 500 }
+          );
+        }
+
+        if (!connectionStatus) {
+          return NextResponse.json({
+            data: { status: "none" },
+          });
+        }
+
+        // Determine the connection status from current user's perspective
+        let responseStatus: string;
+        if (connectionStatus.status === "accepted") {
+          responseStatus = "connected";
+        } else if (connectionStatus.status === "blocked") {
+          responseStatus = "blocked";
+        } else if (connectionStatus.status === "pending") {
+          // Check if current user sent or received the request
+          if (connectionStatus.requester_id === user.id) {
+            responseStatus = "pending_sent";
+          } else {
+            responseStatus = "pending_received";
+          }
+        } else {
+          responseStatus = connectionStatus.status;
+        }
+
+        return NextResponse.json({
+          data: {
+            status: responseStatus,
+            connectionId: connectionStatus.id,
+          },
+        });
+
       default:
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }

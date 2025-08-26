@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import AchievementBadge from "@/components/gamification/achievement-badge";
-import MessageButton from "@/components/profile/message-button";
+import ConnectionButton from "@/components/profile/connection-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   CalendarDays,
@@ -22,9 +22,11 @@ import {
   Target,
   Award,
   UsersIcon,
+  ArrowRightIcon,
 } from "lucide-react";
 import { UserProfile, UserAchievement, PointTransaction } from "@/lib/types";
-
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 interface ProfilePageProps {
   params: {
     username: string;
@@ -100,13 +102,35 @@ async function getUserStats(userId: string) {
   const { data, error } = await supabase.rpc("get_user_stats", {
     p_user_id: userId,
   });
-  
+
   if (error) {
     console.error("Error fetching user stats:", error);
     return null;
   }
 
   return data;
+}
+
+async function getUserConnections(userId: string): Promise<number> {
+  try {
+    const supabase = await createClient();
+
+    const { count, error } = await supabase
+      .from("peer_connections")
+      .select("*", { count: "exact", head: true })
+      .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
+      .eq("status", "accepted");
+
+    if (error) {
+      console.error("Error fetching connections count:", error);
+      return 0;
+    }
+
+    return count || 0;
+  } catch (error) {
+    console.error("Error fetching connections count:", error);
+    return 0;
+  }
 }
 
 async function getRecentPointHistory(
@@ -126,7 +150,6 @@ async function getRecentPointHistory(
 
   return data || [];
 }
-
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const profile = await getUserProfile(params.username);
 
@@ -138,11 +161,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const currentUser = await getCurrentUser();
   const isOwnProfile = currentUser.username === params.username;
 
-  const [achievements, userStats, pointHistory] = await Promise.all([
-    getUserAchievements(profile.id),
-    getUserStats(profile.id),
-    getRecentPointHistory(profile.id),
-  ]);
+  const [achievements, userStats, pointHistory, connectionsCount] =
+    await Promise.all([
+      getUserAchievements(profile.id),
+      getUserStats(profile.id),
+      getRecentPointHistory(profile.id),
+      getUserConnections(profile.id),
+    ]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -198,10 +223,11 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     <CardDescription className="text-lg">
                       @{profile.username}
                     </CardDescription>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground flex-wrap">
                       <div className="flex items-center gap-1">
                         <UsersIcon className="h-4 w-4" />
-                        250000 Friends
+                        {connectionsCount}{" "}
+                        {connectionsCount === 1 ? "Friend" : "Friends"}
                       </div>
 
                       <div className="flex items-center gap-1">
@@ -219,11 +245,11 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     </div>
                   </div>
 
-                  {/* Message Button - only show if not viewing own profile */}
+                  {/* Action Buttons - only show if not viewing own profile */}
                   {!isOwnProfile && currentUser.username && (
-                    <div className="ml-4">
-                      <MessageButton
-                        currentUsername={currentUser.username}
+                    <div className="ml-4 flex gap-2">
+                      <ConnectionButton
+                        targetUserId={profile.id}
                         targetUsername={params.username}
                         targetFullName={profile.full_name}
                       />
@@ -335,8 +361,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       </div>
 
       {/* Achievements Section */}
-      {achievements.length > 0 && (
-        <Card>
+      {achievements.length > 0 ? (
+        <Card className="relative">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Award className="h-5 w-5" />
@@ -356,6 +382,79 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               ))}
             </div>
           </CardContent>
+          <Button
+            variant={"outline"}
+            className="absolute top-6 right-6"
+            asChild
+          >
+            <Link href={`/dashboard/profile/${profile.username}/achievement`}>
+              View all Achievement
+              <ArrowRightIcon size={4} />
+            </Link>
+          </Button>
+        </Card>
+      ) : (
+        <Card className="relative">
+          <CardContent className="text-center">
+            <div className="space-y-4">
+              <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+                <Trophy className="h-8 w-8 text-muted-foreground" />
+              </div>
+
+              {isOwnProfile ? (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold">
+                    Ready to Start Achieving?
+                  </h3>
+                  <p className="text-muted-foreground max-w-md mx-auto">
+                    Complete your first study session, join a class, or help a
+                    fellow student to unlock your first achievement badge!
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 text-sm">
+                    <div className="p-4 border rounded-lg">
+                      <div className="text-2xl mb-2">📚</div>
+                      <div className="font-medium">Study Sessions</div>
+                      <div className="text-muted-foreground">
+                        Complete focused study time
+                      </div>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <div className="text-2xl mb-2">🤝</div>
+                      <div className="font-medium">Help Others</div>
+                      <div className="text-muted-foreground">
+                        Tutor fellow students
+                      </div>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <div className="text-2xl mb-2">🎯</div>
+                      <div className="font-medium">Daily Goals</div>
+                      <div className="text-muted-foreground">
+                        Complete daily challenges
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold">No Achievements Yet</h3>
+                  <p className="text-muted-foreground max-w-md mx-auto">
+                    {profile.full_name?.split(" ")[0] || profile.username} is
+                    just getting started on their learning journey.
+                  </p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+          <Button
+            variant={"outline"}
+            className="absolute top-6 right-6"
+            asChild
+          >
+            <Link href={`/dashboard/profile/${profile.username}/achievement`}>
+              View all Achievement
+              <ArrowRightIcon size={4} />
+            </Link>
+          </Button>
         </Card>
       )}
 

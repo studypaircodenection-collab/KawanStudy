@@ -266,4 +266,37 @@ export class PeerService {
       message: result.message || "Connection removed",
     };
   }
+
+  // Check connection status between current user and target user
+  static async getConnectionStatus(targetUserId: string): Promise<{
+    status:
+      | "none"
+      | "pending_sent"
+      | "pending_received"
+      | "connected"
+      | "blocked";
+    connectionId?: string;
+  }> {
+    const searchParams = new URLSearchParams({
+      action: "status",
+      targetUserId,
+    });
+
+    const response = await fetch(`${this.baseUrl}?${searchParams}`);
+    const result: PeerAPIResponse<{
+      status:
+        | "none"
+        | "pending_sent"
+        | "pending_received"
+        | "connected"
+        | "blocked";
+      connectionId?: string;
+    }> = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "Failed to get connection status");
+    }
+
+    return result.data || { status: "none" };
+  }
 }
