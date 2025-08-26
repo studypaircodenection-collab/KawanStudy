@@ -2,8 +2,11 @@ import {
   BookOpen,
   ListTodoIcon,
   LucideCalculator,
+  MessageCircleIcon,
   Settings,
+  TrophyIcon,
   User,
+  UsersIcon,
 } from "lucide-react";
 import { Input } from "../ui/input";
 import {
@@ -88,7 +91,7 @@ export function SearchForm() {
               </CommandItem>
               <CommandItem asChild>
                 <Link href="/dashboard/chat" onClick={() => setOpen(false)}>
-                  <BookOpen />
+                  <MessageCircleIcon />
                   <span>Chat Center</span>
                 </Link>
               </CommandItem>
@@ -97,13 +100,13 @@ export function SearchForm() {
                   href="/dashboard/leaderboard"
                   onClick={() => setOpen(false)}
                 >
-                  <BookOpen />
+                  <TrophyIcon />
                   <span>Leaderboard</span>
                 </Link>
               </CommandItem>
               <CommandItem asChild>
                 <Link href="/dashboard/peer" onClick={() => setOpen(false)}>
-                  <BookOpen />
+                  <UsersIcon />
                   <span>Find Friends</span>
                 </Link>
               </CommandItem>

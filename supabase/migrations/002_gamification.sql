@@ -21,7 +21,7 @@ create table public.achievements (
   description text not null,
   icon text, -- icon identifier or URL
   points_required integer,
-  condition_type text not null check (condition_type in ('points_threshold', 'streak_length', 'activity_count', 'special')),
+  condition_type text not null check (condition_type in ('points_threshold')),
   condition_value integer,
   condition_meta jsonb, -- additional condition parameters
   is_active boolean default true,
@@ -43,7 +43,7 @@ create table public.daily_challenges (
   id uuid default uuid_generate_v4() primary key,
   name text not null,
   description text not null,
-  challenge_type text not null check (challenge_type in ('quiz', 'study_session', 'tutor_session', 'class_join', 'profile_update')),
+  challenge_type text not null check (challenge_type in ('quiz', 'profile_update')),
   target_value integer default 1, -- how many times to complete
   points_reward integer not null,
   is_active boolean default true,
@@ -83,12 +83,10 @@ select
   p.university,
   p.total_points,
   p.level,
-  p.current_streak,
-  p.longest_streak,
-  row_number() over (order by p.total_points desc, p.level desc, p.longest_streak desc) as rank
+  row_number() over (order by p.total_points desc, p.level desc) as rank
 from public.profiles p
 where p.total_points > 0
-order by p.total_points desc, p.level desc, p.longest_streak desc;
+order by p.total_points desc, p.level desc;
 
 -- Create indexes for performance
 create index idx_point_transactions_user_id on public.point_transactions(user_id);
@@ -212,48 +210,6 @@ begin
 end;
 $$ language plpgsql security definer;
 
--- Function to update user streak
-create or replace function public.update_user_streak(p_user_id uuid)
-returns void as $$
-declare
-  last_activity date;
-  current_streak_val integer;
-  longest_streak_val integer;
-begin
-  -- Get current streak info
-  select last_activity_date, current_streak, longest_streak
-  into last_activity, current_streak_val, longest_streak_val
-  from public.profiles
-  where id = p_user_id;
-  
-  -- Check if activity is consecutive
-  if last_activity = current_date - interval '1 day' then
-    -- Consecutive day, increment streak
-    current_streak_val := current_streak_val + 1;
-  elsif last_activity = current_date then
-    -- Same day, don't change streak
-    return;
-  else
-    -- Streak broken, reset to 1
-    current_streak_val := 1;
-  end if;
-  
-  -- Update longest streak if necessary
-  if current_streak_val > longest_streak_val then
-    longest_streak_val := current_streak_val;
-  end if;
-  
-  -- Update profile
-  update public.profiles
-  set 
-    current_streak = current_streak_val,
-    longest_streak = longest_streak_val,
-    last_activity_date = current_date,
-    updated_at = now()
-  where id = p_user_id;
-end;
-$$ language plpgsql security definer;
-
 -- Function to check and award achievements
 create or replace function public.check_and_award_achievements(p_user_id uuid)
 returns void as $$
@@ -280,24 +236,6 @@ begin
           insert into public.user_achievements (user_id, achievement_id)
           values (p_user_id, achievement_record.id);
         end if;
-        
-      when 'streak_length' then
-        if user_profile.longest_streak >= achievement_record.condition_value then
-          insert into public.user_achievements (user_id, achievement_id)
-          values (p_user_id, achievement_record.id);
-        end if;
-        
-      when 'activity_count' then
-        -- Count specific activity type
-        select count(*) into activity_count
-        from public.activity_log
-        where user_id = p_user_id 
-        and activity_type = achievement_record.condition_meta->>'activity_type';
-        
-        if activity_count >= achievement_record.condition_value then
-          insert into public.user_achievements (user_id, achievement_id)
-          values (p_user_id, achievement_record.id);
-        end if;
     end case;
   end loop;
 end;
@@ -315,9 +253,6 @@ begin
   -- Insert activity log
   insert into public.activity_log (user_id, activity_type, activity_data, points_earned)
   values (p_user_id, p_activity_type, p_activity_data, p_points_earned);
-  
-  -- Update user streak
-  perform public.update_user_streak(p_user_id);
   
   -- Add points if any
   if p_points_earned > 0 then

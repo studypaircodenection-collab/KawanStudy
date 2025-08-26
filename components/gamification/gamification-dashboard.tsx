@@ -12,7 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Trophy, Flame, Star, Target, Users } from "lucide-react";
+import { Trophy, Star, Target, Users } from "lucide-react";
 import AchievementBadge from "./achievement-badge";
 import Leaderboard from "./leaderboard";
 import { LeaderboardEntry } from "@/lib/types";
@@ -55,7 +55,7 @@ export function GamificationDashboard({ userId }: GamificationDashboardProps) {
     <div className="space-y-6 p-4">
       {/* User Stats Overview */}
       {userStats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -91,23 +91,6 @@ export function GamificationDashboard({ userId }: GamificationDashboardProps) {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Current Streak
-              </CardTitle>
-              <Flame className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {userStats.profile.current_streak}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Best: {userStats.profile.longest_streak} days
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
                 Achievements
               </CardTitle>
               <Badge className="h-4 w-4 text-muted-foreground" />
@@ -133,7 +116,7 @@ export function GamificationDashboard({ userId }: GamificationDashboardProps) {
               Daily Challenges
             </CardTitle>
             <CardDescription>
-              Complete challenges to earn points and maintain your streak
+              Complete challenges to earn points and level up
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -276,26 +259,23 @@ export function GamificationDashboard({ userId }: GamificationDashboardProps) {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              onClick={() => simulateActivity("tutor_session", 50)}
-            >
-              Simulate Tutor Session (+50)
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => simulateActivity("class_join", 25)}
-            >
-              Join Class (+25)
-            </Button>
             <Button size="sm" onClick={() => simulateActivity("quiz", 15)}>
               Complete Quiz (+15)
             </Button>
+            <Button size="sm" onClick={() => simulateActivity("quiz", 25)}>
+              Complete Hard Quiz (+25)
+            </Button>
             <Button
               size="sm"
-              onClick={() => simulateActivity("study_session", 10)}
+              onClick={() => simulateActivity("daily_login", 10)}
             >
-              Study Session (+10)
+              Daily Login (+10)
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => simulateActivity("profile_update", 10)}
+            >
+              Update Profile (+10)
             </Button>
           </div>
         </CardContent>

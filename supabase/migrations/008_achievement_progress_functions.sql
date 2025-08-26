@@ -34,37 +34,10 @@ begin
     a.condition_type as requirement_type,
     case when ua.user_id is not null then true else false end as is_earned,
     ua.earned_at,
-    -- Calculate progress based on condition type
+    -- Calculate progress based on condition type - simplified to only points
     case 
       when a.condition_type = 'points_threshold' then 
         least(coalesce((select p.total_points from profiles p where p.id = p_user_id), 0), coalesce(a.condition_value, 1))
-      when a.condition_type = 'streak_length' then 
-        least(coalesce((select p.current_streak from profiles p where p.id = p_user_id), 0), coalesce(a.condition_value, 1))
-      when a.condition_type = 'activity_count' then 
-        least(
-          coalesce((
-            select count(*)::integer 
-            from point_transactions pt
-            where pt.user_id = p_user_id 
-            and pt.source = 'study_session'
-          ), 0), 
-          coalesce(a.condition_value, 1)
-        )
-      when a.condition_type = 'special' then 
-        -- For special achievements, we'll handle them case by case
-        case 
-          when a.name like '%connection%' or a.name like '%friend%' then
-            least(
-              coalesce((
-                select count(*)::integer 
-                from peer_connections pc
-                where (pc.requester_id = p_user_id or pc.addressee_id = p_user_id) 
-                and pc.status = 'accepted'
-              ), 0), 
-              coalesce(a.condition_value, 1)
-            )
-          else 0
-        end
       else 0
     end as progress
   from achievements a
@@ -85,10 +58,6 @@ returns table (
   total_points integer,
   level integer,
   experience_points integer,
-  current_streak integer,
-  longest_streak integer,
-  total_study_sessions bigint,
-  total_tutoring_hours bigint,
   achievements_count bigint
 )
 language plpgsql
@@ -100,20 +69,6 @@ begin
     coalesce(p.total_points, 0) as total_points,
     coalesce(p.level, 1) as level,
     coalesce(p.experience_points, 0) as experience_points,
-    coalesce(p.current_streak, 0) as current_streak,
-    coalesce(p.longest_streak, 0) as longest_streak,
-    coalesce((
-      select count(*) 
-      from point_transactions pt
-      where pt.user_id = p_user_id 
-      and pt.source = 'study_session'
-    ), 0) as total_study_sessions,
-    coalesce((
-      select count(*) 
-      from point_transactions pt
-      where pt.user_id = p_user_id 
-      and pt.source = 'tutor_session'
-    ), 0) as total_tutoring_hours,
     coalesce((
       select count(*) 
       from user_achievements ua

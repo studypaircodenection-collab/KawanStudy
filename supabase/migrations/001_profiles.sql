@@ -23,9 +23,6 @@ create table public.profiles (
   
   -- Gamification fields
   total_points integer default 0,
-  current_streak integer default 0,
-  longest_streak integer default 0,
-  last_activity_date date,
   level integer default 1,
   experience_points integer default 0,
   
@@ -38,8 +35,6 @@ create table public.profiles (
   constraint location_length check (char_length(location) <= 100),
   constraint year_of_study_values check (year_of_study in ('1st Year', '2nd Year', '3rd Year', '4th Year', 'Graduate', 'PhD')),
   constraint total_points_positive check (total_points >= 0),
-  constraint current_streak_positive check (current_streak >= 0),
-  constraint longest_streak_positive check (longest_streak >= 0),
   constraint level_positive check (level >= 1),
   constraint experience_points_positive check (experience_points >= 0)
 );
@@ -49,7 +44,6 @@ create index idx_profiles_username on public.profiles(username);
 create index idx_profiles_email on public.profiles(email);
 create index idx_profiles_total_points on public.profiles(total_points desc);
 create index idx_profiles_level on public.profiles(level desc);
-create index idx_profiles_last_activity on public.profiles(last_activity_date);
 
 -- Enable RLS for profiles
 alter table public.profiles enable row level security;
@@ -157,9 +151,6 @@ begin
     year_of_study,
     major,
     total_points,
-    current_streak,
-    longest_streak,
-    last_activity_date,
     level,
     experience_points
   ) values (
@@ -175,9 +166,6 @@ begin
     new.raw_user_meta_data->>'year_of_study',
     new.raw_user_meta_data->>'major',
     0,   -- initial points
-    0,   -- initial streak
-    0,   -- initial longest streak
-    current_date, -- last activity date
     1,   -- initial level
     0    -- initial experience points
   );
@@ -223,8 +211,6 @@ returns table(
   major text,
   avatar_url text,
   total_points integer,
-  current_streak integer,
-  longest_streak integer,
   level integer,
   experience_points integer,
   created_at timestamp with time zone
@@ -242,8 +228,6 @@ begin
     p.major,
     p.avatar_url,
     p.total_points,
-    p.current_streak,
-    p.longest_streak,
     p.level,
     p.experience_points,
     p.created_at

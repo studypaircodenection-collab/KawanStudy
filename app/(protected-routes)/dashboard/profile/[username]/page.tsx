@@ -238,10 +238,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                         <Trophy className="h-4 w-4" />
                         {profile.total_points.toLocaleString()} points
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Flame className="h-4 w-4" />
-                        {profile.current_streak} day streak
-                      </div>
                     </div>
                   </div>
 
@@ -323,22 +319,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 </span>
                 <span className="font-semibold">
                   {profile.experience_points.toLocaleString()} XP
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">
-                  Current Streak
-                </span>
-                <span className="font-semibold">
-                  {profile.current_streak} days
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">
-                  Best Streak
-                </span>
-                <span className="font-semibold">
-                  {profile.longest_streak} days
                 </span>
               </div>
               {userStats?.rank && (

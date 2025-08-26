@@ -3,46 +3,23 @@
 
 -- Insert initial achievements
 insert into public.achievements (name, title, description, icon, points_required, condition_type, condition_value, rarity) values
--- Points-based achievements
+-- Points-based achievements only
 ('rookie', 'Rookie', 'Earn your first 100 points', '🌟', 100, 'points_threshold', 100, 'common'),
 ('rising_star', 'Rising Star', 'Reach 500 points', '⭐', 500, 'points_threshold', 500, 'common'),
 ('scholar', 'Scholar', 'Accumulate 1,000 points', '📚', 1000, 'points_threshold', 1000, 'rare'),
 ('expert', 'Expert', 'Achieve 2,500 points', '🎓', 2500, 'points_threshold', 2500, 'rare'),
 ('master', 'Master', 'Reach 5,000 points', '👑', 5000, 'points_threshold', 5000, 'epic'),
 ('legend', 'Legend', 'Accumulate 10,000 points', '🏆', 10000, 'points_threshold', 10000, 'epic'),
-('tryhard', 'Tryhard', 'Reach the ultimate 25,000 points', '💎', 25000, 'points_threshold', 25000, 'legendary'),
-
--- Streak-based achievements
-('consistent', 'Consistent', 'Maintain a 3-day streak', '🔥', null, 'streak_length', 3, 'common'),
-('dedicated', 'Dedicated', 'Achieve a 7-day streak', '💪', null, 'streak_length', 7, 'rare'),
-('committed', 'Committed', 'Reach a 14-day streak', '⚡', null, 'streak_length', 14, 'epic'),
-('unstoppable', 'Unstoppable', 'Maintain a 30-day streak', '🚀', null, 'streak_length', 30, 'legendary'),
-
--- Activity-based achievements
-('tutor_helper', 'Tutor Helper', 'Complete 5 tutoring sessions', '👨‍🏫', null, 'activity_count', 5, 'common'),
-('class_joiner', 'Class Joiner', 'Join 10 study classes', '👥', null, 'activity_count', 10, 'common'),
-('quiz_master', 'Quiz Master', 'Complete 20 quizzes', '🧠', null, 'activity_count', 20, 'rare'),
-('study_addict', 'Study Addict', 'Join 50 study sessions', '📖', null, 'activity_count', 50, 'epic');
+('tryhard', 'Tryhard', 'Reach the ultimate 25,000 points', '💎', 25000, 'points_threshold', 25000, 'legendary');
 
 -- Insert daily challenges
 insert into public.daily_challenges (name, description, challenge_type, target_value, points_reward, difficulty) values
--- Easy challenges (10-20 points)
+-- Simple point-earning challenges
 ('daily_login', 'Log in to StudyPair', 'profile_update', 1, 10, 'easy'),
-('complete_quiz', 'Complete at least 1 quiz', 'quiz', 1, 20, 'easy'),
-('join_class', 'Join a study class', 'class_join', 1, 15, 'easy'),
 ('update_profile', 'Update your profile information', 'profile_update', 1, 10, 'easy'),
-
--- Medium challenges (25-40 points)
-('study_session', 'Complete a 30-minute study session', 'study_session', 1, 30, 'medium'),
-('help_others', 'Tutor another student', 'tutor_session', 1, 40, 'medium'),
+('complete_quiz', 'Complete at least 1 quiz', 'quiz', 1, 20, 'easy'),
 ('quiz_streak', 'Complete 3 quizzes in a row', 'quiz', 3, 35, 'medium'),
-('class_participation', 'Join 2 different study classes', 'class_join', 2, 25, 'medium'),
-
--- Hard challenges (50-100 points)
-('study_marathon', 'Complete 2 hours of study sessions', 'study_session', 120, 80, 'hard'), -- 120 minutes
-('tutor_expert', 'Help 3 different students', 'tutor_session', 3, 100, 'hard'),
-('quiz_champion', 'Complete 5 quizzes with high scores', 'quiz', 5, 75, 'hard'),
-('social_butterfly', 'Join 5 different study groups', 'class_join', 5, 60, 'hard');
+('quiz_champion', 'Complete 5 quizzes with high scores', 'quiz', 5, 75, 'hard');
 
 -- Function to reset daily challenges (to be called daily via cron job)
 create or replace function public.reset_daily_challenges()
@@ -111,8 +88,6 @@ returns table(
   university text,
   total_points integer,
   level integer,
-  current_streak integer,
-  longest_streak integer,
   achievement_count bigint
 ) as $$
 begin
@@ -126,8 +101,6 @@ begin
     l.university,
     l.total_points,
     l.level,
-    l.current_streak,
-    l.longest_streak,
     coalesce(ua_count.achievement_count, 0) as achievement_count
   from public.leaderboard l
   left join (

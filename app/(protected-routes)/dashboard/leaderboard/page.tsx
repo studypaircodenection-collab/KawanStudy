@@ -4,7 +4,7 @@ import { LeaderboardEntry } from "@/lib/types";
 import Leaderboard from "@/components/gamification/leaderboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Users, TrendingUp } from "lucide-react";
+import { Trophy } from "lucide-react";
 
 async function getLeaderboardData(): Promise<LeaderboardEntry[]> {
   const supabase = await createClient();
@@ -23,68 +23,6 @@ async function getLeaderboardData(): Promise<LeaderboardEntry[]> {
     return [];
   }
 }
-
-function LeaderboardStats({ entries }: { entries: LeaderboardEntry[] }) {
-  const totalUsers = entries.length;
-  const topUser = entries[0];
-  const averagePoints =
-    entries.length > 0
-      ? Math.round(
-          entries.reduce((sum, entry) => sum + entry.total_points, 0) /
-            entries.length
-        )
-      : 0;
-
-  return (
-    <div className="grid gap-4 md:grid-cols-3 mb-6">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            Total Participants
-          </CardTitle>
-          <Users className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{totalUsers}</div>
-          <p className="text-xs text-muted-foreground">
-            Active users on leaderboard
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Top Score</CardTitle>
-          <Trophy className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {topUser?.total_points.toLocaleString() || 0}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {topUser?.full_name || topUser?.username || "No leader yet"}
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Average Points</CardTitle>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {averagePoints.toLocaleString()}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Across all participants
-          </p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
 function LeaderboardSkeleton() {
   return (
     <div className="space-y-6">
@@ -140,8 +78,6 @@ async function LeaderboardContent() {
 
   return (
     <div className="space-y-6">
-      <LeaderboardStats entries={entries} />
-
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

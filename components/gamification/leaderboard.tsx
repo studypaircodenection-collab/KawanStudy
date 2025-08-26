@@ -1,9 +1,11 @@
+
+
 import React from "react";
 import { LeaderboardEntry } from "@/lib/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Crown, Trophy, Medal, Star, Flame } from "lucide-react";
+import { Crown, Trophy, Medal, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface LeaderboardProps {
@@ -133,11 +135,6 @@ const Leaderboard = ({
                 <div className="flex items-center gap-1 text-sm font-medium">
                   <Trophy className="h-3 w-3 text-amber-500" />
                   <span>{entry.achievement_count}</span>
-                </div>
-
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Flame className="h-3 w-3 text-orange-500" />
-                  <span>{entry.current_streak}d</span>
                 </div>
               </div>
             </div>

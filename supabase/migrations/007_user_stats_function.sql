@@ -5,15 +5,18 @@
 drop view if exists public.leaderboard;
 
 create view public.leaderboard as
-select
-  id,
-  username,
-  full_name,
-  total_points,
-  level,
-  row_number() over (order by total_points desc) as rank
-from public.profiles
-order by total_points desc;-- Function to get comprehensive user stats
+select 
+  p.id,
+  p.username,
+  p.full_name,
+  p.avatar_url,
+  p.university,
+  p.total_points,
+  p.level,
+  row_number() over (order by p.total_points desc, p.level desc) as rank
+from public.profiles p
+where p.total_points > 0
+order by p.total_points desc, p.level desc;-- Function to get comprehensive user stats
 create or replace function public.get_user_stats(p_user_id uuid)
 returns json as $$
 declare
@@ -29,8 +32,6 @@ begin
         'total_points', total_points,
         'level', level,
         'experience_points', experience_points,
-        'current_streak', current_streak,
-        'longest_streak', longest_streak,
         'created_at', created_at
       )
       from public.profiles

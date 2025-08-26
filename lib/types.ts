@@ -16,11 +16,8 @@ export interface UserProfile {
 
   // Gamification fields
   total_points: number;
-  current_streak: number;
-  longest_streak: number;
   level: number;
   experience_points: number;
-  last_activity_date: string | null;
 
   created_at: string;
   updated_at: string | null;
@@ -43,11 +40,7 @@ export interface Achievement {
   description: string;
   icon: string | null;
   points_required: number | null;
-  condition_type:
-    | "points_threshold"
-    | "streak_length"
-    | "activity_count"
-    | "special";
+  condition_type: "points_threshold";
   condition_value: number | null;
   condition_meta: Record<string, any> | null;
   is_active: boolean;
@@ -92,8 +85,6 @@ export interface LeaderboardEntry {
   university: string | null;
   total_points: number;
   level: number;
-  current_streak: number;
-  longest_streak: number;
   achievement_count: number;
 }
 
