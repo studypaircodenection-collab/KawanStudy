@@ -9,6 +9,7 @@ import { ScheduleForm } from "@/components/schedule/schedule-form";
 import { ScheduleTable } from "@/components/schedule/schedule-table";
 import { ScheduleGrid } from "@/components/schedule/schedule-grid";
 import { ScheduleStats } from "@/components/schedule/schedule-stats";
+import { Text } from "@/components/ui/typography";
 import {
   Plus,
   Calendar,
@@ -23,7 +24,6 @@ import {
 } from "lucide-react";
 import { ScheduleEntry } from "@/types/schedule";
 import { toast } from "sonner";
-import { Text } from "../../../../../components/ui/typography";
 
 export default function ScheduleGeneratorPage() {
   const {

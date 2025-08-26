@@ -1,13 +1,7 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -307,7 +301,7 @@ async function ChatContent() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Chat Center</h1>
         <p className="text-muted-foreground">
-          Manage all your conversations with StudyPair members
+          Manage all your conversations with KawanStudy members
         </p>
       </div>
 
