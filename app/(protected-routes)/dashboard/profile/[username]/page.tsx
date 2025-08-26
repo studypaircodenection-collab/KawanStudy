@@ -198,9 +198,9 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   return (
     <div className="container mx-auto py-6 space-y-6">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row gap-6">
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* Profile Info */}
-        <Card className="w-full md:w-2/3">
+        <Card className="w-full lg:w-2/3">
           <CardHeader>
             <div className="flex items-start gap-4">
               <Avatar className="h-20 w-20">
@@ -295,7 +295,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         </Card>
 
         {/* Stats Overview */}
-        <div className="w-full md:w-1/3 space-y-4">
+        <div className="w-full lg:w-1/3 space-y-4">
           <Card className="h-full">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">Stats Overview</CardTitle>

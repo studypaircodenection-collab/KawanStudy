@@ -26,21 +26,6 @@ async function getLeaderboardData(): Promise<LeaderboardEntry[]> {
 function LeaderboardSkeleton() {
   return (
     <div className="space-y-6">
-      {/* Stats Skeleton */}
-      <div className="grid gap-4 md:grid-cols-3">
-        {[...Array(3)].map((_, i) => (
-          <Card key={i}>
-            <CardHeader className="space-y-0 pb-2">
-              <div className="h-4 bg-muted rounded w-1/2 animate-pulse"></div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-8 bg-muted rounded w-1/3 animate-pulse mb-2"></div>
-              <div className="h-3 bg-muted rounded w-2/3 animate-pulse"></div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
       {/* Leaderboard Skeleton */}
       <Card>
         <CardHeader>

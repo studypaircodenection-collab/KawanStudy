@@ -7,7 +7,7 @@ export default async function ProtectedPage() {
         <h1 className="text-3xl font-bold">Dashboard</h1>
       </div>
 
-      <GamificationDashboard />
+      {/* <GamificationDashboard /> */}
     </div>
   );
 }
