@@ -5,9 +5,11 @@ import {
   MessageCircleIcon,
   Settings,
   TrophyIcon,
+  UploadIcon,
   User,
   UsersIcon,
 } from "lucide-react";
+import { useAuth } from "@/lib/context/auth-provider";
 import { Input } from "../ui/input";
 import {
   CommandDialog,
@@ -23,18 +25,37 @@ import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import React from "react";
 import { useSidebar } from "@/components/ui/sidebar";
+import { useRouter } from "next/navigation";
 export function SearchForm() {
   const [open, setOpen] = React.useState(false);
 
+  const { claims } = useAuth();
   const { isMobile } = useSidebar();
+  const router = useRouter();
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
+      if (e.key === "p" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        router.push(`/dashboard/profile/${claims?.username}`);
+      }
+
+      if (e.key === "f" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        router.push(`/dashboard/peer`);
+      }
+
+      if (e.key === "s" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        router.push(`/dashboard/settings`);
+      }
+
       if (e.key === "j" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setOpen((open) => !open);
       }
     };
+
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
   }, []);
@@ -61,6 +82,18 @@ export function SearchForm() {
         <CommandList>
           <ScrollArea className="h-60">
             <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup heading="Actions">
+              <CommandItem asChild>
+                <Link
+                  href="/dashboard/notes/upload"
+                  onClick={() => setOpen(false)}
+                >
+                  <UploadIcon />
+                  <span>Upload New Notes</span>
+                </Link>
+              </CommandItem>
+            </CommandGroup>
+            <CommandSeparator />
             <CommandGroup heading="Suggestions">
               <CommandItem asChild>
                 <Link
@@ -113,15 +146,29 @@ export function SearchForm() {
             </CommandGroup>
             <CommandSeparator />
             <CommandGroup heading="Settings">
-              <CommandItem>
-                <User />
-                <span>Profile</span>
-                <CommandShortcut>⌘P</CommandShortcut>
+              <CommandItem asChild>
+                <Link
+                  href={`/dashboard/profile/${claims?.username}`}
+                  onClick={() => setOpen(false)}
+                >
+                  <User />
+                  <span>My Profile</span>
+                  <CommandShortcut>⌘P</CommandShortcut>
+                </Link>
               </CommandItem>
-              <CommandItem>
-                <Settings />
-                <span>Settings</span>
-                <CommandShortcut>⌘S</CommandShortcut>
+              <CommandItem asChild>
+                <Link href={`/dashboard/peer`} onClick={() => setOpen(false)}>
+                  <UsersIcon />
+                  <span>Peers</span>
+                  <CommandShortcut>⌘P</CommandShortcut>
+                </Link>
+              </CommandItem>
+              <CommandItem asChild>
+                <Link href="/dashboard/settings" onClick={() => setOpen(false)}>
+                  <Settings />
+                  <span>Settings</span>
+                  <CommandShortcut>⌘S</CommandShortcut>
+                </Link>
               </CommandItem>
             </CommandGroup>
           </ScrollArea>

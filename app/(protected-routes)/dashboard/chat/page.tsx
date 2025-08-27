@@ -80,7 +80,7 @@ function ConversationsSkeleton() {
         <div className="h-4 bg-muted rounded w-64 animate-pulse"></div>
       </div>
 
-      {/* Search and New Chat Skeleton */}
+      {/* Search and  Skeleton */}
       <div className="flex gap-4 mb-6">
         <div className="flex-1 h-10 bg-muted rounded animate-pulse"></div>
         <div className="h-10 w-32 bg-muted rounded animate-pulse"></div>
@@ -311,7 +311,7 @@ async function ChatContent() {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Search conversations..." className="pl-10" />
         </div>
-        <Link href="/dashboard/leaderboard">
+        <Link href="/dashboard/peer">
           <Button variant="outline" className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
             New Chat
@@ -333,7 +333,7 @@ async function ChatContent() {
               clicking the message button, or browse users on the leaderboard.
             </p>
             <div className="flex gap-4 justify-center">
-              <Link href="/dashboard/leaderboard">
+              <Link href="/dashboard/peer">
                 <Button className="flex items-center gap-2">
                   <Users className="h-4 w-4" />
                   Browse Users
