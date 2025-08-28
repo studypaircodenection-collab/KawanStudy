@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { NotesListResponse, NoteSearchFilters } from "@/lib/types";
-import NoteCard from "@/components/notes/note-card";
-import { Search, BookOpen, ChevronDown, X, AlertTriangle } from "lucide-react";
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { UiTMEbook, EbookSearchQuery } from "@/lib/types";
+import { Search, BookOpen, ChevronDown, X, AlertTriangle, User, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -12,389 +13,326 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
-import { Separator } from "@/components/ui/separator";
-import UiTMEbookCard from "./uitm-ebook-card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import UiTMEbookCard from "./uitm-ebook-card";
 
-const KawanStudyNotes = () => {
-  // State management
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<NoteSearchFilters>({});
-  const [sortBy, setSortBy] = useState<string>("createdAt");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-
-  // Mock data - in real app, this would come from API
-  const [notesData, setNotesData] = useState<NotesListResponse>({
-    notes: [
-      {
-        id: "1",
-        title: "Introduction to Machine Learning",
-        description:
-          "Comprehensive notes covering supervised and unsupervised learning algorithms, neural networks, and practical applications.",
-        subject: "Computer Science",
-        noteType: "Lecture Notes",
-        tags: ["Machine Learning", "AI", "Python", "Algorithms"],
-        createdAt: "2024-01-15T10:00:00Z",
-        estimatedReadTime: 45,
-      },
-      {
-        id: "2",
-        title: "Calculus II - Integration Techniques",
-        description:
-          "Detailed explanations of integration by parts, partial fractions, and trigonometric substitutions with worked examples.",
-        subject: "Mathematics",
-        noteType: "Study Guide",
-        tags: ["Calculus", "Integration", "Mathematics"],
-        createdAt: "2024-01-14T14:30:00Z",
-        estimatedReadTime: 30,
-      },
-      {
-        id: "3",
-        title: "World War II Timeline",
-        description:
-          "Chronological overview of major events, battles, and political developments during World War II.",
-        subject: "History",
-        noteType: "Timeline",
-        tags: ["WWII", "Timeline", "History", "Europe"],
-        createdAt: "2024-01-13T09:15:00Z",
-        estimatedReadTime: 25,
-      },
-      {
-        id: "4",
-        title: "Organic Chemistry Reactions",
-        description:
-          "Complete guide to organic chemistry reaction mechanisms including SN1, SN2, E1, and E2 reactions.",
-        subject: "Chemistry",
-        noteType: "Reference Sheet",
-        tags: ["Organic Chemistry", "Reactions", "Mechanisms"],
-        createdAt: "2024-01-12T16:45:00Z",
-        estimatedReadTime: 35,
-      },
-      {
-        id: "5",
-        title: "Shakespeare Analysis: Hamlet",
-        description:
-          "Literary analysis of themes, character development, and symbolic elements in Hamlet.",
-        subject: "English Literature",
-        noteType: "Essay",
-        tags: ["Shakespeare", "Hamlet", "Literature", "Analysis"],
-        createdAt: "2024-01-11T11:20:00Z",
-        estimatedReadTime: 20,
-      },
-    ],
-    total: 5,
+const UiTMNotes = () => {
+  const [ebooks, setEbooks] = useState<UiTMEbook[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState<EbookSearchQuery>({
+    query: "",
+    author: "",
+    publishYear: "",
     page: 1,
-    limit: 10,
-    hasMore: false,
   });
 
-  // Filter options (would typically come from API)
-  const filterOptions = {
-    subjects: [
-      "Computer Science",
-      "Mathematics",
-      "History",
-      "Chemistry",
-      "English Literature",
-      "Physics",
-      "Biology",
-    ],
-    noteTypes: [
-      "Lecture Notes",
-      "Study Guide",
-      "Timeline",
-      "Reference Sheet",
-      "Essay",
-      "Research Paper",
-      "Summary",
-    ],
-    languages: [
-      "English",
-      "Spanish",
-      "French",
-      "German",
-      "Chinese",
-      "Japanese",
-    ],
-    difficulties: ["Beginner", "Intermediate", "Advanced", "Expert"],
-    academicLevels: ["High School", "Undergraduate", "Graduate", "PhD"],
+  // Generate years from 1950 to current year
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: currentYear - 1949 }, (_, i) => (currentYear - i).toString());
+
+  const fetchEbooks = async (params: EbookSearchQuery = searchQuery) => {
+    setLoading(true);
+    try {
+      // Build the URL with search parameters for EBOOK category
+      let searchUrl =
+        "https://mykmsearch.uitm.edu.my/beta/page.php?p=02&type=ad&searchby=1&category=EBOOK";
+
+      if (params.query) {
+        searchUrl += `&query=${encodeURIComponent(params.query)}`;
+      }
+      if (params.author) {
+        searchUrl += `&author=${encodeURIComponent(params.author)}`;
+      }
+      if (params.publishYear) {
+        searchUrl += `&year=${encodeURIComponent(params.publishYear)}`;
+      }
+      if (params.page && params.page > 1) {
+        searchUrl += `&page=${params.page}`;
+      }
+
+      const proxyUrl = `/api/proxy?url=${encodeURIComponent(searchUrl)}`;
+
+      const res = await fetch(proxyUrl);
+      const html = await res.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+
+      const cards = Array.from(doc.querySelectorAll(".card"));
+      const data: UiTMEbook[] = cards.map((card) => {
+        // Extract title from the link
+        const titleLink = card.querySelector(".card-title a");
+        const title =
+          titleLink?.textContent?.trim().replace(/^#\d+\s*-?\s*/, "") || "";
+
+        // Extract details from paragraph elements
+        const paragraphs = Array.from(card.querySelectorAll("p"));
+        let author = "";
+        let publisher = "";
+        let publishYear = "";
+        let isbn = "";
+        let subject = "";
+
+        paragraphs.forEach((p) => {
+          const text = p.textContent || "";
+          if (text.includes("Author:")) {
+            author = text.replace("Author:", "").trim();
+          } else if (text.includes("Publisher:")) {
+            publisher = text.replace("Publisher:", "").trim();
+          } else if (text.includes("Publish Year:") || text.includes("Year:")) {
+            publishYear = text.replace(/Publish Year:|Year:/, "").trim();
+          } else if (text.includes("ISBN:")) {
+            isbn = text.replace("ISBN:", "").trim();
+          } else if (text.includes("Subject:")) {
+            subject = text.replace("Subject:", "").trim();
+          }
+        });
+
+        const link = titleLink?.getAttribute("href") || "";
+        const image = card.querySelector("img")?.getAttribute("src") || "";
+
+        return {
+          title,
+          author,
+          publisher,
+          publishYear,
+          isbn,
+          subject,
+          link,
+          image,
+        };
+      });
+
+      setEbooks(data.filter((ebook) => ebook.title)); // Filter out empty titles
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching e-books:", error);
+      setLoading(false);
+    }
   };
 
-  // Handle filter changes
-  const handleFilterChange = (
-    key: keyof NoteSearchFilters,
-    value: string | undefined
-  ) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: value || undefined,
-    }));
+  const handleSearch = () => {
+    fetchEbooks(searchQuery);
   };
 
-  // Clear all filters
-  const clearFilters = () => {
-    setFilters({});
-    setSearchTerm("");
+  const handleReset = () => {
+    const resetQuery = {
+      query: "",
+      author: "",
+      publishYear: "",
+      page: 1,
+    };
+    setSearchQuery(resetQuery);
+    fetchEbooks(resetQuery);
   };
+
+  useEffect(() => {
+    fetchEbooks();
+  }, []);
 
   // Active filters count
-  const activeFiltersCount =
-    Object.values(filters).filter(Boolean).length + (searchTerm ? 1 : 0);
+  const activeFiltersCount = Object.values(searchQuery).filter(
+    (value) => value && value !== 1
+  ).length;
 
   return (
-    <div>
+    <div className="space-y-6">
       <Alert variant={"destructive"}>
         <AlertTriangle />
         <AlertTitle>Heads up Non-UiTM Peeps!</AlertTitle>
         <AlertDescription>
-          To Access the notes under this category, you are required to log in
+          To Access the e-books under this category, you are required to log in
           through UiTM PERMATA Library. Which is only available for UiTM
           Students.
         </AlertDescription>
       </Alert>
 
       {/* Header */}
-      <div className="my-8">
-        <h1 className="text-4xl font-bold text-slate-900 mb-2">
+      <div>
+        <h1 className="text-3xl font-bold flex items-center gap-2 mb-2">
+          <BookOpen className="h-8 w-8 text-blue-600" />
           UiTM E-Book Digital Library
         </h1>
         <p className="text-slate-600 text-lg">
-          Discover and explore E-Book provided by UiTM PTAR database.
+          Discover and explore E-Books provided by UiTM PTAR database.
         </p>
       </div>
 
-      {/* Search and Filter Bar */}
-      <div className="pb-6">
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* Search Input */}
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-            <Input
-              placeholder="Search notes by title, description, or tags..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-12"
-            />
-          </div>
-
-          {/* Filter Toggle and Sort */}
-          <div className="flex gap-2">
-            <Button
-              variant={isFiltersOpen ? "default" : "outline"}
-              onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-            >
-              Filters
-              {activeFiltersCount > 0 && (
-                <Badge variant="secondary" className="ml-2 text-xs">
-                  {activeFiltersCount}
-                </Badge>
-              )}
-              <ChevronDown
-                className={`w-4 h-4 ml-2 transition-transform ${
-                  isFiltersOpen ? "rotate-180" : ""
-                }`}
-              />
-            </Button>
-
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="createdAt">Date Created</SelectItem>
-                <SelectItem value="title">Title</SelectItem>
-                <SelectItem value="subject">Subject</SelectItem>
-                <SelectItem value="estimatedReadTime">Read Time</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+      {/* Search Form */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Search Query */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium flex items-center gap-1">
+            <BookOpen className="h-4 w-4" />
+            Book Title
+          </label>
+          <Input
+            placeholder="Enter book title..."
+            value={searchQuery.query || ""}
+            onChange={(e) =>
+              setSearchQuery({ ...searchQuery, query: e.target.value })
+            }
+            onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+          />
         </div>
 
-        {/* Collapsible Filters */}
-        <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
-          <CollapsibleContent>
-            <Separator className="my-6" />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-              <div>
-                <label className="text-sm font-medium text-slate-700 mb-2 block">
-                  Subject
-                </label>
-                <Select
-                  value={filters.subject}
-                  onValueChange={(value) =>
-                    handleFilterChange("subject", value)
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Any subject" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Any subject</SelectItem>
-                    {filterOptions.subjects.map((subject) => (
-                      <SelectItem key={subject} value={subject}>
-                        {subject}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+        {/* Author Filter */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium flex items-center gap-1">
+            <User className="h-4 w-4" />
+            Author
+          </label>
+          <Input
+            placeholder="Enter author name..."
+            value={searchQuery.author || ""}
+            onChange={(e) =>
+              setSearchQuery({ ...searchQuery, author: e.target.value })
+            }
+            onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+          />
+        </div>
 
-              <div>
-                <label className="text-sm font-medium text-slate-700 mb-2 block">
-                  Note Type
-                </label>
-                <Select
-                  value={filters.noteType}
-                  onValueChange={(value) =>
-                    handleFilterChange("noteType", value)
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Any type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Any type</SelectItem>
-                    {filterOptions.noteTypes.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-slate-700 mb-2 block">
-                  Language
-                </label>
-                <Select
-                  value={filters.language}
-                  onValueChange={(value) =>
-                    handleFilterChange("language", value)
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Any language" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Any language</SelectItem>
-                    {filterOptions.languages.map((language) => (
-                      <SelectItem key={language} value={language}>
-                        {language}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-slate-700 mb-2 block">
-                  Difficulty
-                </label>
-                <Select
-                  value={filters.difficulty}
-                  onValueChange={(value) =>
-                    handleFilterChange("difficulty", value)
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Any difficulty" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Any difficulty</SelectItem>
-                    {filterOptions.difficulties.map((difficulty) => (
-                      <SelectItem key={difficulty} value={difficulty}>
-                        {difficulty}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-slate-700 mb-2 block">
-                  Academic Level
-                </label>
-                <Select
-                  value={filters.academicLevel}
-                  onValueChange={(value) =>
-                    handleFilterChange("academicLevel", value)
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Any level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Any level</SelectItem>
-                    {filterOptions.academicLevels.map((level) => (
-                      <SelectItem key={level} value={level}>
-                        {level}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {activeFiltersCount > 0 && (
-              <div className="mt-4">
-                <Button variant="outline" size="sm" onClick={clearFilters}>
-                  <X className="w-4 h-4 mr-2" />
-                  Clear all filters
-                </Button>
-              </div>
-            )}
-          </CollapsibleContent>
-        </Collapsible>
-      </div>
-
-      {/* Results Header */}
-      <div className="mb-6 flex justify-between items-center">
-        <p className="text-slate-600">
-          Showing {notesData.notes.length} of {notesData.total} notes
-        </p>
-      </div>
-
-      {/* Notes Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-        {notesData.notes.map((note) => (
-          <UiTMEbookCard />
-        ))}
-      </div>
-
-      {/* Load More / Pagination */}
-      {notesData.hasMore && (
-        <div className="text-center">
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => setPage((prev) => prev + 1)}
-            disabled={loading}
+        {/* Publish Year Filter */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium flex items-center gap-1">
+            <Calendar className="h-4 w-4" />
+            Publish Year
+          </label>
+          <Select
+            value={searchQuery.publishYear || undefined}
+            onValueChange={(value) =>
+              setSearchQuery({
+                ...searchQuery,
+                publishYear: value === "all" ? "" : value,
+              })
+            }
           >
-            {loading ? "Loading..." : "Load More Notes"}
-          </Button>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select year" />
+            </SelectTrigger>
+            <SelectContent className="max-h-[250px]">
+              <SelectItem value="all">All Years</SelectItem>
+              {years.map((year) => (
+                <SelectItem key={year} value={year}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Search Actions */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium invisible">Actions</label>
+          <div className="flex gap-2">
+            <Button onClick={handleSearch} className="flex-1">
+              <Search className="h-4 w-4 mr-2" />
+              Search
+            </Button>
+            <Button onClick={handleReset} variant="outline">
+              Reset
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Active Filters */}
+      {activeFiltersCount > 0 && (
+        <div className="flex flex-wrap gap-2 pt-2">
+          <span className="text-sm font-medium">Active filters:</span>
+          {searchQuery.query && (
+            <Badge variant="secondary" className="flex items-center gap-1">
+              Title: {searchQuery.query}
+              <button
+                onClick={() => setSearchQuery({ ...searchQuery, query: "" })}
+                className="ml-1 hover:text-red-600"
+              >
+                ×
+              </button>
+            </Badge>
+          )}
+          {searchQuery.author && (
+            <Badge variant="secondary" className="flex items-center gap-1">
+              Author: {searchQuery.author}
+              <button
+                onClick={() => setSearchQuery({ ...searchQuery, author: "" })}
+                className="ml-1 hover:text-red-600"
+              >
+                ×
+              </button>
+            </Badge>
+          )}
+          {searchQuery.publishYear && (
+            <Badge variant="secondary" className="flex items-center gap-1">
+              Year: {searchQuery.publishYear}
+              <button
+                onClick={() =>
+                  setSearchQuery({ ...searchQuery, publishYear: "" })
+                }
+                className="ml-1 hover:text-red-600"
+              >
+                ×
+              </button>
+            </Badge>
+          )}
         </div>
       )}
 
-      {/* Empty State */}
-      {notesData.notes.length === 0 && (
-        <div className="text-center py-16">
-          <BookOpen className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-slate-600 mb-2">
-            No notes found
-          </h3>
-          <p className="text-slate-500 mb-4">
-            Try adjusting your search terms or filters
-          </p>
-          <Button onClick={clearFilters}>Clear all filters</Button>
+      {/* Results Section */}
+      {loading ? (
+        <Card>
+          <CardContent className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-2">Loading e-books...</span>
+          </CardContent>
+        </Card>
+      ) : ebooks.length === 0 ? (
+        <Card>
+          <CardContent className="text-center py-12">
+            <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500 text-lg">No e-books found.</p>
+            <p className="text-gray-400 text-sm mt-2">
+              Try adjusting your search criteria or clear filters to see more
+              results.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-gray-600">
+              Showing {ebooks.length} e-books
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-4">
+            {ebooks.map((ebook, idx) => (
+              <UiTMEbookCard key={idx} ebook={ebook} />
+            ))}
+          </div>
         </div>
       )}
+
+      {/* Disclaimer */}
+      <div className="max-w-3xl">
+        <h3 className="text-lg font-semibold mb-2">Disclaimer</h3>
+        <p className="text-sm text-gray-600">
+          The e-books provided are for educational purposes only. KawanStudy
+          does not claim ownership of any content or materials on this page. All
+          rights of the respective owners are acknowledged. Visit{" "}
+          <a
+            href="https://www.uitm.edu.my"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 hover:underline"
+          >
+            UiTM Official Website
+          </a>
+          .
+        </p>
+      </div>
     </div>
   );
 };
 
-export default KawanStudyNotes;
+export default UiTMNotes;

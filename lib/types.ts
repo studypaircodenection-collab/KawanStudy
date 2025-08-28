@@ -306,3 +306,24 @@ export type NoteSearchFilters = {
   tags?: string[];
   academicLevel?: string;
 };
+
+// UiTM E-book Types
+export interface UiTMEbook {
+  title: string;
+  author: string;
+  publisher: string;
+  publishYear: string;
+  isbn: string;
+  description?: string;
+  link: string;
+  image: string;
+  subject?: string;
+  format?: string;
+}
+
+export interface EbookSearchQuery {
+  query?: string;
+  author?: string;
+  publishYear?: string;
+  page?: number;
+}

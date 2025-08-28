@@ -41,7 +41,7 @@ export default function RootLayout({
           <ThemeProvider
             attribute="class"
             defaultTheme="light"
-            forcedTheme="light"
+            forcedTheme="dark"
             disableTransitionOnChange
           >
             <main className="min-h-screen flex flex-col items-center">
