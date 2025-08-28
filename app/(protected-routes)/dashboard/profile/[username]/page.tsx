@@ -18,7 +18,6 @@ import {
   Building2,
   Star,
   Trophy,
-  Flame,
   Target,
   Award,
   UsersIcon,
@@ -27,6 +26,7 @@ import {
 import { UserProfile, UserAchievement, PointTransaction } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 interface ProfilePageProps {
   params: {
     username: string;
@@ -196,54 +196,60 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     }
   };
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto space-y-6">
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Profile Info */}
-        <Card className="w-full lg:w-2/3">
-          <CardHeader>
-            <div className="flex items-start gap-4">
-              <Avatar className="h-20 w-20">
-                <AvatarImage
-                  src={profile.avatar_url || ""}
-                  alt={profile.full_name || ""}
-                />
-                <AvatarFallback className="text-2xl">
-                  {profile.full_name?.charAt(0) ||
-                    profile.username?.charAt(0) ||
-                    "U"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-2xl">
-                      {profile.full_name}
-                    </CardTitle>
-                    <CardDescription className="text-lg">
-                      @{profile.username}
-                    </CardDescription>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground flex-wrap">
-                      <div className="flex items-center gap-1">
-                        <UsersIcon className="h-4 w-4" />
-                        {connectionsCount}{" "}
-                        {connectionsCount === 1 ? "Friend" : "Friends"}
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4" />
-                        Level {profile.level}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Trophy className="h-4 w-4" />
-                        {profile.total_points.toLocaleString()} points
+        <div className={`w-full  ${isOwnProfile ? "lg:w-full" : "lg:w-full"}`}>
+          <div className="relative">
+            <div className="bg-secondary rounded-xl lg:aspect-5/1 aspect-3/1"></div>
+            <div className="flex flex-col -translate-y-10  items-start gap-2">
+              <div className="pl-4">
+                <Avatar className="h-20 w-20 border-background border bg-background">
+                  <AvatarImage
+                    src={profile.avatar_url || ""}
+                    alt={profile.full_name || ""}
+                  />
+                  <AvatarFallback className="text-2xl">
+                    {profile.full_name?.charAt(0) ||
+                      profile.username?.charAt(0) ||
+                      "U"}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+              <div className="w-full flex justify-between items-start gap-2">
+                <div>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle className="text-2xl">
+                        {profile.full_name}
+                      </CardTitle>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <CardDescription className="text-lg">
+                          @{profile.username}
+                        </CardDescription>
+                        <Badge className="bg-amber-200 text-yellow-900">
+                          <Star className="h-4 w-4" />
+                          Level {profile.level}
+                        </Badge>
+                        <Badge className="bg-green-200 text-green-900">
+                          <Trophy className="h-4 w-4" />
+                          {profile.total_points.toLocaleString()} points
+                        </Badge>
+                        <Badge variant={"secondary"}>
+                          <UsersIcon className="h-4 w-4" />
+                          {connectionsCount}{" "}
+                          {connectionsCount === 1 ? "Friend" : "Friends"}
+                        </Badge>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Action Buttons - only show if not viewing own profile */}
+                    {/* Action Buttons - only show if not viewing own profile */}
+                  </div>
+                </div>
+                <div className="flex justify-end items-start gap-2 mt-2 text-sm text-muted-foreground flex-wrap">
                   {!isOwnProfile && currentUser.username && (
-                    <div className="ml-4 flex gap-2">
+                    <div className="flex gap-2">
                       <ConnectionButton
                         targetUserId={profile.id}
                         targetUsername={params.username}
@@ -254,13 +260,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 </div>
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
+          </div>
+          <div className="space-y-4">
             {profile.bio && (
               <p className="text-muted-foreground">{profile.bio}</p>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+            <div className="flex items-center justify-start flex-wrap gap-4 text-sm">
               {profile.location && (
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -287,57 +293,59 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               )}
             </div>
 
-            <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2 border-t">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <CalendarDays className="h-4 w-4" />
               <span>Joined {formatDate(profile.created_at)}</span>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Stats Overview */}
-        <div className="w-full lg:w-1/3 space-y-4">
-          <Card className="h-full">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Stats Overview</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">
-                  Total Points
-                </span>
-                <span className="font-semibold">
-                  {profile.total_points.toLocaleString()}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Level</span>
-                <span className="font-semibold">{profile.level}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">
-                  Experience
-                </span>
-                <span className="font-semibold">
-                  {profile.experience_points.toLocaleString()} XP
-                </span>
-              </div>
-              {userStats?.rank && (
+        {/* {isOwnProfile ? (
+          <div className="w-full lg:w-1/3 space-y-4">
+            <Card className="h-full">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Your Stats Overview</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">
-                    Leaderboard Rank
+                    Total Points
                   </span>
-                  <span className="font-semibold">#{userStats.rank}</span>
+                  <span className="font-semibold">
+                    {profile.total_points.toLocaleString()}
+                  </span>
                 </div>
-              )}
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">
-                  Achievements
-                </span>
-                <span className="font-semibold">{achievements.length}</span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Level</span>
+                  <span className="font-semibold">{profile.level}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">
+                    Experience
+                  </span>
+                  <span className="font-semibold">
+                    {profile.experience_points.toLocaleString()} XP
+                  </span>
+                </div>
+                {userStats?.rank && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">
+                      Leaderboard Rank
+                    </span>
+                    <span className="font-semibold">#{userStats.rank}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">
+                    Achievements
+                  </span>
+                  <span className="font-semibold">{achievements.length}</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : null} */}
       </div>
 
       {/* Achievements Section */}
@@ -437,6 +445,23 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           </Button>
         </Card>
       )}
+
+      {/* Notes */}
+      <div>
+        <CardTitle className="flex items-center gap-2">
+          Notes uploaded by{" "}
+          {isOwnProfile ? "you" : profile.username || profile.full_name}
+        </CardTitle>
+        <CardDescription>
+          <p className="text-muted-foreground">
+            {isOwnProfile
+              ? "You haven't uploaded any notes yet."
+              : `${
+                  profile.username || profile.full_name
+                } hasn't uploaded any notes yet.`}
+          </p>
+        </CardDescription>
+      </div>
 
       {/* Recent Activity */}
       {pointHistory.length > 0 && (

@@ -2,11 +2,9 @@
 
 import {
   BadgeCheck,
-
   ChevronsUpDown,
   LogOut,
   SettingsIcon,
-
   UserRoundIcon,
   UsersIcon,
 } from "lucide-react";
@@ -64,7 +62,7 @@ export function NavUser({ user }: { user: DisplayUser }) {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg">
+              <Avatar className="h-8 w-8 rounded-full">
                 <AvatarImage
                   src={user.user_metadata?.avatar_url}
                   alt={user.user_metadata?.username}
@@ -92,7 +90,7 @@ export function NavUser({ user }: { user: DisplayUser }) {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
+                <Avatar className="h-8 w-8 rounded-full">
                   <AvatarImage
                     src={user.user_metadata?.avatar_url}
                     alt={user.user_metadata?.username}
