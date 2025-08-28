@@ -231,3 +231,78 @@ export interface ConnectionRequest {
   created_at: string;
   updated_at: string;
 }
+
+export interface Note {
+  // Basic Information
+  title: string;
+  description?: string;
+
+  // Academic Context
+  subject: string;
+  topic?: string;
+  academicLevel: string;
+  institution?: string;
+  course?: string;
+  professor?: string;
+  semester?: string;
+
+  // Classification
+  noteType: string;
+  tags: string[];
+  language: string;
+  format: string;
+  difficulty?: string;
+
+  // Source & Attribution
+  sourceType: string;
+  sourceReference?: string;
+
+  // Sharing & Permissions
+  sharingOption: string;
+  allowDownload: boolean;
+  allowComments: boolean;
+
+  // Metadata
+  estimatedReadTime: number;
+  textContent?: string;
+}
+
+export interface NoteWithId extends Note {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+}
+
+export interface UpdateNoteRequest extends Partial<Note> {
+  id: string;
+}
+
+export interface NoteListItem {
+  id: string;
+  title: string;
+  description?: string;
+  subject: string;
+  noteType: string;
+  tags: string[];
+  createdAt: string;
+  estimatedReadTime: number;
+}
+
+export interface NotesListResponse {
+  notes: NoteListItem[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
+// Search and filter types
+export type NoteSearchFilters = {
+  subject?: string;
+  noteType?: string;
+  language?: string;
+  difficulty?: string;
+  tags?: string[];
+  academicLevel?: string;
+};

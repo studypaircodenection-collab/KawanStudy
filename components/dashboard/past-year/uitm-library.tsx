@@ -12,8 +12,15 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, BookOpen, Calendar, Building2 } from "lucide-react";
-import { Text } from "../../ui/typography";
+import {
+  Search,
+  BookOpen,
+  Calendar,
+  Building2,
+  AlertTriangle,
+} from "lucide-react";
+import { Text } from "@/components/ui/typography";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 interface Paper {
   title: string;
@@ -161,6 +168,15 @@ const UiTMLibrary = () => {
 
   return (
     <div className="space-y-4">
+      <Alert variant={"destructive"}>
+        <AlertTriangle />
+        <AlertTitle>Heads up Non-UiTM Peeps!</AlertTitle>
+        <AlertDescription>
+          To Access the notes under this category, you are required to log in
+          through UiTM PERMATA Library. Which is only available for UiTM
+          Students.
+        </AlertDescription>
+      </Alert>
       <div className="flex flex-col space-y-4">
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <BookOpen className="h-8 w-8 text-blue-600" />

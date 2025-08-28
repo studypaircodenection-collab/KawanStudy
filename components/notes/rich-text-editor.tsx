@@ -87,141 +87,134 @@ export function RichTextEditor({
 
   return (
     <div className={cn("space-y-4", className)}>
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Write Your Notes</CardTitle>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant={!isPreview ? "default" : "outline"}
-                size="sm"
-                onClick={() => setIsPreview(false)}
-              >
-                <Edit3 className="h-4 w-4 mr-1" />
-                Edit
-              </Button>
-              <Button
-                variant={isPreview ? "default" : "outline"}
-                size="sm"
-                onClick={() => setIsPreview(true)}
-              >
-                <Eye className="h-4 w-4 mr-1" />
-                Preview
-              </Button>
-            </div>
+      <div className="flex items-center justify-between">
+        <CardTitle className="text-lg">Write Your Notes</CardTitle>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant={!isPreview ? "default" : "outline"}
+            size="sm"
+            onClick={() => setIsPreview(false)}
+          >
+            <Edit3 className="h-4 w-4 mr-1" />
+            Edit
+          </Button>
+          <Button
+            variant={isPreview ? "default" : "outline"}
+            size="sm"
+            onClick={() => setIsPreview(true)}
+          >
+            <Eye className="h-4 w-4 mr-1" />
+            Preview
+          </Button>
+        </div>
+      </div>
+
+      {!isPreview && (
+        <>
+          {/* Formatting Toolbar */}
+          <div className="flex flex-wrap items-center gap-1 p-2 bg-gray-50 rounded-lg mb-4">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={formatHeading}
+              title="Heading"
+            >
+              <Type className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={formatBold}
+              title="Bold"
+            >
+              <Bold className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={formatItalic}
+              title="Italic"
+            >
+              <Italic className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={formatUnderline}
+              title="Underline"
+            >
+              <Underline className="h-4 w-4" />
+            </Button>
+            <div className="w-px h-6 bg-gray-300 mx-1" />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={formatBulletList}
+              title="Bullet List"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={formatNumberedList}
+              title="Numbered List"
+            >
+              <ListOrdered className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={formatQuote}
+              title="Quote"
+            >
+              <Quote className="h-4 w-4" />
+            </Button>
           </div>
-        </CardHeader>
 
-        <CardContent className="pt-0">
-          {!isPreview && (
-            <>
-              {/* Formatting Toolbar */}
-              <div className="flex flex-wrap items-center gap-1 p-2 bg-gray-50 rounded-lg mb-4">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={formatHeading}
-                  title="Heading"
-                >
-                  <Type className="h-4 w-4" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={formatBold}
-                  title="Bold"
-                >
-                  <Bold className="h-4 w-4" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={formatItalic}
-                  title="Italic"
-                >
-                  <Italic className="h-4 w-4" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={formatUnderline}
-                  title="Underline"
-                >
-                  <Underline className="h-4 w-4" />
-                </Button>
-                <div className="w-px h-6 bg-gray-300 mx-1" />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={formatBulletList}
-                  title="Bullet List"
-                >
-                  <List className="h-4 w-4" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={formatNumberedList}
-                  title="Numbered List"
-                >
-                  <ListOrdered className="h-4 w-4" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={formatQuote}
-                  title="Quote"
-                >
-                  <Quote className="h-4 w-4" />
-                </Button>
-              </div>
+          {/* Text Editor */}
+          <Textarea
+            value={content}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+            className="min-h-[400px] resize-none font-mono"
+            style={{
+              fontFamily:
+                'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
+            }}
+          />
 
-              {/* Text Editor */}
-              <Textarea
-                value={content}
-                onChange={(e) => onChange(e.target.value)}
-                placeholder={placeholder}
-                className="min-h-[400px] resize-none font-mono"
-                style={{
-                  fontFamily:
-                    'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
-                }}
-              />
+          {/* Formatting Help */}
+          <div className="mt-2 text-xs text-gray-500">
+            <p>
+              <strong>Formatting tips:</strong> **bold**, *italic*, # heading, -
+              bullet points, 1. numbered lists, &gt; quotes
+            </p>
+          </div>
+        </>
+      )}
 
-              {/* Formatting Help */}
-              <div className="mt-2 text-xs text-gray-500">
-                <p>
-                  <strong>Formatting tips:</strong> **bold**, *italic*, #
-                  heading, - bullet points, 1. numbered lists, &gt; quotes
-                </p>
-              </div>
-            </>
+      {isPreview && (
+        <div className="min-h-[400px] p-4 border rounded-lg bg-white">
+          {content ? (
+            <div
+              className="prose prose-sm max-w-none"
+              dangerouslySetInnerHTML={{ __html: markdownToHtml(content) }}
+            />
+          ) : (
+            <p className="text-gray-500 italic">
+              Nothing to preview yet. Start writing to see your formatted notes.
+            </p>
           )}
-
-          {isPreview && (
-            <div className="min-h-[400px] p-4 border rounded-lg bg-white">
-              {content ? (
-                <div
-                  className="prose prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: markdownToHtml(content) }}
-                />
-              ) : (
-                <p className="text-gray-500 italic">
-                  Nothing to preview yet. Start writing to see your formatted
-                  notes.
-                </p>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        </div>
+      )}
     </div>
   );
 }

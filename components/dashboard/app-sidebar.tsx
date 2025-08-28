@@ -77,10 +77,6 @@ const data = {
           title: "Upload Notes",
           url: "/dashboard/notes/upload",
         },
-        {
-          title: "Favourite Notes",
-          url: "/dashboard/notes/favourite",
-        },
       ],
     },
     {

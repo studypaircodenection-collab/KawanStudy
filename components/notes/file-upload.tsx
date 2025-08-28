@@ -116,89 +116,81 @@ export function FileUpload({
   return (
     <div className={cn("space-y-4", className)}>
       {!selectedFile ? (
-        <Card>
-          <CardContent className="p-6">
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              className={cn(
-                "border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors",
-                isDragOver
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-300 hover:border-gray-400"
-              )}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept={accept}
-                onChange={handleFileChange}
-                className="hidden"
-              />
-              <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <div className="space-y-2">
-                <p className="text-lg font-medium">
-                  {isDragOver ? "Drop your PDF here" : "Upload your PDF notes"}
-                </p>
-                <p className="text-sm text-gray-500">
-                  Drag and drop or click to browse files
-                </p>
-                <p className="text-xs text-gray-400">
-                  PDF files only, max {Math.round(maxSize / (1024 * 1024))}MB
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={cn(
+            "border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors",
+            isDragOver
+              ? "border-blue-500 bg-blue-50"
+              : "border-gray-300 hover:border-gray-400"
+          )}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={accept}
+            onChange={handleFileChange}
+            className="hidden"
+          />
+          <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+          <div className="space-y-2">
+            <p className="text-lg font-medium">
+              {isDragOver ? "Drop your PDF here" : "Upload your PDF notes"}
+            </p>
+            <p className="text-sm text-gray-500">
+              Drag and drop or click to browse files
+            </p>
+            <p className="text-xs text-gray-400">
+              PDF files only, max {Math.round(maxSize / (1024 * 1024))}MB
+            </p>
+          </div>
+        </div>
       ) : (
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <FileText className="h-12 w-12 text-red-500" />
-              </div>
+        <div className="flex items-start space-x-4">
+          <div className="flex-shrink-0">
+            <FileText className="h-12 w-12 text-red-500" />
+          </div>
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-medium text-gray-900 truncate">
-                    {selectedFile.name}
-                  </h4>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={removeFile}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                <p className="text-sm text-gray-500 mb-3">
-                  {formatFileSize(selectedFile.size)}
-                </p>
-
-                {isUploading && (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Uploading...</span>
-                      <span className="text-gray-600">{uploadProgress}%</span>
-                    </div>
-                    <Progress value={uploadProgress} className="h-2" />
-                  </div>
-                )}
-
-                {!isUploading && uploadProgress === 100 && (
-                  <div className="flex items-center text-sm text-green-600">
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Ready to upload
-                  </div>
-                )}
-              </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-sm font-medium text-gray-900 truncate">
+                {selectedFile.name}
+              </h4>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={removeFile}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-          </CardContent>
-        </Card>
+
+            <p className="text-sm text-gray-500 mb-3">
+              {formatFileSize(selectedFile.size)}
+            </p>
+
+            {isUploading && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Uploading...</span>
+                  <span className="text-gray-600">{uploadProgress}%</span>
+                </div>
+                <Progress value={uploadProgress} className="h-2" />
+              </div>
+            )}
+
+            {!isUploading && uploadProgress === 100 && (
+              <div className="flex items-center text-sm text-green-600">
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Ready to upload
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
       {error && (

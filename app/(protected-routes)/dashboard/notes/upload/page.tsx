@@ -155,7 +155,7 @@ export default function UploadNotesPage() {
   const isValid = validateForm();
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto space-y-6">
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Upload Notes</h1>
