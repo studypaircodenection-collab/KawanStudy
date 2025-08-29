@@ -159,7 +159,7 @@ const UiTMNotes = () => {
           <BookOpen className="h-8 w-8 text-blue-600" />
           UiTM E-Book Digital Library
         </h1>
-        <p className="text-slate-600 text-lg">
+        <p className="text-muted-foreground text-lg">
           Discover and explore E-Books provided by UiTM PTAR database.
         </p>
       </div>
@@ -306,7 +306,7 @@ const UiTMNotes = () => {
       ) : (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Showing {ebooks.length} e-books
             </p>
           </div>
@@ -322,7 +322,7 @@ const UiTMNotes = () => {
       {/* Disclaimer */}
       <div className="max-w-3xl">
         <h3 className="text-lg font-semibold mb-2">Disclaimer</h3>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           The e-books provided are for educational purposes only. KawanStudy
           does not claim ownership of any content or materials on this page. All
           rights of the respective owners are acknowledged. Visit{" "}
@@ -330,7 +330,7 @@ const UiTMNotes = () => {
             href="https://www.uitm.edu.my"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 hover:underline"
+            className="text-primary hover:underline"
           >
             UiTM Official Website
           </a>

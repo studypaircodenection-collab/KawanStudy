@@ -194,7 +194,7 @@ export default function NotificationsPage() {
         <div className="flex items-center gap-3">
           <Separator orientation="vertical" className="h-6" />
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <h1 className="text-3xl font-bold flex items-center gap-3">
               <Bell className="h-8 w-8" />
               Notifications
             </h1>
@@ -213,12 +213,12 @@ export default function NotificationsPage() {
 
       {/* Bulk Actions */}
       {selectedNotifications.length > 0 && (
-        <Card className="border-blue-200 bg-blue-50">
+        <Card className="border-primary/30 bg-primary/20">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <CheckCheck className="h-5 w-5 text-blue-600" />
-                <span className="font-medium text-blue-900">
+                <CheckCheck className="h-5 w-5 text-primary" />
+                <span className="font-medium text-primary">
                   {selectedNotifications.length} notifications selected
                 </span>
               </div>
@@ -255,8 +255,8 @@ export default function NotificationsPage() {
       {isLoading ? (
         <Card>
           <CardContent className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-500">Loading notifications...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading notifications...</p>
           </CardContent>
         </Card>
       ) : error ? (
@@ -266,18 +266,18 @@ export default function NotificationsPage() {
             <h3 className="text-lg font-medium text-red-600 mb-2">
               Failed to load notifications
             </h3>
-            <p className="text-gray-500 mb-4">{error}</p>
+            <p className="text-muted-foreground mb-4">{error}</p>
             <Button onClick={() => window.location.reload()}>Try Again</Button>
           </CardContent>
         </Card>
       ) : filteredNotifications.length === 0 ? (
         <Card>
           <CardContent className="text-center">
-            <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <Bell className="h-12 w-12  mx-auto mb-4" />
+            <h3 className="text-lg font-medium  mb-2">
               No notifications found
             </h3>
-            <p className="text-gray-500">
+            <p className="text-muted-foreground">
               {filters.search ||
               filters.type !== "all" ||
               filters.status !== "all" ||
@@ -316,9 +316,9 @@ export default function NotificationsPage() {
                           key={notification.id}
                           className={`p-4 transition-colors ${
                             isSelected
-                              ? "bg-blue-50 border-l-4 border-l-blue-500"
+                              ? "bg-primary/20 border-l-4 border-primary"
                               : ""
-                          } ${!notification.isRead ? "bg-gray-50" : ""}`}
+                          } ${!notification.isRead ? "bg-primary/20" : ""}`}
                         >
                           <div className="flex items-start gap-4">
                             <input
@@ -342,8 +342,8 @@ export default function NotificationsPage() {
                                     <h3
                                       className={`font-medium ${
                                         !notification.isRead
-                                          ? "text-gray-900"
-                                          : "text-gray-700"
+                                          ? "text-background-foreground"
+                                          : "text-muted-foreground"
                                       }`}
                                     >
                                       {notification.title}
@@ -375,14 +375,14 @@ export default function NotificationsPage() {
                                   <p
                                     className={`text-sm mb-2 ${
                                       !notification.isRead
-                                        ? "text-gray-800"
-                                        : "text-gray-600"
+                                        ? "text-background-foreground"
+                                        : "text-muted-foreground"
                                     }`}
                                   >
                                     {notification.message}
                                   </p>
 
-                                  <div className="flex items-center gap-3 text-xs text-gray-500">
+                                  <div className="flex items-center gap-3 text-xs ">
                                     <span className="flex items-center gap-1">
                                       <Clock className="h-3 w-3" />
                                       {formatDistanceToNow(

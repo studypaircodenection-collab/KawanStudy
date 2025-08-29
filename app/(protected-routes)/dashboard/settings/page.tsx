@@ -11,7 +11,7 @@ import {
   Settings as SettingsIcon,
   Palette,
 } from "lucide-react";
-
+import { Text } from "@/components/ui/typography";
 import NotificationSetting from "@/components/settings/notification-setting";
 import ProfileSetting from "@/components/settings/profile-setting";
 import StudySetting from "@/components/settings/study-setting";
@@ -36,23 +36,20 @@ const SettingsPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+          <Text as="h2" className="flex items-center gap-3">
             <SettingsIcon className="h-8 w-8" />
             Settings
-          </h1>
-          <p className="text-gray-600">
+          </Text>
+          <Text as="p" styleVariant="muted">
             Manage your account settings and preferences
-          </p>
+          </Text>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Settings Navigation */}
         <div className="lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Settings</CardTitle>
-            </CardHeader>
+          <Card className="p-0 overflow-hidden">
             <CardContent className="p-0">
               <nav className="space-y-1">
                 {settingsTabs.map(({ id, label, icon: Icon }) => (
@@ -62,7 +59,7 @@ const SettingsPage = () => {
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
                       activeTab === id
                         ? "border-r-2 bg-primary/10  text-primary border-primary"
-                        : "text-gray-700 hover:bg-gray-50"
+                        : "text-muted-foreground"
                     }`}
                   >
                     <Icon className="h-4 w-4" />

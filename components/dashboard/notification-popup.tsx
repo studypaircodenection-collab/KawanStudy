@@ -106,15 +106,15 @@ const NotificationItem = ({
   const content = (
     <div
       className={cn(
-        "flex items-start gap-3 p-3 hover:bg-gray-50 transition-colors border-l-2",
+        "flex items-start gap-3 p-3  transition-colors border-l-2",
         notification.isRead
           ? "opacity-70 border-l-transparent"
-          : "border-l-blue-500",
+          : "border-l-blue-500 dark:border-l-blue-400",
         notification.priority === "high" && !notification.isRead
-          ? "bg-red-50 border-l-red-500"
+          ? "bg-red-50 border-l-red-500 dark:bg-red-900/20 dark:border-l-red-400"
           : "",
         notification.priority === "medium" && !notification.isRead
-          ? "bg-yellow-50 border-l-yellow-500"
+          ? "bg-yellow-50 border-l-yellow-500 dark:bg-yellow-900/20 dark:border-l-yellow-400"
           : ""
       )}
     >
@@ -139,8 +139,8 @@ const NotificationItem = ({
               className={cn(
                 "text-sm truncate",
                 notification.isRead
-                  ? "text-gray-600"
-                  : "font-semibold text-gray-900"
+                  ? "text-muted-foreground"
+                  : "font-semibold text-muted-foreground"
               )}
             >
               {notification.title}
@@ -148,7 +148,7 @@ const NotificationItem = ({
             <p
               className={cn(
                 "text-xs mt-1 line-clamp-2",
-                notification.isRead ? "text-gray-500" : "text-gray-700"
+                notification.isRead ? "text-muted-foreground" : ""
               )}
             >
               {notification.message}
@@ -156,7 +156,7 @@ const NotificationItem = ({
 
             {/* Metadata */}
             <div className="flex items-center gap-2 mt-2">
-              <div className="flex items-center gap-1 text-xs text-gray-500">
+              <div className="flex items-center gap-1 text-xs">
                 <Clock className="h-3 w-3" />
                 {getTimeAgo(notification.timestamp)}
               </div>
@@ -380,7 +380,7 @@ const NotificationPopup = () => {
                     variant="ghost"
                     size="sm"
                     onClick={simulateNewNotification}
-                    className="h-7 w-7 p-0 text-blue-600"
+                    className="h-7 w-7 p-0 text-primary"
                   >
                     +
                   </Button>
@@ -420,7 +420,7 @@ const NotificationPopup = () => {
                   <>
                     <DropdownMenuItem
                       onClick={handleClearAll}
-                      className="text-red-600"
+                      className="text-red-600 dark:text-red-400"
                       variant="destructive"
                       disabled={isActionLoading("clear-all")}
                     >
@@ -451,7 +451,7 @@ const NotificationPopup = () => {
         {/* Filter Tabs */}
         {hasNotifications && (
           <div className="px-4 pb-2">
-            <div className="flex gap-1 bg-gray-100 rounded-md p-1">
+            <div className="flex gap-1 bg-background rounded-md p-1">
               <Button
                 variant={filter === "all" ? "default" : "ghost"}
                 size="sm"
@@ -478,26 +478,26 @@ const NotificationPopup = () => {
         {isLoading ? (
           <div className="p-8 text-center">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
-            <p className="text-sm text-gray-500">Loading notifications...</p>
+            <p className="text-sm ">Loading notifications...</p>
           </div>
         ) : error ? (
           <div className="p-8 text-center">
-            <AlertCircle className="h-8 w-8 text-red-400 mx-auto mb-2" />
-            <p className="text-sm text-red-600 mb-2">
+            <AlertCircle className="h-8 w-8 text-red-400 dark:text-red-400 mx-auto mb-2" />
+            <p className="text-sm text-red-600 dark:text-red-400 mb-2">
               Failed to load notifications
             </p>
-            <p className="text-xs text-gray-500">{error}</p>
+            <p className="text-xs ">{error}</p>
           </div>
         ) : filteredNotifications.length === 0 ? (
           <div className="p-8 text-center">
-            <BellIcon className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">
+            <BellIcon className="h-8 w-8 mx-auto mb-2" />
+            <p className="text-sm ">
               {filter === "unread"
                 ? "No unread notifications"
                 : "No notifications yet"}
             </p>
             {filter === "all" && (
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs mt-1">
                 You'll see study reminders, messages, and updates here
               </p>
             )}

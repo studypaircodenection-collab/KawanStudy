@@ -40,37 +40,37 @@ const UiTMEbookCard: React.FC<UiTMEbookCardProps> = ({ ebook }) => {
               </h3>
 
               {ebook.description && (
-                <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                   {ebook.description}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <User className="h-4 w-4" />
-                <span className="font-medium">Author:</span>
+                <span className="text-foreground font-medium">Author:</span>
                 <span className="truncate">{ebook.author}</span>
               </div>
 
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Building2 className="h-4 w-4" />
-                <span className="font-medium">Publisher:</span>
+                <span className="text-foreground font-medium">Publisher:</span>
                 <span className="truncate">{ebook.publisher}</span>
               </div>
 
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Calendar className="h-4 w-4" />
-                <span className="font-medium">Year:</span>
+                <span className="text-foreground font-medium">Year:</span>
                 <Badge variant="outline" className="text-xs">
                   {ebook.publishYear}
                 </Badge>
               </div>
 
               {ebook.isbn && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <BookOpen className="h-4 w-4" />
-                  <span className="font-medium">ISBN:</span>
+                  <span className="text-foreground font-medium">ISBN:</span>
                   <span className="text-xs font-mono">{ebook.isbn}</span>
                 </div>
               )}

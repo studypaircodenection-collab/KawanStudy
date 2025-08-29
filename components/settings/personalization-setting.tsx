@@ -88,8 +88,8 @@ const PersonalizationSetting = () => {
                 onClick={() => updateSetting("theme", "light")}
                 className={`p-4 border rounded-lg transition-colors ${
                   settings.theme === "light"
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
+                    ? "border-primary bg-primary/10"
+                    : "border"
                 }`}
               >
                 <Sun className="h-6 w-6 mx-auto mb-2" />
@@ -99,8 +99,8 @@ const PersonalizationSetting = () => {
                 onClick={() => updateSetting("theme", "dark")}
                 className={`p-4 border rounded-lg transition-colors ${
                   settings.theme === "dark"
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
+                    ? "border-primary bg-primary/10"
+                    : "border"
                 }`}
               >
                 <Moon className="h-6 w-6 mx-auto mb-2" />
@@ -110,8 +110,8 @@ const PersonalizationSetting = () => {
                 onClick={() => updateSetting("theme", "system")}
                 className={`p-4 border rounded-lg transition-colors ${
                   settings.theme === "system"
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
+                    ? "border-primary bg-primary/10"
+                    : "border"
                 }`}
               >
                 <Monitor className="h-6 w-6 mx-auto mb-2" />
@@ -132,15 +132,17 @@ const PersonalizationSetting = () => {
                   onClick={() => updateSetting("accentColor", color.value)}
                   className={`p-3 border rounded-lg flex flex-col items-center gap-2 transition-colors ${
                     settings.accentColor === color.value
-                      ? "border-gray-900 bg-gray-50"
-                      : "border-gray-200 hover:border-gray-300"
+                      ? "border-primary bg-primary/10"
+                      : "border"
                   }`}
                 >
                   <div className={`w-6 h-6 rounded-full ${color.color}`} />
                   <span className="text-xs font-medium">{color.name}</span>
-                  {settings.accentColor === color.value && (
-                    <Check className="h-4 w-4 text-green-600" />
-                  )}
+                  <div className="rounded-full w-8 h-8 grid place-items-center bg-secondary border p-2">
+                    {settings.accentColor === color.value && (
+                      <Check className="size-4 text-primary" />
+                    )}
+                  </div>
                 </button>
               ))}
             </div>

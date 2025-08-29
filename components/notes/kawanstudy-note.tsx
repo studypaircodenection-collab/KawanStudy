@@ -147,10 +147,10 @@ const KawanStudyNotes = () => {
     <div>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-slate-900 mb-2">
+        <h1 className="text-4xl font-bold text-foreground mb-2">
           KawanStudy Public Notes
         </h1>
-        <p className="text-slate-600 text-lg">
+        <p className="text-muted-foreground text-lg">
           Discover and explore academic notes from our community
         </p>
       </div>
@@ -342,7 +342,7 @@ const KawanStudyNotes = () => {
 
       {/* Results Header */}
       <div className="mb-6 flex justify-between items-center">
-        <p className="text-slate-600">
+        <p className="text-muted-foreground">
           Showing {notesData.notes.length} of {notesData.total} notes
         </p>
       </div>

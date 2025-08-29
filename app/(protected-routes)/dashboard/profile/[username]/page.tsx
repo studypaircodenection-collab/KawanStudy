@@ -23,10 +23,16 @@ import {
   UsersIcon,
   ArrowRightIcon,
 } from "lucide-react";
-import { UserProfile, UserAchievement, PointTransaction } from "@/lib/types";
+import {
+  UserProfile,
+  UserAchievement,
+  PointTransaction,
+  NotesListResponse,
+} from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import NoteCard from "@/components/notes/note-card";
 interface ProfilePageProps {
   params: {
     username: string;
@@ -150,6 +156,71 @@ async function getRecentPointHistory(
 
   return data || [];
 }
+
+const notesData: NotesListResponse = {
+  notes: [
+    {
+      id: "1",
+      title: "Introduction to Machine Learning",
+      description:
+        "Comprehensive notes covering supervised and unsupervised learning algorithms, neural networks, and practical applications.",
+      subject: "Computer Science",
+      noteType: "Lecture Notes",
+      tags: ["Machine Learning", "AI", "Python", "Algorithms"],
+      createdAt: "2024-01-15T10:00:00Z",
+      estimatedReadTime: 45,
+    },
+    {
+      id: "2",
+      title: "Calculus II - Integration Techniques",
+      description:
+        "Detailed explanations of integration by parts, partial fractions, and trigonometric substitutions with worked examples.",
+      subject: "Mathematics",
+      noteType: "Study Guide",
+      tags: ["Calculus", "Integration", "Mathematics"],
+      createdAt: "2024-01-14T14:30:00Z",
+      estimatedReadTime: 30,
+    },
+    {
+      id: "3",
+      title: "World War II Timeline",
+      description:
+        "Chronological overview of major events, battles, and political developments during World War II.",
+      subject: "History",
+      noteType: "Timeline",
+      tags: ["WWII", "Timeline", "History", "Europe"],
+      createdAt: "2024-01-13T09:15:00Z",
+      estimatedReadTime: 25,
+    },
+    {
+      id: "4",
+      title: "Organic Chemistry Reactions",
+      description:
+        "Complete guide to organic chemistry reaction mechanisms including SN1, SN2, E1, and E2 reactions.",
+      subject: "Chemistry",
+      noteType: "Reference Sheet",
+      tags: ["Organic Chemistry", "Reactions", "Mechanisms"],
+      createdAt: "2024-01-12T16:45:00Z",
+      estimatedReadTime: 35,
+    },
+    {
+      id: "5",
+      title: "Shakespeare Analysis: Hamlet",
+      description:
+        "Literary analysis of themes, character development, and symbolic elements in Hamlet.",
+      subject: "English Literature",
+      noteType: "Essay",
+      tags: ["Shakespeare", "Hamlet", "Literature", "Analysis"],
+      createdAt: "2024-01-11T11:20:00Z",
+      estimatedReadTime: 20,
+    },
+  ],
+  total: 5,
+  page: 1,
+  limit: 10,
+  hasMore: false,
+};
+
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const profile = await getUserProfile(params.username);
 
@@ -453,14 +524,25 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           {isOwnProfile ? "you" : profile.username || profile.full_name}
         </CardTitle>
         <CardDescription>
-          <p className="text-muted-foreground">
-            {isOwnProfile
-              ? "You haven't uploaded any notes yet."
-              : `${
-                  profile.username || profile.full_name
-                } hasn't uploaded any notes yet.`}
+          <p className="text-muted-foreground mb-4">
+            {notesData.notes.length === 0
+              ? isOwnProfile
+                ? "You haven't uploaded any notes yet."
+                : `${
+                    profile.username || profile.full_name
+                  } hasn't uploaded any notes yet.`
+              : isOwnProfile
+              ? `You have uploaded ${notesData.notes.length} notes.`
+              : `${profile.username || profile.full_name} has uploaded ${
+                  notesData.notes.length
+                } notes.`}
           </p>
         </CardDescription>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+          {notesData.notes.map((note) => (
+            <NoteCard key={note.id} note={note} />
+          ))}
+        </div>
       </div>
 
       {/* Recent Activity */}

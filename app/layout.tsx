@@ -46,7 +46,7 @@ export default function RootLayout({
           >
             <main className="min-h-screen flex flex-col items-center">
               {children}
-              <Toaster richColors theme="light" />
+              <Toaster richColors theme="system" />
             </main>
           </ThemeProvider>
         </AuthProvider>

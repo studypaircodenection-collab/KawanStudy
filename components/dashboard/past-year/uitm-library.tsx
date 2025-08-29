@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { Text } from "@/components/ui/typography";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import Link from "next/link";
 
 interface Paper {
   title: string;
@@ -353,7 +354,7 @@ const UiTMLibrary = () => {
                     <img
                       src={paper.image}
                       alt={paper.title}
-                      className="w-32 h-full object-cover rounded border bg-gray-100"
+                      className="w-32 h-full object-cover rounded border bg-background"
                       onError={(e) => {
                         e.currentTarget.src = "/placeholder-book.png";
                       }}
@@ -364,20 +365,22 @@ const UiTMLibrary = () => {
                           href={`https://mykmsearch.uitm.edu.my/beta/${paper.link}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 hover:underline"
+                          className="hover:text-primary hover:underline"
                         >
                           {paper.title}
                         </a>
                       </h3>
 
-                      <div className="flex flex-wrap gap-3 text-sm">
+                      <div className="flex flex-col gap-3 text-sm">
                         <div className="flex items-center gap-1">
-                          <Building2 className="h-4 w-4 text-gray-500" />
+                          <Building2 className="h-4 w-4 text-muted-foreground" />
                           <span className="font-medium">Faculty:</span>
-                          <span className="text-gray-600">{paper.faculty}</span>
+                          <span className="text-muted-foreground">
+                            {paper.faculty}
+                          </span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4 text-gray-500" />
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
                           <span className="font-medium">Year:</span>
                           <Badge variant="outline" className="text-xs">
                             {paper.year}
@@ -386,11 +389,22 @@ const UiTMLibrary = () => {
                       </div>
 
                       {paper.session && (
-                        <div className="text-sm text-gray-600">
-                          <span className="font-medium">Session:</span>{" "}
+                        <div className="text-sm text-muted-foreground">
+                          <Calendar className="h-4 w-4 inline-block mr-1" />
+                          <span className="font-medium text-foreground">
+                            Session:
+                          </span>{" "}
                           {paper.session}
                         </div>
                       )}
+                      <Button asChild>
+                        <Link
+                          target="_BLANK"
+                          href={`https://mykmsearch.uitm.edu.my/beta/${paper.link}`}
+                        >
+                          View Details
+                        </Link>
+                      </Button>
                     </div>
                   </div>
                 </CardContent>

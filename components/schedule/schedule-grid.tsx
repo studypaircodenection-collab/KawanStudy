@@ -82,7 +82,7 @@ export function ScheduleGrid({ entries, settings }: ScheduleGridProps) {
               {timeSlots.map((hour) => (
                 <div
                   key={hour}
-                  className="h-16 flex items-start justify-end pr-2 text-sm text-gray-500 border-r"
+                  className="h-16 flex items-start justify-end pr-2 text-sm  border-r"
                 >
                   {formatTime(hour)}
                 </div>
@@ -92,7 +92,7 @@ export function ScheduleGrid({ entries, settings }: ScheduleGridProps) {
             {/* Day columns */}
             {displayDays.map((day) => (
               <div key={day} className="space-y-1">
-                <div className="h-12 flex items-center justify-center font-medium text-sm bg-gray-50 rounded-md">
+                <div className="h-12 flex items-center justify-center font-medium text-sm bg-background rounded-md">
                   {day}
                 </div>
                 <div className="relative space-y-1">
@@ -102,7 +102,7 @@ export function ScheduleGrid({ entries, settings }: ScheduleGridProps) {
                     return (
                       <div
                         key={`${day}-${hour}`}
-                        className="h-16 border border-gray-100 rounded-sm relative bg-gray-25"
+                        className="h-16 border border-gray-100 dark:border-gray-950 rounded-sm relative bg-gray-25"
                       >
                         {slotEntries.map((entry) => (
                           <div

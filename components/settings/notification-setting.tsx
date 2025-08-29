@@ -98,7 +98,7 @@ export default function NotificationSetting() {
         <CardContent className="space-y-6">
           {/* Notification Types */}
           <div className="space-y-4">
-            <h3 className="font-medium text-gray-900">Notification Types</h3>
+            <h3 className="font-medium ">Notification Types</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -199,7 +199,7 @@ export default function NotificationSetting() {
             {notificationTypeStats.map(({ type, info, count, unreadCount }) => (
               <div
                 key={type}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                className="flex items-center justify-between p-3 bg-background rounded-lg"
               >
                 <div className="flex items-center gap-3">
                   <div
