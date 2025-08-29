@@ -9,6 +9,7 @@ import {
   Shield,
   BookOpen,
   Settings as SettingsIcon,
+  Palette,
 } from "lucide-react";
 
 import NotificationSetting from "@/components/settings/notification-setting";
@@ -16,12 +17,14 @@ import ProfileSetting from "@/components/settings/profile-setting";
 import StudySetting from "@/components/settings/study-setting";
 import PrivacySetting from "@/components/settings/privacy-setting";
 import AccountSetting from "@/components/settings/account-setting";
+import PersonalizationSetting from "@/components/settings/personalization-setting";
 
 const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState("profile");
 
   const settingsTabs = [
     { id: "profile", label: "Profile", icon: User },
+    { id: "personalization", label: "Personalization", icon: Palette },
     { id: "study", label: "Study", icon: BookOpen },
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "privacy", label: "Privacy", icon: Shield },
@@ -58,7 +61,7 @@ const SettingsPage = () => {
                     onClick={() => setActiveTab(id)}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
                       activeTab === id
-                        ? "bg-blue-50 text-blue-700 border-r-2 border-blue-700"
+                        ? "border-r-2 bg-primary/10  text-primary border-primary"
                         : "text-gray-700 hover:bg-gray-50"
                     }`}
                   >
@@ -75,6 +78,9 @@ const SettingsPage = () => {
         <div className="lg:col-span-3 space-y-6">
           {/* Profile Settings */}
           {activeTab === "profile" && <ProfileSetting />}
+
+          {/* Personalization Settings */}
+          {activeTab === "personalization" && <PersonalizationSetting />}
 
           {/* Study Settings */}
           {activeTab === "study" && <StudySetting />}

@@ -4,7 +4,13 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookOpen, User, Calendar, Building2, ExternalLink } from "lucide-react";
+import {
+  BookOpen,
+  User,
+  Calendar,
+  Building2,
+  ExternalLink,
+} from "lucide-react";
 import { UiTMEbook } from "@/lib/types";
 
 interface UiTMEbookCardProps {
@@ -20,19 +26,19 @@ const UiTMEbookCard: React.FC<UiTMEbookCardProps> = ({ ebook }) => {
             <img
               src={ebook.image}
               alt={ebook.title}
-              className="w-20 h-28 object-cover rounded border bg-gray-100"
+              className="w-32 h-full object-cover rounded border bg-gray-100"
               onError={(e) => {
                 e.currentTarget.src = "/placeholder-book.png";
               }}
             />
           </div>
-          
+
           <div className="flex-1 min-w-0 space-y-3">
             <div>
               <h3 className="text-lg font-semibold leading-tight line-clamp-2 mb-2">
                 {ebook.title}
               </h3>
-              
+
               {ebook.description && (
                 <p className="text-sm text-gray-600 line-clamp-2 mb-2">
                   {ebook.description}
@@ -79,7 +85,7 @@ const UiTMEbookCard: React.FC<UiTMEbookCardProps> = ({ ebook }) => {
             </div>
 
             <div className="pt-2">
-              <Button asChild size="sm" className="w-full">
+              <Button asChild size="sm">
                 <a
                   href={`https://mykmsearch.uitm.edu.my/beta/${ebook.link}`}
                   target="_blank"

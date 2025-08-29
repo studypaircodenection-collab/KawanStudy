@@ -102,7 +102,7 @@ export default function CarryMarkCalculator() {
             {rows.map((r) => (
               <div
                 key={r.id}
-                className="flex flex-col sm:grid sm:grid-cols-12 gap-2 items-center border rounded p-2"
+                className="flex flex-col sm:grid sm:grid-cols-12 gap-2 items-end border rounded p-2"
               >
                 <div className="w-full sm:col-span-3">
                   <Label className="text-xs">Name</Label>

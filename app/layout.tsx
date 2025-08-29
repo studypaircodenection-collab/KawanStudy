@@ -40,8 +40,8 @@ export default function RootLayout({
         <AuthProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="light"
-            forcedTheme="dark"
+            defaultTheme="system"
+            enableSystem
             disableTransitionOnChange
           >
             <main className="min-h-screen flex flex-col items-center">

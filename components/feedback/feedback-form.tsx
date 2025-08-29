@@ -99,21 +99,21 @@ export default function FeedbackForm({ onSubmit }: FeedbackFormProps) {
   const handleSubmit = async (data: FeedbackFormData) => {
     try {
       setIsSubmitting(true);
-      
+
       if (onSubmit) {
         await onSubmit(data);
       } else {
         // Default submission logic - could be replaced with API call
         console.log("Feedback submitted:", data);
-        
+
         // Simulate API call
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
-      
+
       toast.success("Feedback submitted successfully!", {
         description: "Thank you for helping us improve our platform.",
       });
-      
+
       form.reset();
     } catch (error) {
       console.error("Error submitting feedback:", error);
@@ -129,19 +129,23 @@ export default function FeedbackForm({ onSubmit }: FeedbackFormProps) {
   const selectedPriority = form.watch("priority");
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="w-full mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <MessageSquare className="h-6 w-6 text-blue-600" />
           Submit Feedback
         </CardTitle>
         <CardDescription>
-          Help us improve your experience by reporting issues, suggesting features, or sharing your thoughts.
+          Help us improve your experience by reporting issues, suggesting
+          features, or sharing your thoughts.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-6"
+          >
             {/* Feedback Type */}
             <FormField
               control={form.control}
@@ -215,22 +219,18 @@ export default function FeedbackForm({ onSubmit }: FeedbackFormProps) {
                     />
                   </FormControl>
                   <FormDescription>
-                    {selectedType === "bug" && 
-                      "Describe what happened, what you expected, and steps to reproduce the issue."
-                    }
-                    {selectedType === "feature" && 
-                      "Explain the feature you'd like to see and why it would be helpful."
-                    }
-                    {selectedType === "ui" && 
-                      "Describe the design or usability issue you encountered."
-                    }
-                    {selectedType === "performance" && 
-                      "Describe when and where you experienced slowness or lag."
-                    }
-                    {(selectedType === "general" || selectedType === "other") && 
-                      "Share your thoughts, suggestions, or any other feedback."
-                    }
-                    {!selectedType && "Please provide as much detail as possible."}
+                    {selectedType === "bug" &&
+                      "Describe what happened, what you expected, and steps to reproduce the issue."}
+                    {selectedType === "feature" &&
+                      "Explain the feature you'd like to see and why it would be helpful."}
+                    {selectedType === "ui" &&
+                      "Describe the design or usability issue you encountered."}
+                    {selectedType === "performance" &&
+                      "Describe when and where you experienced slowness or lag."}
+                    {(selectedType === "general" || selectedType === "other") &&
+                      "Share your thoughts, suggestions, or any other feedback."}
+                    {!selectedType &&
+                      "Please provide as much detail as possible."}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -256,7 +256,11 @@ export default function FeedbackForm({ onSubmit }: FeedbackFormProps) {
                           <div className="flex items-center gap-2">
                             <Badge
                               variant="outline"
-                              className={`text-xs ${priorityColors[priority.value as keyof typeof priorityColors]}`}
+                              className={`text-xs ${
+                                priorityColors[
+                                  priority.value as keyof typeof priorityColors
+                                ]
+                              }`}
                             >
                               {priority.label}
                             </Badge>
@@ -286,7 +290,8 @@ export default function FeedbackForm({ onSubmit }: FeedbackFormProps) {
                     />
                   </FormControl>
                   <FormDescription>
-                    Leave your email if you'd like us to follow up with you about this feedback.
+                    Leave your email if you'd like us to follow up with you
+                    about this feedback.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -308,7 +313,8 @@ export default function FeedbackForm({ onSubmit }: FeedbackFormProps) {
                     />
                   </FormControl>
                   <FormDescription>
-                    Screenshots, error messages, or any other relevant information.
+                    Screenshots, error messages, or any other relevant
+                    information.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -329,11 +335,7 @@ export default function FeedbackForm({ onSubmit }: FeedbackFormProps) {
             )}
 
             {/* Submit Button */}
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -352,9 +354,17 @@ export default function FeedbackForm({ onSubmit }: FeedbackFormProps) {
               <div className="flex items-center justify-center">
                 <Badge
                   variant="outline"
-                  className={`${priorityColors[selectedPriority as keyof typeof priorityColors]} border-2`}
+                  className={`${
+                    priorityColors[
+                      selectedPriority as keyof typeof priorityColors
+                    ]
+                  } border-2`}
                 >
-                  {priorityLevels.find(p => p.value === selectedPriority)?.label} Priority
+                  {
+                    priorityLevels.find((p) => p.value === selectedPriority)
+                      ?.label
+                  }{" "}
+                  Priority
                 </Badge>
               </div>
             )}

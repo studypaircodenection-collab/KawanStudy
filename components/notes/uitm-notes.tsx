@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { UiTMEbook, EbookSearchQuery } from "@/lib/types";
-import { Search, BookOpen, ChevronDown, X, AlertTriangle, User, Calendar } from "lucide-react";
+import { Search, BookOpen, AlertTriangle, User, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +29,9 @@ const UiTMNotes = () => {
 
   // Generate years from 1950 to current year
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: currentYear - 1949 }, (_, i) => (currentYear - i).toString());
+  const years = Array.from({ length: currentYear - 1949 }, (_, i) =>
+    (currentYear - i).toString()
+  );
 
   const fetchEbooks = async (params: EbookSearchQuery = searchQuery) => {
     setLoading(true);
@@ -62,9 +64,11 @@ const UiTMNotes = () => {
       const data: UiTMEbook[] = cards.map((card) => {
         // Extract title from the link
         const titleLink = card.querySelector(".card-title a");
+
         const title =
           titleLink?.textContent?.trim().replace(/^#\d+\s*-?\s*/, "") || "";
-
+        const em = card.getElementsByTagName("em");
+        const description = em.length > 0 ? em[0].textContent : "";
         // Extract details from paragraph elements
         const paragraphs = Array.from(card.querySelectorAll("p"));
         let author = "";
@@ -75,8 +79,8 @@ const UiTMNotes = () => {
 
         paragraphs.forEach((p) => {
           const text = p.textContent || "";
-          if (text.includes("Author:")) {
-            author = text.replace("Author:", "").trim();
+          if (text.includes("Author/Editor:")) {
+            author = text.replace("Author/Editor:", "").trim();
           } else if (text.includes("Publisher:")) {
             publisher = text.replace("Publisher:", "").trim();
           } else if (text.includes("Publish Year:") || text.includes("Year:")) {
@@ -93,6 +97,7 @@ const UiTMNotes = () => {
 
         return {
           title,
+          description,
           author,
           publisher,
           publishYear,
@@ -104,6 +109,7 @@ const UiTMNotes = () => {
       });
 
       setEbooks(data.filter((ebook) => ebook.title)); // Filter out empty titles
+      console.log("Fetched e-books:", data);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching e-books:", error);

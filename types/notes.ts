@@ -168,3 +168,11 @@ export const LICENSE_OPTIONS = [
   { value: "cc-by-nc", label: "Creative Commons - Non-Commercial" },
   { value: "all-rights-reserved", label: "All Rights Reserved" },
 ] as const;
+
+export const SOURCE_TYPES = [
+  { value: "original", label: "Original Work" },
+  { value: "textbook", label: "From Textbook" },
+  { value: "lecture", label: "From Lecture" },
+  { value: "research", label: "Research Paper" },
+  { value: "other", label: "Other" },
+] as const;

@@ -32,37 +32,75 @@ import {
   LANGUAGES,
   NOTE_FORMATS,
   SHARING_OPTIONS,
+  SOURCE_TYPES,
+  NoteFormData,
 } from "@/types/notes";
 import {
   noteFormSchema,
   type NoteFormSchema,
   noteFormDefaults,
-  NoteFormInput,
+  type NoteFormInput,
 } from "@/lib/validations/note-form";
 import { X, Plus } from "lucide-react";
+
 interface NoteAttributesFormProps {
-  onSubmit: (data: NoteFormInput) => void;
-  defaultValues?: Partial<NoteFormSchema>;
+  formData: NoteFormData;
+  onChange: (field: keyof NoteFormData, value: any) => void;
   className?: string;
 }
 
 export function NoteAttributesForm({
-  onSubmit,
-  defaultValues,
+  formData,
+  onChange,
   className,
 }: NoteAttributesFormProps) {
   const [newTag, setNewTag] = React.useState("");
 
   const form = useForm<NoteFormInput>({
     resolver: zodResolver(noteFormSchema),
-    defaultValues: {
-      ...noteFormDefaults,
-      ...defaultValues,
+    values: {
+      title: formData.title || "",
+      description: formData.description || "",
+      subject: formData.subject || "",
+      topic: formData.topic || "",
+      academicLevel: formData.academicLevel || "",
+      institution: formData.institution || "",
+      course: formData.course || "",
+      professor: formData.professor || "",
+      semester: formData.semester || "",
+      noteType: formData.noteType || "",
+      tags: formData.tags || [],
+      language: formData.language || "",
+      format: formData.format || "",
+      difficulty: formData.difficulty || "",
+      sourceType: formData.sourceType || "",
+      sourceReference: formData.sourceReference || "",
+      sharingOption: formData.sharingOption || "",
+      allowDownload: formData.allowDownload ?? true,
+      allowComments: formData.allowComments ?? true,
+      estimatedReadTime: formData.estimatedReadTime || 0,
+      textContent: formData.textContent || "",
     },
   });
 
   const { watch, setValue } = form;
-  const watchedTags = watch("tags");
+  const watchedTags = watch("tags") || [];
+
+  // Sync form values with external formData
+  React.useEffect(() => {
+    const subscription = watch((value) => {
+      Object.keys(value).forEach((key) => {
+        const typedKey = key as keyof NoteFormData;
+        if (
+          value[typedKey] !== undefined &&
+          value[typedKey] !== formData[typedKey]
+        ) {
+          onChange(typedKey, value[typedKey]);
+        }
+      });
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, onChange, formData]);
 
   const addTag = () => {
     if (
@@ -70,19 +108,17 @@ export function NoteAttributesForm({
       !watchedTags.includes(newTag.trim()) &&
       watchedTags.length < 10
     ) {
-      setValue("tags", [...watchedTags, newTag.trim()], {
-        shouldValidate: true,
-      });
+      const newTags = [...watchedTags, newTag.trim()];
+      setValue("tags", newTags, { shouldValidate: true });
+      onChange("tags", newTags);
       setNewTag("");
     }
   };
 
   const removeTag = (tagToRemove: string) => {
-    setValue(
-      "tags",
-      watchedTags.filter((tag: string) => tag !== tagToRemove),
-      { shouldValidate: true }
-    );
+    const newTags = watchedTags.filter((tag: string) => tag !== tagToRemove);
+    setValue("tags", newTags, { shouldValidate: true });
+    onChange("tags", newTags);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -95,7 +131,7 @@ export function NoteAttributesForm({
   return (
     <div className={className}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-6">
           <div className="grid gap-6">
             {/* Basic Information */}
             <Card>
@@ -113,6 +149,10 @@ export function NoteAttributesForm({
                         <Input
                           placeholder="Enter a descriptive title for your notes"
                           {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            onChange("title", e.target.value);
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -131,6 +171,10 @@ export function NoteAttributesForm({
                           placeholder="Brief description of the content"
                           rows={3}
                           {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            onChange("description", e.target.value);
+                          }}
                         />
                       </FormControl>
                       <FormDescription>
@@ -150,8 +194,11 @@ export function NoteAttributesForm({
                       <FormItem>
                         <FormLabel>Subject *</FormLabel>
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            onChange("subject", value);
+                          }}
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -181,6 +228,10 @@ export function NoteAttributesForm({
                           <Input
                             placeholder="Specific topic or chapter"
                             {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              onChange("topic", e.target.value);
+                            }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -205,8 +256,11 @@ export function NoteAttributesForm({
                       <FormItem>
                         <FormLabel>Academic Level *</FormLabel>
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            onChange("academicLevel", value);
+                          }}
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -233,8 +287,11 @@ export function NoteAttributesForm({
                       <FormItem>
                         <FormLabel>Note Type *</FormLabel>
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            onChange("noteType", value);
+                          }}
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -266,6 +323,10 @@ export function NoteAttributesForm({
                           <Input
                             placeholder="Your school/university"
                             {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              onChange("institution", e.target.value);
+                            }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -283,6 +344,10 @@ export function NoteAttributesForm({
                           <Input
                             placeholder="Course code or class name"
                             {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              onChange("course", e.target.value);
+                            }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -299,7 +364,14 @@ export function NoteAttributesForm({
                       <FormItem>
                         <FormLabel>Professor/Teacher</FormLabel>
                         <FormControl>
-                          <Input placeholder="Instructor name" {...field} />
+                          <Input
+                            placeholder="Instructor name"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              onChange("professor", e.target.value);
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -313,7 +385,14 @@ export function NoteAttributesForm({
                       <FormItem>
                         <FormLabel>Semester/Year</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Fall 2024" {...field} />
+                          <Input
+                            placeholder="e.g., Fall 2024"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              onChange("semester", e.target.value);
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -391,8 +470,11 @@ export function NoteAttributesForm({
                       <FormItem>
                         <FormLabel>Language *</FormLabel>
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            onChange("language", value);
+                          }}
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -422,8 +504,11 @@ export function NoteAttributesForm({
                       <FormItem>
                         <FormLabel>Format *</FormLabel>
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            onChange("format", value);
+                          }}
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -444,62 +529,36 @@ export function NoteAttributesForm({
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="difficulty"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Difficulty Level</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select difficulty" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Beginner">Beginner</SelectItem>
-                            <SelectItem value="Intermediate">
-                              Intermediate
-                            </SelectItem>
-                            <SelectItem value="Advanced">Advanced</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="estimatedReadTime"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Estimated Read Time (minutes)</FormLabel>
+                <FormField
+                  control={form.control}
+                  name="difficulty"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Difficulty Level</FormLabel>
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          onChange("difficulty", value);
+                        }}
+                        value={field.value}
+                      >
                         <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="0"
-                            min={0}
-                            max={1440}
-                            value={(field.value as string) ?? ""}
-                            onChange={(e) => field.onChange(e.target.value)}
-                            onBlur={field.onBlur}
-                            name={field.name}
-                            ref={field.ref}
-                          />
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select difficulty" />
+                          </SelectTrigger>
                         </FormControl>
-                        <FormDescription>
-                          How long it takes to read through these notes
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                        <SelectContent>
+                          <SelectItem value="Beginner">Beginner</SelectItem>
+                          <SelectItem value="Intermediate">
+                            Intermediate
+                          </SelectItem>
+                          <SelectItem value="Advanced">Advanced</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </CardContent>
             </Card>
 
@@ -516,8 +575,11 @@ export function NoteAttributesForm({
                     <FormItem>
                       <FormLabel>Source Type *</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          onChange("sourceType", value);
+                        }}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -525,17 +587,11 @@ export function NoteAttributesForm({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Original">
-                            Original Work
-                          </SelectItem>
-                          <SelectItem value="Textbook">
-                            From Textbook
-                          </SelectItem>
-                          <SelectItem value="Lecture">From Lecture</SelectItem>
-                          <SelectItem value="Research">
-                            Research Paper
-                          </SelectItem>
-                          <SelectItem value="Other">Other</SelectItem>
+                          {SOURCE_TYPES.map((source) => (
+                            <SelectItem key={source.value} value={source.value}>
+                              {source.label}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -554,6 +610,10 @@ export function NoteAttributesForm({
                           placeholder="Book title, author, page numbers, DOI, etc."
                           rows={2}
                           {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            onChange("sourceReference", e.target.value);
+                          }}
                         />
                       </FormControl>
                       <FormDescription>
@@ -579,8 +639,11 @@ export function NoteAttributesForm({
                     <FormItem>
                       <FormLabel>Sharing Option *</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          onChange("sharingOption", value);
+                        }}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -616,7 +679,10 @@ export function NoteAttributesForm({
                       <FormControl>
                         <Switch
                           checked={field.value}
-                          onCheckedChange={field.onChange}
+                          onCheckedChange={(value) => {
+                            field.onChange(value);
+                            onChange("allowDownload", value);
+                          }}
                         />
                       </FormControl>
                     </FormItem>
@@ -639,16 +705,47 @@ export function NoteAttributesForm({
                       <FormControl>
                         <Switch
                           checked={field.value}
-                          onCheckedChange={field.onChange}
+                          onCheckedChange={(value) => {
+                            field.onChange(value);
+                            onChange("allowComments", value);
+                          }}
                         />
                       </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="estimatedReadTime"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Estimated Read Time (minutes)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          min="0"
+                          max="1440"
+                          value={String(field.value || 0)}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value) || 0;
+                            field.onChange(value);
+                            onChange("estimatedReadTime", value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        How long it takes to read through these notes
+                      </FormDescription>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
               </CardContent>
             </Card>
           </div>
-        </form>
+        </div>
       </Form>
     </div>
   );

@@ -353,7 +353,7 @@ const UiTMLibrary = () => {
                     <img
                       src={paper.image}
                       alt={paper.title}
-                      className="w-16 h-20 object-cover rounded border bg-gray-100"
+                      className="w-32 h-full object-cover rounded border bg-gray-100"
                       onError={(e) => {
                         e.currentTarget.src = "/placeholder-book.png";
                       }}
