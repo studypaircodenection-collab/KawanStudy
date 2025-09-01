@@ -130,21 +130,6 @@ async function getUserAchievements(userId: string): Promise<UserAchievement[]> {
   return data || [];
 }
 
-async function getUserStats(userId: string) {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase.rpc("get_user_stats", {
-    p_user_id: userId,
-  });
-
-  if (error) {
-    console.error("Error fetching user stats:", error);
-    return null;
-  }
-
-  return data;
-}
-
 async function getUserConnections(userId: string): Promise<number> {
   try {
     const supabase = await createClient();
@@ -311,10 +296,9 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const currentUser = await getCurrentUser();
   const isOwnProfile = currentUser.username === params.username;
 
-  const [achievements, userStats, pointHistory, connectionsCount, notesData] =
+  const [achievements, pointHistory, connectionsCount, notesData] =
     await Promise.all([
       getUserAchievements(profile.id),
-      getUserStats(profile.id),
       getRecentPointHistory(profile.id),
       getUserConnections(profile.id),
       getUserNotes(profile.id),
@@ -450,53 +434,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             </div>
           </div>
         </div>
-
-        {/* Stats Overview */}
-        {/* {isOwnProfile ? (
-          <div className="w-full lg:w-1/3 space-y-4">
-            <Card className="h-full">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Your Stats Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">
-                    Total Points
-                  </span>
-                  <span className="font-semibold">
-                    {profile.total_points.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Level</span>
-                  <span className="font-semibold">{profile.level}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">
-                    Experience
-                  </span>
-                  <span className="font-semibold">
-                    {profile.experience_points.toLocaleString()} XP
-                  </span>
-                </div>
-                {userStats?.rank && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">
-                      Leaderboard Rank
-                    </span>
-                    <span className="font-semibold">#{userStats.rank}</span>
-                  </div>
-                )}
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">
-                    Achievements
-                  </span>
-                  <span className="font-semibold">{achievements.length}</span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        ) : null} */}
       </div>
 
       {/* Achievements Section */}
@@ -600,24 +537,34 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       {/* Notes */}
 
       <div className="flex items-center justify-between">
-        <div>
-          <CardTitle className="flex items-center gap-2">
-            📝 Notes by{" "}
-            {isOwnProfile ? "you" : profile.username || profile.full_name}
-          </CardTitle>
-          <CardDescription>
-            {notesData.notes.length === 0
-              ? isOwnProfile
-                ? "You haven't uploaded any notes yet."
-                : `${
+        <div className="flex justify-between items-center gap-2 w-full">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              📝 Notes by{" "}
+              {isOwnProfile ? "you" : profile.username || profile.full_name}
+            </CardTitle>
+            <CardDescription>
+              {notesData.notes.length === 0
+                ? isOwnProfile
+                  ? "You haven't uploaded any notes yet."
+                  : `${
+                      profile.username || profile.full_name
+                    } hasn't uploaded any notes yet.`
+                : isOwnProfile
+                ? `You have uploaded notes on various subjects`
+                : `Latest notes shared by ${
                     profile.username || profile.full_name
-                  } hasn't uploaded any notes yet.`
-              : isOwnProfile
-              ? `You have uploaded notes on various subjects`
-              : `Latest notes shared by ${
-                  profile.username || profile.full_name
-                }`}
-          </CardDescription>
+                  }`}
+            </CardDescription>
+          </div>
+          <div>
+            <Button variant="outline" asChild>
+              <Link href={`/dashboard/notes/browse/${profile.username}`}>
+                View All Notes
+                <ArrowRightIcon className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
         </div>
         {notesData.hasMore && (
           <Button variant="outline" asChild>

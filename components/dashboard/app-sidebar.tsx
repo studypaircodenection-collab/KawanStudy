@@ -70,8 +70,12 @@ const data = {
       icon: NotebookTabsIcon,
       items: [
         {
-          title: "Browse Notes",
+          title: "KawanStudy Notes",
           url: "/dashboard/notes/browse",
+        },
+        {
+          title: "UiTM E-Library",
+          url: "/dashboard/notes/uitm-library",
         },
         {
           title: "Upload Notes",
@@ -87,6 +91,16 @@ const data = {
       title: "Past Year Paper",
       url: "/dashboard/past-year",
       icon: BookOpen,
+      items: [
+        {
+          title: "KawanStudy Paper",
+          url: "/dashboard/past-year/kawanstudy-paper",
+        },
+        {
+          title: "UiTM Past Year",
+          url: "/dashboard/past-year/uitm-paper",
+        },
+      ],
     },
     {
       title: "CarryMark Calculator",

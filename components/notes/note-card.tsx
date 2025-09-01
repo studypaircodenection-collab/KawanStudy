@@ -118,7 +118,7 @@ const NoteCard = ({ note }: { note: NoteCardData }) => {
       className="pt-0 group transition-all duration-300 cursor-pointer border-0 bg-white dark:bg-gray-900 overflow-hidden"
     >
       {/* Header Image */}
-      <CardHeader className="p-0 relative overflow-hidden">
+      <CardHeader className="h-fit p-0 relative overflow-hidden">
         <div className="aspect-[16/9] w-full bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center relative">
           {note.thumbnailUrl ? (
             <Image
