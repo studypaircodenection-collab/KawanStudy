@@ -1,5 +1,12 @@
 // This file contains all shared types used across the application
 
+// Re-export note types for compatibility
+export type {
+  NoteUpload,
+  NoteFormData,
+  NoteUploadResponse,
+} from "@/types/notes";
+
 // User Profile Types
 export interface UserProfile {
   id: string;

@@ -112,7 +112,7 @@ export function RichTextEditor({
       {!isPreview && (
         <>
           {/* Formatting Toolbar */}
-          <div className="flex flex-wrap items-center gap-1 p-2 bg-gray-50 rounded-lg mb-4">
+          <div className="flex flex-wrap items-center gap-1 p-2 bg-background rounded-lg mb-4">
             <Button
               type="button"
               variant="ghost"
@@ -202,7 +202,7 @@ export function RichTextEditor({
       )}
 
       {isPreview && (
-        <div className="min-h-[400px] p-4 border rounded-lg bg-white">
+        <div className="min-h-[400px] p-4 border rounded-lg bg-background">
           {content ? (
             <div
               className="prose prose-sm max-w-none"

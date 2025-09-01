@@ -1,0 +1,43 @@
+import { notesService } from "@/lib/services/notes";
+import { NoteFormData } from "@/types/notes";
+
+export const useNoteUpload = () => {
+  const uploadNote = async (
+    formData: NoteFormData,
+    file: File | null,
+    contentType: "pdf" | "text"
+  ) => {
+    try {
+      const result = await notesService.uploadNote(formData, file, contentType);
+      return result;
+    } catch (error) {
+      console.error("Upload error:", error);
+      return { success: false, error: "Network error" };
+    }
+  };
+
+  const likeNote = async (noteId: string) => {
+    try {
+      const result = await notesService.likeNote(noteId);
+      return result;
+    } catch (error) {
+      console.error("Like error:", error);
+      throw error;
+    }
+  };
+
+  const downloadNote = async (noteId: string) => {
+    try {
+      await notesService.downloadNote(noteId);
+    } catch (error) {
+      console.error("Download error:", error);
+      throw error;
+    }
+  };
+
+  return {
+    uploadNote,
+    likeNote,
+    downloadNote,
+  };
+};

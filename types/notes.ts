@@ -1,21 +1,23 @@
 // Types for the Notes Upload System
 export interface NoteUpload {
   id?: string;
+  user_id?: string;
   title: string;
   description: string;
   content?: string; // For rich text notes
-  contentType: "pdf" | "text";
+  content_type: "pdf" | "text";
 
   // Academic Context
   subject: string;
   topic: string;
-  academicLevel: "high-school" | "undergraduate" | "graduate" | "professional";
-  gradeYear?: string;
+  academic_level: "high-school" | "undergraduate" | "graduate" | "professional";
+  grade_year?: string;
   institution?: string;
+  course?: string;
 
   // Classification
   tags: string[];
-  noteType:
+  note_type:
     | "lecture-notes"
     | "summary"
     | "cheat-sheet"
@@ -24,32 +26,50 @@ export interface NoteUpload {
     | "mind-map"
     | "other";
   language: "english" | "bahasa-malaysia" | "chinese" | "tamil" | "other";
-  difficultyLevel: "beginner" | "intermediate" | "advanced";
+  difficulty_level: "beginner" | "intermediate" | "advanced";
 
   // Sharing
   visibility: "public" | "friends-only" | "private";
-  targetAudience: "students" | "educators" | "general";
+  target_audience: "students" | "educators" | "general";
   license: "cc-by" | "cc-by-sa" | "cc-by-nc" | "all-rights-reserved";
+  allow_download: boolean;
+  allow_comments: boolean;
 
   // Source & Attribution
-  sourceAttribution?: string;
+  source_attribution?: string;
+  source_type: "original" | "textbook" | "lecture" | "research" | "other";
+  source_reference?: string;
   professor?: string;
   semester?: string;
 
   // File information (for PDF uploads)
-  fileName?: string;
-  fileSize?: number;
-  fileUrl?: string;
+  file_name?: string;
+  file_size?: number;
+  file_url?: string;
+  file_path?: string;
+
+  // Thumbnail information
+  thumbnail_url?: string;
+  thumbnail_path?: string;
+  thumbnail_file_name?: string;
+  thumbnail_file_size?: number;
 
   // Metadata
-  createdAt?: Date;
-  updatedAt?: Date;
-  userId?: string;
+  estimated_read_time: number;
+  view_count?: number;
+  download_count?: number;
+  like_count?: number;
+  status?: "draft" | "pending" | "published" | "rejected";
+
+  // Timestamps
+  created_at?: Date;
+  updated_at?: Date;
 }
 
 export interface NoteUploadFormData
   extends Omit<NoteUpload, "id" | "createdAt" | "updatedAt" | "userId"> {
   file?: File;
+  thumbnailFile?: File;
 }
 
 // Form data interface for the upload form
@@ -176,3 +196,57 @@ export const SOURCE_TYPES = [
   { value: "research", label: "Research Paper" },
   { value: "other", label: "Other" },
 ] as const;
+
+// API Response Types
+export interface NotesListResponse {
+  notes: Array<{
+    id: string;
+    title: string;
+    description: string;
+    subject: string;
+    academic_level: string;
+    note_type: string;
+    language: string;
+    difficulty_level: string;
+    tags: string[];
+    estimated_read_time: number;
+    view_count?: number;
+    download_count?: number;
+    like_count?: number;
+    created_at: string;
+    thumbnail_url?: string;
+    file_url?: string;
+    content_type: string;
+    user_profile?: {
+      id: string;
+      username: string;
+      full_name: string;
+      avatar_url: string;
+    };
+  }>;
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
+export interface NoteSearchFilters {
+  subject?: string;
+  academicLevel?: string;
+  noteType?: string;
+  language?: string;
+  difficulty?: string;
+}
+
+export interface NoteUploadResponse {
+  success: boolean;
+  note?: {
+    id: string;
+    title: string;
+    description: string;
+    subject: string;
+    file_url?: string;
+    created_at: string;
+  };
+  error?: string;
+}

@@ -8,10 +8,31 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Clock, Calendar } from "lucide-react";
-import { NoteListItem } from "@/lib/types";
+import { BookOpen, Clock, Calendar, Eye, Heart, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ImageIcon } from "lucide-react";
+import Image from "next/image";
+
+interface NoteCardData {
+  id: string;
+  title: string;
+  description: string;
+  subject: string;
+  noteType: string;
+  tags: string[];
+  createdAt: string;
+  estimatedReadTime: number;
+  viewCount?: number;
+  downloadCount?: number;
+  likeCount?: number;
+  thumbnailUrl?: string;
+  userProfile?: {
+    id: string;
+    username: string;
+    fullName: string;
+    avatarUrl: string;
+  };
+}
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString("en-US", {
     year: "numeric",
@@ -20,7 +41,7 @@ const formatDate = (dateString: string) => {
   });
 };
 
-const NoteCard = ({ note }: { note: NoteListItem }) => {
+const NoteCard = ({ note }: { note: NoteCardData }) => {
   const router = useRouter();
 
   const handleClick = () => {
@@ -35,7 +56,25 @@ const NoteCard = ({ note }: { note: NoteListItem }) => {
     >
       <CardHeader className="p-0 overflow-hidden rounded-xl">
         <div className="aspect-video w-full bg-background grid place-items-center object-cover">
-          <ImageIcon className="size-10 object-cover text-muted-foreground" />
+          {note.thumbnailUrl ? (
+            <Image
+              src={note.thumbnailUrl}
+              alt={note.title}
+              width={400}
+              height={300}
+              className="w-full h-full object-cover aspect-video"
+              onError={(e) => {
+                // Fallback to placeholder if image fails to load
+                e.currentTarget.style.display = "none";
+                e.currentTarget.nextElementSibling?.classList.remove("hidden");
+              }}
+            />
+          ) : null}
+          <ImageIcon
+            className={`size-10 object-cover text-muted-foreground ${
+              note.thumbnailUrl ? "hidden" : ""
+            }`}
+          />
         </div>
       </CardHeader>
       <CardContent className="pt-0">
@@ -68,7 +107,7 @@ const NoteCard = ({ note }: { note: NoteListItem }) => {
           </div>
 
           <div className="flex flex-wrap gap-1">
-            {note.tags.slice(0, 3).map((tag, index) => (
+            {note.tags.slice(0, 3).map((tag: string, index: number) => (
               <Badge key={index} variant="outline" className="text-xs">
                 {tag}
               </Badge>

@@ -15,16 +15,23 @@ import { Badge } from "@/components/ui/badge";
 import { FileUpload } from "@/components/notes/file-upload";
 import { RichTextEditor } from "@/components/notes/rich-text-editor";
 import { NoteAttributesForm } from "@/components/notes/note-attributes-form";
+import { ThumbnailUpload } from "@/components/notes/thumbnail-upload";
 import { NoteFormData } from "@/types/notes";
+import { notesService } from "@/lib/services/notes";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Upload, FileText, CheckCircle, AlertCircle, Save } from "lucide-react";
 
 export default function UploadNotesPage() {
   const [activeTab, setActiveTab] = useState<"pdf" | "text">("pdf");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "success" | "error"
   >("idle");
+
+  const { push } = useRouter();
 
   // Form data state
   const [formData, setFormData] = useState<NoteFormData>({
@@ -100,51 +107,22 @@ export default function UploadNotesPage() {
     setSubmitStatus("idle");
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const result = await notesService.uploadNote(
+        formData,
+        uploadedFile,
+        activeTab,
+        thumbnailFile
+      );
 
-      // Here you would typically:
-      // 1. Upload file to storage service
-      // 2. Save note metadata to database
-      // 3. Process the content (OCR for PDFs, etc.)
-
-      console.log("Submitting note:", {
-        ...formData,
-        contentType: activeTab,
-        file: uploadedFile,
-      });
-
-      setSubmitStatus("success");
-
-      // Reset form after successful submission
-      setTimeout(() => {
-        setFormData({
-          title: "",
-          description: "",
-          subject: "",
-          topic: "",
-          academicLevel: "",
-          institution: "",
-          course: "",
-          professor: "",
-          semester: "",
-          noteType: "",
-          tags: [],
-          language: "",
-          format: "",
-          difficulty: "",
-          sourceType: "",
-          sourceReference: "",
-          sharingOption: "",
-          allowDownload: true,
-          allowComments: true,
-          estimatedReadTime: 0,
-          textContent: "",
-        });
-        setUploadedFile(null);
-        setSubmitStatus("idle");
-      }, 3000);
+      if (result.success) {
+        toast.success("Your notes have been uploaded successfully!");
+        push("/dashboard/notes/browse");
+      } else {
+        toast.error("Upload failed");
+        throw new Error(result.error || "Upload failed");
+      }
     } catch (error) {
+      toast.error("Upload failed");
       console.error("Error submitting note:", error);
       setSubmitStatus("error");
     } finally {
@@ -234,6 +212,24 @@ export default function UploadNotesPage() {
             </CardContent>
           </Card>
 
+          {/* Thumbnail Upload */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Add Thumbnail</CardTitle>
+              <CardDescription>
+                Upload an image to make your notes more attractive and easier to
+                identify in search results.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ThumbnailUpload
+                onImageSelect={setThumbnailFile}
+                selectedImage={thumbnailFile}
+                disabled={isSubmitting}
+              />
+            </CardContent>
+          </Card>
+
           {/* Note Attributes Form */}
           <NoteAttributesForm formData={formData} onChange={handleFormChange} />
         </div>
@@ -262,6 +258,18 @@ export default function UploadNotesPage() {
                       title={uploadedFile.name}
                     >
                       {uploadedFile.name}
+                    </span>
+                  </div>
+                )}
+
+                {thumbnailFile && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Thumbnail:</span>
+                    <span
+                      className="font-medium truncate max-w-32"
+                      title={thumbnailFile.name}
+                    >
+                      {thumbnailFile.name}
                     </span>
                   </div>
                 )}

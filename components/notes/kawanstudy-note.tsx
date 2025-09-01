@@ -1,5 +1,13 @@
-import React, { useState } from "react";
-import { NotesListResponse, NoteSearchFilters } from "@/lib/types";
+import React, { useState, useEffect } from "react";
+import {
+  NoteSearchFilters,
+  SUBJECTS,
+  ACADEMIC_LEVELS,
+  NOTE_TYPES,
+  LANGUAGES,
+  DIFFICULTY_LEVELS,
+} from "@/types/notes";
+import { notesService, NotesListResponse } from "@/lib/services/notes";
 import NoteCard from "@/components/notes/note-card";
 import { Search, BookOpen, ChevronDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,107 +27,71 @@ const KawanStudyNotes = () => {
   // State management
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<NoteSearchFilters>({});
-  const [sortBy, setSortBy] = useState<string>("createdAt");
+  const [sortBy, setSortBy] = useState<string>("created_at");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-
-  // Mock data - in real app, this would come from API
   const [notesData, setNotesData] = useState<NotesListResponse>({
-    notes: [
-      {
-        id: "1",
-        title: "Introduction to Machine Learning",
-        description:
-          "Comprehensive notes covering supervised and unsupervised learning algorithms, neural networks, and practical applications.",
-        subject: "Computer Science",
-        noteType: "Lecture Notes",
-        tags: ["Machine Learning", "AI", "Python", "Algorithms"],
-        createdAt: "2024-01-15T10:00:00Z",
-        estimatedReadTime: 45,
-      },
-      {
-        id: "2",
-        title: "Calculus II - Integration Techniques",
-        description:
-          "Detailed explanations of integration by parts, partial fractions, and trigonometric substitutions with worked examples.",
-        subject: "Mathematics",
-        noteType: "Study Guide",
-        tags: ["Calculus", "Integration", "Mathematics"],
-        createdAt: "2024-01-14T14:30:00Z",
-        estimatedReadTime: 30,
-      },
-      {
-        id: "3",
-        title: "World War II Timeline",
-        description:
-          "Chronological overview of major events, battles, and political developments during World War II.",
-        subject: "History",
-        noteType: "Timeline",
-        tags: ["WWII", "Timeline", "History", "Europe"],
-        createdAt: "2024-01-13T09:15:00Z",
-        estimatedReadTime: 25,
-      },
-      {
-        id: "4",
-        title: "Organic Chemistry Reactions",
-        description:
-          "Complete guide to organic chemistry reaction mechanisms including SN1, SN2, E1, and E2 reactions.",
-        subject: "Chemistry",
-        noteType: "Reference Sheet",
-        tags: ["Organic Chemistry", "Reactions", "Mechanisms"],
-        createdAt: "2024-01-12T16:45:00Z",
-        estimatedReadTime: 35,
-      },
-      {
-        id: "5",
-        title: "Shakespeare Analysis: Hamlet",
-        description:
-          "Literary analysis of themes, character development, and symbolic elements in Hamlet.",
-        subject: "English Literature",
-        noteType: "Essay",
-        tags: ["Shakespeare", "Hamlet", "Literature", "Analysis"],
-        createdAt: "2024-01-11T11:20:00Z",
-        estimatedReadTime: 20,
-      },
-    ],
-    total: 5,
+    notes: [],
+    total: 0,
     page: 1,
     limit: 10,
     hasMore: false,
   });
 
-  // Filter options (would typically come from API)
+  // Load notes data
+  const loadNotes = async (resetPage = false) => {
+    setLoading(true);
+    try {
+      const currentPage = resetPage ? 1 : page;
+      const result = await notesService.searchNotes(
+        searchTerm,
+        filters,
+        sortBy,
+        sortDirection,
+        currentPage,
+        10
+      );
+
+      if (resetPage) {
+        setNotesData(result);
+        setPage(1);
+      } else {
+        // Append new notes for pagination
+        setNotesData((prev) => ({
+          ...result,
+          notes:
+            currentPage === 1 ? result.notes : [...prev.notes, ...result.notes],
+        }));
+      }
+    } catch (error) {
+      console.error("Error loading notes:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load notes on component mount and when filters change
+  useEffect(() => {
+    loadNotes(true);
+  }, [searchTerm, filters, sortBy, sortDirection]);
+
+  // Handle load more
+  const handleLoadMore = () => {
+    if (!loading && notesData.hasMore) {
+      setPage((prev) => prev + 1);
+      loadNotes(false);
+    }
+  };
+
+  // Filter options using the actual constants from types
   const filterOptions = {
-    subjects: [
-      "Computer Science",
-      "Mathematics",
-      "History",
-      "Chemistry",
-      "English Literature",
-      "Physics",
-      "Biology",
-    ],
-    noteTypes: [
-      "Lecture Notes",
-      "Study Guide",
-      "Timeline",
-      "Reference Sheet",
-      "Essay",
-      "Research Paper",
-      "Summary",
-    ],
-    languages: [
-      "English",
-      "Spanish",
-      "French",
-      "German",
-      "Chinese",
-      "Japanese",
-    ],
-    difficulties: ["Beginner", "Intermediate", "Advanced", "Expert"],
-    academicLevels: ["High School", "Undergraduate", "Graduate", "PhD"],
+    subjects: SUBJECTS,
+    noteTypes: NOTE_TYPES,
+    languages: LANGUAGES,
+    difficulties: DIFFICULTY_LEVELS,
+    academicLevels: ACADEMIC_LEVELS,
   };
 
   // Handle filter changes
@@ -129,7 +101,7 @@ const KawanStudyNotes = () => {
   ) => {
     setFilters((prev) => ({
       ...prev,
-      [key]: value || undefined,
+      [key]: value === "all" ? undefined : value,
     }));
   };
 
@@ -137,6 +109,11 @@ const KawanStudyNotes = () => {
   const clearFilters = () => {
     setFilters({});
     setSearchTerm("");
+  };
+
+  // Handle search term change with debounce
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
   };
 
   // Active filters count
@@ -164,7 +141,7 @@ const KawanStudyNotes = () => {
             <Input
               placeholder="Search notes by title, description, or tags..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="pl-10 h-12"
             />
           </div>
@@ -193,10 +170,12 @@ const KawanStudyNotes = () => {
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="createdAt">Date Created</SelectItem>
+                <SelectItem value="created_at">Date Created</SelectItem>
                 <SelectItem value="title">Title</SelectItem>
                 <SelectItem value="subject">Subject</SelectItem>
-                <SelectItem value="estimatedReadTime">Read Time</SelectItem>
+                <SelectItem value="view_count">Views</SelectItem>
+                <SelectItem value="like_count">Likes</SelectItem>
+                <SelectItem value="estimated_read_time">Read Time</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -247,8 +226,8 @@ const KawanStudyNotes = () => {
                   <SelectContent>
                     <SelectItem value="all">Any type</SelectItem>
                     {filterOptions.noteTypes.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -271,8 +250,8 @@ const KawanStudyNotes = () => {
                   <SelectContent>
                     <SelectItem value="all">Any language</SelectItem>
                     {filterOptions.languages.map((language) => (
-                      <SelectItem key={language} value={language}>
-                        {language}
+                      <SelectItem key={language.value} value={language.value}>
+                        {language.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -295,8 +274,11 @@ const KawanStudyNotes = () => {
                   <SelectContent>
                     <SelectItem value="all">Any difficulty</SelectItem>
                     {filterOptions.difficulties.map((difficulty) => (
-                      <SelectItem key={difficulty} value={difficulty}>
-                        {difficulty}
+                      <SelectItem
+                        key={difficulty.value}
+                        value={difficulty.value}
+                      >
+                        {difficulty.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -319,8 +301,8 @@ const KawanStudyNotes = () => {
                   <SelectContent>
                     <SelectItem value="all">Any level</SelectItem>
                     {filterOptions.academicLevels.map((level) => (
-                      <SelectItem key={level} value={level}>
-                        {level}
+                      <SelectItem key={level.value} value={level.value}>
+                        {level.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -360,7 +342,7 @@ const KawanStudyNotes = () => {
           <Button
             variant="outline"
             size="lg"
-            onClick={() => setPage((prev) => prev + 1)}
+            onClick={handleLoadMore}
             disabled={loading}
           >
             {loading ? "Loading..." : "Load More Notes"}
