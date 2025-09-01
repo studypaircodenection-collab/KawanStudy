@@ -94,7 +94,7 @@ const data = {
       items: [
         {
           title: "KawanStudy Paper",
-          url: "/dashboard/past-year/kawanstudy-paper",
+          url: "/dashboard/past-year/browse",
         },
         {
           title: "UiTM Past Year",
