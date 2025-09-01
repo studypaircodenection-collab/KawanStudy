@@ -11,6 +11,15 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import {
   ArrowLeft,
   Download,
   Heart,
@@ -26,10 +35,19 @@ import {
   MessageCircle,
   Eye,
   Flag,
+  Edit,
+  Copy,
+  Mail,
+  Twitter,
+  Facebook,
+  Linkedin,
+  Link as LinkIcon,
 } from "lucide-react";
 import { notesService } from "@/lib/services/notes";
 import { useNoteUpload } from "@/hooks/use-notes";
+import CommentSection from "@/components/notes/comment-section";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
 interface NoteData {
   id: string;
@@ -73,12 +91,14 @@ export default function NoteDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const { likeNote, downloadNote } = useNoteUpload();
+  const supabase = createClient();
 
   const [note, setNote] = useState<NoteData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(0);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   const noteId = params.id as string;
 
@@ -98,10 +118,18 @@ export default function NoteDetailsPage() {
       }
     };
 
+    const getCurrentUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setCurrentUser(user);
+    };
+
     if (noteId) {
       fetchNote();
+      getCurrentUser();
     }
-  }, [noteId]);
+  }, [noteId, supabase.auth]);
 
   const handleLike = async () => {
     try {
@@ -186,6 +214,75 @@ export default function NoteDetailsPage() {
     }
   };
 
+  // Share functionality
+  const copyToClipboard = async () => {
+    try {
+      const url = window.location.href;
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied to clipboard!");
+    } catch (error) {
+      toast.error("Failed to copy link");
+    }
+  };
+
+  const shareViaEmail = () => {
+    const subject = encodeURIComponent(`Check out this note: ${note.title}`);
+    const body = encodeURIComponent(
+      `I found this interesting note on StudyPair:\n\n${note.title}\n${note.description}\n\n${window.location.href}`
+    );
+    window.open(`mailto:?subject=${subject}&body=${body}`);
+  };
+
+  const shareOnTwitter = () => {
+    const text = encodeURIComponent(`Check out this note: ${note.title}`);
+    const url = encodeURIComponent(window.location.href);
+    window.open(
+      `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
+      "_blank"
+    );
+  };
+
+  const shareOnFacebook = () => {
+    const url = encodeURIComponent(window.location.href);
+    window.open(
+      `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+      "_blank"
+    );
+  };
+
+  const shareOnLinkedIn = () => {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(note.title);
+    const summary = encodeURIComponent(note.description);
+    window.open(
+      `https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}&summary=${summary}`,
+      "_blank"
+    );
+  };
+
+  const shareNative = async () => {
+    if (
+      typeof window !== "undefined" &&
+      "share" in navigator &&
+      navigator.share
+    ) {
+      try {
+        await navigator.share({
+          title: note.title,
+          text: note.description,
+          url: window.location.href,
+        });
+        toast.success("Shared successfully!");
+      } catch (error) {
+        if (error instanceof Error && error.name !== "AbortError") {
+          toast.error("Failed to share");
+        }
+      }
+    } else {
+      copyToClipboard();
+    }
+  };
+
   return (
     <div className="container mx-auto space-y-6">
       {/* Header with Navigation */}
@@ -204,7 +301,7 @@ export default function NoteDetailsPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Note Header */}
+          {/* Note Content Tabs */}
           <Card>
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -226,44 +323,52 @@ export default function NoteDetailsPage() {
                     />
                     {likes}
                   </Button>
-                  <Button variant="outline" size="sm">
-                    <Share2 className="h-4 w-4 mr-1" />
-                    Share
-                  </Button>
-                </div>
-              </div>
-
-              {/* Author Information */}
-              <div className="flex items-center gap-3 pt-4">
-                <Avatar>
-                  <AvatarImage src={note.profiles.avatar_url} />
-                  <AvatarFallback>
-                    {note.profiles.full_name?.charAt(0) ||
-                      note.profiles.username?.charAt(0) ||
-                      "U"}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium">
-                    {note.profiles.full_name || note.profiles.username}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    @{note.profiles.username}
-                  </p>
-                </div>
-                <Separator orientation="vertical" className="h-8" />
-                <div className="text-sm text-muted-foreground">
-                  <p>Published {formatDate(note.created_at)}</p>
-                  {note.updated_at !== note.created_at && (
-                    <p>Updated {formatDate(note.updated_at)}</p>
-                  )}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Share2 className="h-4 w-4 mr-1" />
+                        Share
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuLabel>Share this note</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {typeof window !== "undefined" &&
+                        "share" in navigator && (
+                          <>
+                            <DropdownMenuItem onClick={shareNative}>
+                              <Share2 className="h-4 w-4 mr-2" />
+                              Share...
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                          </>
+                        )}
+                      <DropdownMenuItem onClick={copyToClipboard}>
+                        <Copy className="h-4 w-4 mr-2" />
+                        Copy link
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={shareViaEmail}>
+                        <Mail className="h-4 w-4 mr-2" />
+                        Email
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={shareOnTwitter}>
+                        <Twitter className="h-4 w-4 mr-2" />
+                        Twitter
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={shareOnFacebook}>
+                        <Facebook className="h-4 w-4 mr-2" />
+                        Facebook
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={shareOnLinkedIn}>
+                        <Linkedin className="h-4 w-4 mr-2" />
+                        LinkedIn
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             </CardHeader>
-          </Card>
-
-          {/* Note Content Tabs */}
-          <Card>
             <Tabs defaultValue="overview" className="w-full">
               <CardHeader>
                 <TabsList className="grid w-full grid-cols-3">
@@ -396,15 +501,30 @@ export default function NoteDetailsPage() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-semibold">Note Content</h3>
-                      {note.allow_download && note.file_url && (
-                        <Button
-                          className="flex items-center gap-2"
-                          onClick={handleDownload}
-                        >
-                          <Download className="h-4 w-4" />
-                          Download {note.content_type.toUpperCase()}
-                        </Button>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {/* Edit button - only show for note owner */}
+                        {currentUser && note.user_id === currentUser.id && (
+                          <Button
+                            variant="outline"
+                            className="flex items-center gap-2"
+                            onClick={() =>
+                              router.push(`/dashboard/notes/${noteId}/edit`)
+                            }
+                          >
+                            <Edit className="h-4 w-4" />
+                            Edit Note
+                          </Button>
+                        )}
+                        {note.allow_download && note.file_url && (
+                          <Button
+                            className="flex items-center gap-2"
+                            onClick={handleDownload}
+                          >
+                            <Download className="h-4 w-4" />
+                            Download {note.content_type.toUpperCase()}
+                          </Button>
+                        )}
+                      </div>
                     </div>
 
                     {/* Mock PDF Viewer */}
@@ -591,10 +711,48 @@ export default function NoteDetailsPage() {
                   Download {note.content_type.toUpperCase()}
                 </Button>
               )}
-              <Button className="w-full justify-start" variant="outline">
-                <Share2 className="h-4 w-4 mr-2" />
-                Share Note
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="w-full justify-start" variant="outline">
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Share Note
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel>Share this note</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {typeof window !== "undefined" && "share" in navigator && (
+                    <>
+                      <DropdownMenuItem onClick={shareNative}>
+                        <Share2 className="h-4 w-4 mr-2" />
+                        Share...
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  <DropdownMenuItem onClick={copyToClipboard}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy link
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={shareViaEmail}>
+                    <Mail className="h-4 w-4 mr-2" />
+                    Email
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={shareOnTwitter}>
+                    <Twitter className="h-4 w-4 mr-2" />
+                    Twitter
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={shareOnFacebook}>
+                    <Facebook className="h-4 w-4 mr-2" />
+                    Facebook
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={shareOnLinkedIn}>
+                    <Linkedin className="h-4 w-4 mr-2" />
+                    LinkedIn
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Separator />
               <Button
                 className="w-full justify-start"
@@ -655,6 +813,11 @@ export default function NoteDetailsPage() {
               </Button>
             </CardContent>
           </Card>
+          {/* Comment Section */}
+          <CommentSection
+            noteId={note.id}
+            allowComments={note.allow_comments}
+          />
         </div>
       </div>
     </div>

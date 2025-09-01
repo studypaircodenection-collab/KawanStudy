@@ -22,17 +22,45 @@ import {
   Award,
   UsersIcon,
   ArrowRightIcon,
+  BookOpen,
 } from "lucide-react";
-import {
-  UserProfile,
-  UserAchievement,
-  PointTransaction,
-  NotesListResponse,
-} from "@/lib/types";
+import { UserProfile, UserAchievement, PointTransaction } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import NoteCard from "@/components/notes/note-card";
+
+// Custom interface for profile notes
+interface ProfileNotesResponse {
+  notes: Array<{
+    id: string;
+    title: string;
+    description: string;
+    subject: string;
+    noteType: string;
+    tags: string[];
+    createdAt: string;
+    estimatedReadTime: number;
+    viewCount?: number;
+    downloadCount?: number;
+    likeCount?: number;
+    thumbnailUrl?: string;
+    academicLevel?: string;
+    language?: string;
+    difficultyLevel?: string;
+    institution?: string;
+    userProfile?: {
+      id: string;
+      username: string;
+      fullName: string;
+      avatarUrl: string;
+    };
+  }>;
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
 interface ProfilePageProps {
   params: {
     username: string;
@@ -157,69 +185,120 @@ async function getRecentPointHistory(
   return data || [];
 }
 
-const notesData: NotesListResponse = {
-  notes: [
-    {
-      id: "1",
-      title: "Introduction to Machine Learning",
-      description:
-        "Comprehensive notes covering supervised and unsupervised learning algorithms, neural networks, and practical applications.",
-      subject: "Computer Science",
-      noteType: "Lecture Notes",
-      tags: ["Machine Learning", "AI", "Python", "Algorithms"],
-      createdAt: "2024-01-15T10:00:00Z",
-      estimatedReadTime: 45,
-    },
-    {
-      id: "2",
-      title: "Calculus II - Integration Techniques",
-      description:
-        "Detailed explanations of integration by parts, partial fractions, and trigonometric substitutions with worked examples.",
-      subject: "Mathematics",
-      noteType: "Study Guide",
-      tags: ["Calculus", "Integration", "Mathematics"],
-      createdAt: "2024-01-14T14:30:00Z",
-      estimatedReadTime: 30,
-    },
-    {
-      id: "3",
-      title: "World War II Timeline",
-      description:
-        "Chronological overview of major events, battles, and political developments during World War II.",
-      subject: "History",
-      noteType: "Timeline",
-      tags: ["WWII", "Timeline", "History", "Europe"],
-      createdAt: "2024-01-13T09:15:00Z",
-      estimatedReadTime: 25,
-    },
-    {
-      id: "4",
-      title: "Organic Chemistry Reactions",
-      description:
-        "Complete guide to organic chemistry reaction mechanisms including SN1, SN2, E1, and E2 reactions.",
-      subject: "Chemistry",
-      noteType: "Reference Sheet",
-      tags: ["Organic Chemistry", "Reactions", "Mechanisms"],
-      createdAt: "2024-01-12T16:45:00Z",
-      estimatedReadTime: 35,
-    },
-    {
-      id: "5",
-      title: "Shakespeare Analysis: Hamlet",
-      description:
-        "Literary analysis of themes, character development, and symbolic elements in Hamlet.",
-      subject: "English Literature",
-      noteType: "Essay",
-      tags: ["Shakespeare", "Hamlet", "Literature", "Analysis"],
-      createdAt: "2024-01-11T11:20:00Z",
-      estimatedReadTime: 20,
-    },
-  ],
-  total: 5,
-  page: 1,
-  limit: 10,
-  hasMore: false,
-};
+async function getUserNotes(userId: string): Promise<ProfileNotesResponse> {
+  const supabase = await createClient();
+
+  try {
+    const { data: notes, error } = await supabase
+      .from("notes")
+      .select(
+        `
+        id,
+        title,
+        description,
+        subject,
+        note_type,
+        tags,
+        created_at,
+        estimated_read_time,
+        view_count,
+        download_count,
+        like_count,
+        academic_level,
+        language,
+        difficulty_level,
+        institution,
+        file_url,
+        user_id,
+        profiles!notes_user_id_fkey (
+          id,
+          username,
+          full_name,
+          avatar_url
+        )
+      `
+      )
+      .eq("user_id", userId)
+      .eq("status", "published")
+      .eq("visibility", "public")
+      .order("created_at", { ascending: false })
+      .limit(3);
+
+    if (error) {
+      console.error("Error fetching user notes:", error);
+      return {
+        notes: [],
+        total: 0,
+        page: 1,
+        limit: 3,
+        hasMore: false,
+      };
+    }
+
+    if (!notes || notes.length === 0) {
+      return {
+        notes: [],
+        total: 0,
+        page: 1,
+        limit: 3,
+        hasMore: false,
+      };
+    }
+
+    // Transform the data to match our interface with proper type safety
+    const transformedNotes = (notes || []).map((note: any) => {
+      const noteCard = {
+        id: note.id,
+        title: note.title || "Untitled Note",
+        description: note.description || "",
+        subject: note.subject || "General",
+        noteType:
+          note.note_type
+            ?.replace(/-/g, " ")
+            .replace(/\b\w/g, (l: string) => l.toUpperCase()) || "Note",
+        tags: Array.isArray(note.tags) ? note.tags : [],
+        createdAt: note.created_at,
+        estimatedReadTime: note.estimated_read_time || 5,
+        viewCount: note.view_count || 0,
+        downloadCount: note.download_count || 0,
+        likeCount: note.like_count || 0,
+        academicLevel: note.academic_level,
+        language: note.language,
+        difficultyLevel: note.difficulty_level,
+        institution: note.institution,
+        thumbnailUrl: note.file_url
+          ? `${note.file_url}?thumbnail=true`
+          : undefined,
+        userProfile: note.profiles
+          ? {
+              id: note.profiles.id,
+              username: note.profiles.username,
+              fullName: note.profiles.full_name,
+              avatarUrl: note.profiles.avatar_url || "",
+            }
+          : undefined,
+      };
+      return noteCard;
+    });
+
+    return {
+      notes: transformedNotes,
+      total: transformedNotes.length,
+      page: 1,
+      limit: 3,
+      hasMore: transformedNotes.length === 3, // If we got 3 notes, there might be more
+    };
+  } catch (error) {
+    console.error("Error fetching user notes:", error);
+    return {
+      notes: [],
+      total: 0,
+      page: 1,
+      limit: 3,
+      hasMore: false,
+    };
+  }
+}
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const profile = await getUserProfile(params.username);
@@ -232,12 +311,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const currentUser = await getCurrentUser();
   const isOwnProfile = currentUser.username === params.username;
 
-  const [achievements, userStats, pointHistory, connectionsCount] =
+  const [achievements, userStats, pointHistory, connectionsCount, notesData] =
     await Promise.all([
       getUserAchievements(profile.id),
       getUserStats(profile.id),
       getRecentPointHistory(profile.id),
       getUserConnections(profile.id),
+      getUserNotes(profile.id),
     ]);
 
   const formatDate = (dateString: string) => {
@@ -518,13 +598,14 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       )}
 
       {/* Notes */}
-      <div>
-        <CardTitle className="flex items-center gap-2">
-          Notes uploaded by{" "}
-          {isOwnProfile ? "you" : profile.username || profile.full_name}
-        </CardTitle>
-        <CardDescription>
-          <p className="text-muted-foreground mb-4">
+
+      <div className="flex items-center justify-between">
+        <div>
+          <CardTitle className="flex items-center gap-2">
+            📝 Notes by{" "}
+            {isOwnProfile ? "you" : profile.username || profile.full_name}
+          </CardTitle>
+          <CardDescription>
             {notesData.notes.length === 0
               ? isOwnProfile
                 ? "You haven't uploaded any notes yet."
@@ -532,18 +613,59 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     profile.username || profile.full_name
                   } hasn't uploaded any notes yet.`
               : isOwnProfile
-              ? `You have uploaded ${notesData.notes.length} notes.`
-              : `${profile.username || profile.full_name} has uploaded ${
-                  notesData.notes.length
-                } notes.`}
-          </p>
-        </CardDescription>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+              ? `You have uploaded notes on various subjects`
+              : `Latest notes shared by ${
+                  profile.username || profile.full_name
+                }`}
+          </CardDescription>
+        </div>
+        {notesData.hasMore && (
+          <Button variant="outline" asChild>
+            <Link href={`/dashboard/notes?author=${profile.username}`}>
+              View All Notes
+              <ArrowRightIcon className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        )}
+      </div>
+
+      {notesData.notes.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {notesData.notes.map((note) => (
             <NoteCard key={note.id} note={note} />
           ))}
         </div>
-      </div>
+      ) : (
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+            <BookOpen className="h-8 w-8 text-muted-foreground" />
+          </div>
+          {isOwnProfile ? (
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold">
+                Ready to Share Your Knowledge?
+              </h3>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                Upload your first note to help fellow students learn and earn
+                points!
+              </p>
+              <Button asChild>
+                <Link href="/dashboard/notes/upload">
+                  Upload Your First Note
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold">No Notes Yet</h3>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                {profile.full_name?.split(" ")[0] || profile.username} hasn't
+                shared any notes yet.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Recent Activity */}
       {pointHistory.length > 0 && (

@@ -35,9 +35,31 @@ export const useNoteUpload = () => {
     }
   };
 
+  const updateNote = async (noteId: string, data: Partial<NoteFormData>) => {
+    try {
+      const result = await notesService.updateNote(noteId, data);
+      return result;
+    } catch (error) {
+      console.error("Update error:", error);
+      throw error;
+    }
+  };
+
+  const deleteNote = async (noteId: string) => {
+    try {
+      const result = await notesService.deleteNote(noteId);
+      return result;
+    } catch (error) {
+      console.error("Delete error:", error);
+      throw error;
+    }
+  };
+
   return {
     uploadNote,
     likeNote,
     downloadNote,
+    updateNote,
+    deleteNote,
   };
 };

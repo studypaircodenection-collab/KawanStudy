@@ -28,6 +28,10 @@ export interface NotesListResponse {
     downloadCount?: number;
     likeCount?: number;
     thumbnailUrl?: string;
+    academicLevel?: string;
+    language?: string;
+    difficultyLevel?: string;
+    institution?: string;
     userProfile?: {
       id: string;
       username: string;
