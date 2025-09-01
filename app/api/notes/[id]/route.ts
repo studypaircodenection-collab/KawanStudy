@@ -3,11 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
-    const noteId = params.id;
+    const noteId = id;
 
     // Get note details with user profile
     const { data: note, error } = await supabase
@@ -42,8 +43,30 @@ export async function GET(
       }
     }
 
-    // Increment view count
-    await supabase.rpc("increment_note_view", { note_id: noteId });
+    // Track view with duplicate prevention (similar to papers system)
+    const userAgent = request.headers.get("user-agent");
+    const forwarded = request.headers.get("x-forwarded-for");
+    const ip = forwarded
+      ? forwarded.split(",")[0]
+      : request.headers.get("x-real-ip");
+
+    // Get current user for view tracking
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    // Track the view with duplicate prevention
+    try {
+      await supabase.rpc("track_note_view", {
+        p_note_id: noteId,
+        p_user_id: user?.id || null,
+        p_ip_address: ip,
+        p_user_agent: userAgent,
+      });
+    } catch (viewError) {
+      console.error("Error tracking note view:", viewError);
+      // Don't fail the request if view tracking fails
+    }
 
     return NextResponse.json({ note });
   } catch (error) {
@@ -57,11 +80,12 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
-    const noteId = params.id;
+    const noteId = id;
 
     // Check authentication
     const {
@@ -124,11 +148,12 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
-    const noteId = params.id;
+    const noteId = id;
 
     // Check authentication
     const {

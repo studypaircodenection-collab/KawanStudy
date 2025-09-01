@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import PDFViewer from "@/components/pdf-viewer";
 import {
   Download,
   Heart,
@@ -384,6 +386,68 @@ export function PaperDetailView({ paper }: PaperDetailViewProps) {
           </div>
         </CardHeader>
       </Card>
+
+      {/* Paper Preview */}
+      {(paper.questionFileUrl || (paper.hasSolution && paper.solutionFileUrl)) && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Paper Preview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs 
+              defaultValue={paper.questionFileUrl ? "question" : "solution"} 
+              className="w-full"
+            >
+              <TabsList className={`grid w-full ${
+                paper.questionFileUrl && paper.hasSolution && paper.solutionFileUrl 
+                  ? "grid-cols-2" 
+                  : "grid-cols-1"
+              }`}>
+                {paper.questionFileUrl && (
+                  <TabsTrigger value="question" className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Question Paper
+                  </TabsTrigger>
+                )}
+                {paper.hasSolution && paper.solutionFileUrl && (
+                  <TabsTrigger value="solution" className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4" />
+                    Solution
+                  </TabsTrigger>
+                )}
+              </TabsList>
+
+              {paper.questionFileUrl && (
+                <TabsContent value="question" className="mt-6">
+                  <PDFViewer
+                    fileUrl={paper.questionFileUrl}
+                    title={`${paper.title} - Question Paper`}
+                    onDownload={
+                      paper.allowDownload
+                        ? () => handleDownload("question")
+                        : undefined
+                    }
+                  />
+                </TabsContent>
+              )}
+
+              {paper.hasSolution && paper.solutionFileUrl && (
+                <TabsContent value="solution" className="mt-6">
+                  <PDFViewer
+                    fileUrl={paper.solutionFileUrl}
+                    title={`${paper.title} - Solution`}
+                    onDownload={
+                      paper.allowDownload
+                        ? () => handleDownload("solution")
+                        : undefined
+                    }
+                  />
+                </TabsContent>
+              )}
+            </Tabs>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Actions and Downloads */}
       <Card className="mb-6">

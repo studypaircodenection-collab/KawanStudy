@@ -4,11 +4,12 @@ import { createClient } from "@/lib/supabase/server";
 // GET /api/notes/[id]/comments - Get comments for a note
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
-    const noteId = params.id;
+    const noteId = id;
 
     // Get comments with user profiles (including deleted ones that have replies)
     const { data: comments, error } = await supabase
@@ -79,11 +80,12 @@ export async function GET(
 // POST /api/notes/[id]/comments - Add a comment to a note
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
-    const noteId = params.id;
+    const noteId = id;
 
     // Get current user
     const {

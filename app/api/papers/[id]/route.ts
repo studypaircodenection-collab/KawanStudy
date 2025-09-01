@@ -15,6 +15,7 @@ export async function GET(
       .select(
         `
         id,
+        user_id,
         title,
         description,
         subject,
@@ -129,7 +130,12 @@ export async function GET(
             fullName: (paper.profiles as any).full_name,
             avatarUrl: (paper.profiles as any).avatar_url,
           }
-        : null,
+        : {
+            id: paper.user_id || 'unknown',
+            username: 'Unknown User',
+            fullName: 'Unknown User',
+            avatarUrl: undefined,
+          },
     };
 
     return NextResponse.json({ paper: transformedPaper });
