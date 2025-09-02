@@ -306,7 +306,7 @@ const QuizAnswerPage: React.FC<QuizAnswerProps> = ({ params }) => {
                       Grade Level:
                     </span>
                     <Badge variant="outline">
-                      {quiz.gradeLevel || "Not specified"}
+                      {quiz.academic_level || "Not specified"}
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between">

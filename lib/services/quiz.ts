@@ -7,7 +7,7 @@ export interface QuizFormData {
   description?: string;
   thumbnailUrl?: string;
   subject: string;
-  gradeLevel?: string;
+  academic_level?: string;
   timeLimitMinutes?: number;
   shuffle?: boolean;
   questions: {
@@ -63,7 +63,7 @@ export class QuizService {
     page?: number;
     limit?: number;
     subject?: string;
-    gradeLevel?: string;
+    academic_level?: string;
     search?: string;
     createdBy?: string;
   }): Promise<QuizListResponse> {
@@ -72,7 +72,7 @@ export class QuizService {
     if (params?.page) searchParams.set("page", params.page.toString());
     if (params?.limit) searchParams.set("limit", params.limit.toString());
     if (params?.subject) searchParams.set("subject", params.subject);
-    if (params?.gradeLevel) searchParams.set("gradeLevel", params.gradeLevel);
+    if (params?.academic_level) searchParams.set("academic_level", params.academic_level);
     if (params?.search) searchParams.set("search", params.search);
     if (params?.createdBy) searchParams.set("createdBy", params.createdBy);
 

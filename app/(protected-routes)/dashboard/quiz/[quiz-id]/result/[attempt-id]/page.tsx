@@ -66,7 +66,7 @@ interface AttemptResult {
     title: string;
     description?: string;
     subject: string;
-    gradeLevel?: string;
+    academic_level?: string;
   };
   questions: QuestionResult[];
   summary: {
@@ -355,8 +355,8 @@ const AttemptDetailPage: React.FC<AttemptDetailProps> = ({ params }) => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="flex items-center space-x-2">
               <Badge variant="secondary">{quiz.subject}</Badge>
-              {quiz.gradeLevel && (
-                <Badge variant="outline">Grade {quiz.gradeLevel}</Badge>
+              {quiz.academic_level && (
+                <Badge variant="outline">Grade {quiz.academic_level}</Badge>
               )}
             </div>
             <div className="flex items-center space-x-2 text-muted-foreground">

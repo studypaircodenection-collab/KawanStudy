@@ -45,8 +45,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 
 // Form validation schema
@@ -88,7 +86,7 @@ const quizSchema = z.object({
     .optional()
     .or(z.literal("")),
   subject: z.string().min(1, "Subject is required"),
-  gradeLevel: z.string().optional(),
+  academic_level: z.string().optional(),
   timeLimitMinutes: z.number().min(1).optional(),
   shuffle: z.boolean().optional(),
   questions: z
@@ -98,6 +96,7 @@ const quizSchema = z.object({
 
 type QuizFormData = z.infer<typeof quizSchema>;
 
+const AcademicLevel = ["high-school", "undergraduate", "graduate", "professional"];
 const CreateQuizPage = () => {
   const router = useRouter();
   const { toast } = useToast();
@@ -118,7 +117,7 @@ const CreateQuizPage = () => {
       description: "",
       thumbnailUrl: "",
       subject: "",
-      gradeLevel: "",
+      academic_level: "",
       timeLimitMinutes: 10,
       shuffle: false,
       questions: [
@@ -301,7 +300,7 @@ const CreateQuizPage = () => {
         description: data.description || "",
         thumbnailUrl: data.thumbnailUrl || "",
         subject: data.subject,
-        gradeLevel: data.gradeLevel || "",
+        academic_level: data.academic_level || "",
         timeLimitMinutes: data.timeLimitMinutes,
         shuffle: data.shuffle || false,
         questions: data.questions.map((q, index) => ({
@@ -377,8 +376,8 @@ const CreateQuizPage = () => {
             )}
             <div className="flex gap-2 mt-2">
               <Badge variant="secondary">{formData.subject}</Badge>
-              {formData.gradeLevel && (
-                <Badge variant="outline">Grade {formData.gradeLevel}</Badge>
+              {formData.academic_level && (
+                <Badge variant="outline">{formData.academic_level}</Badge>
               )}
               {formData.timeLimitMinutes && (
                 <Badge variant="outline">{formData.timeLimitMinutes} min</Badge>
@@ -656,10 +655,10 @@ const CreateQuizPage = () => {
 
                   <FormField
                     control={form.control}
-                    name="gradeLevel"
+                    name="academic_level"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Grade Level</FormLabel>
+                        <FormLabel>Academic Level</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -670,9 +669,11 @@ const CreateQuizPage = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {Array.from({ length: 12 }, (_, i) => (
-                              <SelectItem key={i + 1} value={String(i + 1)}>
-                                Grade {i + 1}
+                            {AcademicLevel.map((level, i) => (
+                              <SelectItem key={i} value={level}>
+                                {level
+                                  .replace("-", " ")
+                                  .replace(/\b\w/g, (c) => c.toUpperCase())}
                               </SelectItem>
                             ))}
                           </SelectContent>

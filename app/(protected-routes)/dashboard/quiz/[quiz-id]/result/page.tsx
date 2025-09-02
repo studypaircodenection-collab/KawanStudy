@@ -46,7 +46,7 @@ interface QuizInfo {
   title: string;
   description: string;
   subject: string;
-  grade_level: string;
+  academic_level: string;
   total_questions: number;
 }
 
@@ -243,8 +243,8 @@ const QuizResultPage: React.FC<QuizResultProps> = ({ params }) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-center space-x-2">
               <Badge variant="secondary">{quiz.subject}</Badge>
-              {quiz.grade_level && (
-                <Badge variant="outline">Grade {quiz.grade_level}</Badge>
+              {quiz.academic_level && (
+                <Badge variant="outline">Grade {quiz.academic_level}</Badge>
               )}
             </div>
             <div className="flex items-center space-x-2 text-muted-foreground">

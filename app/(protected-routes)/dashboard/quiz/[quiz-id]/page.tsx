@@ -153,10 +153,10 @@ const QuizDetailPage: React.FC<QuizDetailProps> = ({ params }) => {
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
             <BookOpen className="h-4 w-4" />
             <span>{quiz.subject}</span>
-            {quiz.gradeLevel && (
+            {quiz.academic_level && (
               <>
                 <span>•</span>
-                <span>{quiz.gradeLevel}</span>
+                <span>{quiz.academic_level}</span>
               </>
             )}
           </div>
@@ -251,10 +251,10 @@ const QuizDetailPage: React.FC<QuizDetailProps> = ({ params }) => {
                 <span className="font-medium">Subject:</span>
                 <Badge variant="outline">{quiz.subject}</Badge>
               </div>
-              {quiz.gradeLevel && (
+              {quiz.academic_level && (
                 <div className="flex items-center justify-between">
                   <span className="font-medium">Grade Level:</span>
-                  <Badge variant="outline">{quiz.gradeLevel}</Badge>
+                  <Badge variant="outline">{quiz.academic_level}</Badge>
                 </div>
               )}
               <div className="flex items-center justify-between">

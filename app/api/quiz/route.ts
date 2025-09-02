@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const subject = searchParams.get("subject");
-    const gradeLevel = searchParams.get("gradeLevel");
+    const academicLevel = searchParams.get("academic_level");
     const search = searchParams.get("search");
     const createdBy = searchParams.get("createdBy"); // For getting user's own quizzes
 
@@ -50,8 +50,8 @@ export async function GET(request: NextRequest) {
       query = query.eq("subject", subject);
     }
 
-    if (gradeLevel) {
-      query = query.eq("grade_level", gradeLevel);
+    if (academicLevel) {
+      query = query.eq("academic_level", academicLevel);
     }
 
     if (search) {
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
       .from("quizzes")
       .select("*", { count: "exact", head: true })
       .match(subject ? { subject } : {})
-      .match(gradeLevel ? { grade_level: gradeLevel } : {})
+      .match(academicLevel ? { academic_level: academicLevel } : {})
       .match(createdBy ? { created_by: createdBy } : {});
 
     // Get paginated results
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
       description: quiz.description || "",
       thumbnailUrl: quiz.thumbnail_url || "",
       subject: quiz.subject,
-      gradeLevel: quiz.grade_level || "",
+      academic_level: quiz.academic_level || "",
       playCount: quiz.play_count || 0,
       timeLimitMinutes: quiz.time_limit_minutes,
       shuffle: quiz.shuffle_questions || false,
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
       description,
       thumbnailUrl,
       subject,
-      gradeLevel,
+      academic_level,
       timeLimitMinutes,
       shuffle,
       questions,
@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
         description: description || null,
         thumbnail_url: thumbnailUrl || null,
         subject,
-        grade_level: gradeLevel || null,
+        academic_level: academic_level || null,
         time_limit_minutes: timeLimitMinutes || null,
         shuffle_questions: shuffle || false,
         metadata: metadata || {},

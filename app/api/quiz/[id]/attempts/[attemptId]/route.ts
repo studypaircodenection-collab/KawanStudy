@@ -96,7 +96,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         title: quizData.quiz.title,
         description: quizData.quiz.description,
         subject: quizData.quiz.subject,
-        gradeLevel: quizData.quiz.grade_level,
+        academic_level: quizData.quiz.academic_level,
       },
       questions: questionsWithResults,
       summary: {

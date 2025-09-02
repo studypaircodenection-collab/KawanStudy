@@ -102,7 +102,7 @@ const quizSchema = z.object({
     .optional()
     .or(z.literal("")),
   subject: z.string().min(1, "Subject is required"),
-  gradeLevel: z.string().optional(),
+  academic_level: z.string().optional(),
   timeLimitMinutes: z.number().min(1).optional(),
   shuffle: z.boolean().optional(),
   questions: z
@@ -111,53 +111,12 @@ const quizSchema = z.object({
 });
 
 type QuizFormData = z.infer<typeof quizSchema>;
-
+const AcademicLevel = ["high-school", "undergraduate", "graduate", "professional"];
 interface EditQuizPageProps {
   params: Promise<{
     "quiz-id": string;
   }>;
 }
-
-// Mock data for demonstration - replace with actual API call
-const mockQuizData: Quiz = {
-  id: "quiz_123",
-  title: "Introduction to Calculus",
-  description:
-    "Test your understanding of calculus fundamentals including derivatives, integration, and their applications.",
-  thumbnailUrl:
-    "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=250&fit=crop&crop=center",
-  subject: "Mathematics",
-  gradeLevel: "12",
-  playCount: 42,
-  timeLimitMinutes: 15,
-  shuffle: false,
-  questions: [
-    {
-      id: "q1",
-      text: "What is the derivative of x²?",
-      options: ["x", "2x", "x²", "2"],
-      correct: 1,
-      kind: QuestionKind.Single,
-      explanation: "The derivative of x² is 2x using the power rule.",
-    },
-    {
-      id: "q2",
-      text: "Which of the following are integration techniques? (Select all that apply)",
-      options: [
-        "Substitution",
-        "Integration by parts",
-        "Partial fractions",
-        "Differentiation",
-      ],
-      correct: [0, 1, 2],
-      kind: QuestionKind.Multiple,
-      explanation:
-        "Substitution, integration by parts, and partial fractions are all valid integration techniques. Differentiation is the opposite operation.",
-      minSelections: 1,
-      maxSelections: 3,
-    },
-  ],
-};
 
 const EditQuizPage: React.FC<EditQuizPageProps> = ({ params }) => {
   const router = useRouter();
@@ -185,7 +144,7 @@ const EditQuizPage: React.FC<EditQuizPageProps> = ({ params }) => {
       description: "",
       thumbnailUrl: "",
       subject: "",
-      gradeLevel: "",
+      academic_level: "",
       timeLimitMinutes: 10,
       shuffle: false,
       questions: [],
@@ -242,7 +201,7 @@ const EditQuizPage: React.FC<EditQuizPageProps> = ({ params }) => {
         description: quiz.description || "",
         thumbnailUrl: quiz.thumbnailUrl || "",
         subject: quiz.subject,
-        gradeLevel: quiz.gradeLevel || "",
+        academic_level: quiz.academic_level || "",
         timeLimitMinutes: quiz.timeLimitMinutes || 10,
         shuffle: quiz.shuffle || false,
         questions: quiz.questions.map((q) => ({
@@ -531,8 +490,8 @@ const EditQuizPage: React.FC<EditQuizPageProps> = ({ params }) => {
             )}
             <div className="flex gap-2 mt-2">
               <Badge variant="secondary">{formData.subject}</Badge>
-              {formData.gradeLevel && (
-                <Badge variant="outline">Grade {formData.gradeLevel}</Badge>
+              {formData.academic_level && (
+                <Badge variant="outline">Grade {formData.academic_level}</Badge>
               )}
               {formData.timeLimitMinutes && (
                 <Badge variant="outline">{formData.timeLimitMinutes} min</Badge>
@@ -810,7 +769,7 @@ const EditQuizPage: React.FC<EditQuizPageProps> = ({ params }) => {
 
                   <FormField
                     control={form.control}
-                    name="gradeLevel"
+                    name="academic_level"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Grade Level</FormLabel>
@@ -824,20 +783,13 @@ const EditQuizPage: React.FC<EditQuizPageProps> = ({ params }) => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {Array.from({ length: 12 }, (_, i) => i + 1).map(
-                              (grade) => (
-                                <SelectItem
-                                  key={grade}
-                                  value={grade.toString()}
-                                >
-                                  Grade {grade}
-                                </SelectItem>
-                              )
-                            )}
-                            <SelectItem value="college">College</SelectItem>
-                            <SelectItem value="university">
-                              University
-                            </SelectItem>
+                            {AcademicLevel.map((level, i) => (
+                              <SelectItem key={i} value={level}>
+                                {level
+                                  .replace("-", " ")
+                                  .replace(/\b\w/g, (c) => c.toUpperCase())}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         <FormMessage />

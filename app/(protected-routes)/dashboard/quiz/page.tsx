@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Users, Award, Plus, Loader2 } from "lucide-react";
 import { QuizService } from "@/lib/services/quiz";
-import { Quiz, QuestionKind } from "@/types/quiz";
+import { Quiz } from "@/types/quiz";
 
 export default function QuizPage() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
@@ -27,8 +27,6 @@ export default function QuizPage() {
     } catch (err) {
       console.error("Failed to load quizzes:", err);
       setError(err instanceof Error ? err.message : "Failed to load quizzes");
-      // Fallback to mock data
-      setQuizzes(mockQuizzes);
     } finally {
       setLoading(false);
     }
@@ -76,8 +74,10 @@ export default function QuizPage() {
               <div className="flex items-start justify-between">
                 <div className="space-y-2">
                   <Badge variant="outline">{quiz.subject}</Badge>
-                  {quiz.gradeLevel && (
-                    <Badge variant="secondary">Grade {quiz.gradeLevel}</Badge>
+                  {quiz.academic_level && (
+                    <Badge variant="secondary">
+                      Grade {quiz.academic_level}
+                    </Badge>
                   )}
                 </div>
                 {quiz.thumbnailUrl && (
@@ -149,27 +149,3 @@ export default function QuizPage() {
     </div>
   );
 }
-
-// Fallback mock data
-const mockQuizzes: Quiz[] = [
-  {
-    id: "quiz_123",
-    title: "Advanced Calculus - Derivatives and Integration",
-    description:
-      "Test your understanding of calculus fundamentals including derivatives, integration, and their applications.",
-    subject: "Mathematics",
-    gradeLevel: "12",
-    playCount: 42,
-    questions: [
-      {
-        id: "q1",
-        text: "What is the derivative of x²?",
-        options: ["x", "2x", "x²", "2"],
-        correct: 1,
-        kind: QuestionKind.Single,
-      },
-    ],
-    timeLimitMinutes: 15,
-    shuffle: false,
-  },
-];

@@ -11,7 +11,7 @@ create table public.quizzes (
   description text,
   thumbnail_url text,
   subject text not null,
-  grade_level text,
+  academic_level text check (academic_level in ('high-school', 'undergraduate', 'graduate', 'professional')),
   play_count integer default 0,
   time_limit_minutes integer,
   shuffle_questions boolean default false,
@@ -158,7 +158,7 @@ begin
         'title', title,
         'description', description,
         'subject', subject,
-        'grade_level', grade_level,
+        'academic_level', academic_level,
         'total_questions', (
           select count(*) from public.quiz_questions where quiz_id = p_quiz_id
         )

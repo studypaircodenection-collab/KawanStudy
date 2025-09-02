@@ -47,7 +47,7 @@ const BrowseQuizzesPage = () => {
         description: quiz.description || "",
         thumbnailUrl: quiz.thumbnailUrl || "",
         subject: quiz.subject,
-        gradeLevel: quiz.gradeLevel || "",
+        academic_level: quiz.academic_level || "",
         playCount: quiz.playCount || 0,
         timeLimitMinutes: quiz.timeLimitMinutes,
         shuffle: quiz.shuffle || false,
@@ -75,7 +75,7 @@ const BrowseQuizzesPage = () => {
     const matchesSubject =
       selectedSubject === "all" || quiz.subject === selectedSubject;
     const matchesGradeLevel =
-      selectedGradeLevel === "all" || quiz.gradeLevel === selectedGradeLevel;
+      selectedGradeLevel === "all" || quiz.academic_level === selectedGradeLevel;
 
     return matchesSearch && matchesSubject && matchesGradeLevel;
   });
@@ -83,7 +83,7 @@ const BrowseQuizzesPage = () => {
   // Get unique subjects and grade levels for filters
   const subjects = Array.from(new Set(quizzes.map((q) => q.subject))).sort();
   const gradeLevels = Array.from(
-    new Set(quizzes.map((q) => q.gradeLevel).filter(Boolean))
+    new Set(quizzes.map((q) => q.academic_level).filter(Boolean))
   ).sort();
 
   if (loading) {
@@ -160,13 +160,13 @@ const BrowseQuizzesPage = () => {
                 onValueChange={setSelectedGradeLevel}
               >
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Grade Level" />
+                  <SelectValue placeholder="Academic Level" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Grades</SelectItem>
+                  <SelectItem value="all">All Levels</SelectItem>
                   {gradeLevels.map((grade) => (
                     <SelectItem key={grade} value={grade!}>
-                      Grade {grade}
+                      {grade?.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                     </SelectItem>
                   ))}
                 </SelectContent>

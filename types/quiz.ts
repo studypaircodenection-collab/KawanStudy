@@ -9,7 +9,7 @@ export interface Quiz {
   thumbnailUrl?: string;
   description?: string;
   subject: string;
-  gradeLevel?: string;
+  academic_level?: "high-school" | "undergraduate" | "graduate" | "professional";
   playCount: number;
   questions: Question[];
   timeLimitMinutes?: number; // in minutes, optional
@@ -133,6 +133,14 @@ export const isMultipleQuestion = (q: Question): q is MultipleChoiceQuestion =>
 
 export const isSingleQuestion = (q: Question): q is SingleChoiceQuestion =>
   q.kind === QuestionKind.Single || q.kind === undefined; // treat omitted as single
+
+// Academic level options for quizzes
+export const ACADEMIC_LEVELS = [
+  { value: "high-school", label: "High School" },
+  { value: "undergraduate", label: "Undergraduate" },
+  { value: "graduate", label: "Graduate" },
+  { value: "professional", label: "Professional" },
+] as const;
 
 export const createEmptyAnswerMap = (quiz: Quiz): AnswerMap =>
   quiz.questions.reduce((acc, q) => {

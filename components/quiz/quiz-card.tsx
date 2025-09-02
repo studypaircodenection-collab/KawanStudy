@@ -53,9 +53,9 @@ const QuizCard: React.FC<Props> = ({ quiz }) => {
           <Badge variant="secondary" className="text-xs">
             {quiz.subject}
           </Badge>
-          {quiz.gradeLevel && (
+          {quiz.academic_level && (
             <Badge variant="outline" className="text-xs">
-              Grade {quiz.gradeLevel}
+              {quiz.academic_level}
             </Badge>
           )}
         </div>
