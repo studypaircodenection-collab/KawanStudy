@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  FileLockIcon,
   ListTodoIcon,
   LucideCalculator,
   MessageCircleIcon,
@@ -90,6 +91,12 @@ export function SearchForm() {
                 >
                   <UploadIcon />
                   <span>Upload New Notes</span>
+                </Link>
+              </CommandItem>
+              <CommandItem asChild>
+                <Link href="/dashboard/quiz/" onClick={() => setOpen(false)}>
+                  <FileLockIcon />
+                  <span>Find Quiz</span>
                 </Link>
               </CommandItem>
             </CommandGroup>

@@ -235,7 +235,7 @@ const AttemptDetailPage: React.FC<AttemptDetailProps> = ({ params }) => {
       <div
         key={index}
         className={cn(
-          "p-3 rounded-md border transition-all",
+          "rounded-md border transition-all",
           bgColor,
           textColor,
           borderColor || "border-gray-200"
@@ -268,7 +268,7 @@ const AttemptDetailPage: React.FC<AttemptDetailProps> = ({ params }) => {
 
   if (isLoading) {
     return (
-      <div className="container max-w-4xl mx-auto p-6">
+      <div className="container max-w-4xl mx-auto">
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
@@ -281,7 +281,7 @@ const AttemptDetailPage: React.FC<AttemptDetailProps> = ({ params }) => {
 
   if (error) {
     return (
-      <div className="container max-w-4xl mx-auto p-6">
+      <div className="container max-w-4xl mx-auto">
         <Alert variant="destructive">
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -299,7 +299,7 @@ const AttemptDetailPage: React.FC<AttemptDetailProps> = ({ params }) => {
 
   if (!attemptData) {
     return (
-      <div className="container max-w-4xl mx-auto p-6">
+      <div className="container max-w-4xl mx-auto">
         <Alert>
           <AlertDescription>No attempt details found.</AlertDescription>
         </Alert>
@@ -318,10 +318,10 @@ const AttemptDetailPage: React.FC<AttemptDetailProps> = ({ params }) => {
   const { attempt, quiz, questions, summary } = attemptData;
 
   return (
-    <div className="container max-w-6xl mx-auto p-6 space-y-6">
+    <div className="container max-w-6xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col-reverse md:flex-row md:items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center space-x-4">
           <Button
             onClick={() => router.push(`/dashboard/quiz/${quizId}/result`)}
             variant="outline"

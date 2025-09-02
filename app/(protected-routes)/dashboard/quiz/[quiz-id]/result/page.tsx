@@ -209,12 +209,12 @@ const QuizResultPage: React.FC<QuizResultProps> = ({ params }) => {
       : 0;
 
   return (
-    <div className="container max-w-6xl mx-auto p-6 space-y-6">
+    <div className="container max-w-6xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col-reverse md:flex-row md:items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center space-x-4">
           <Button onClick={handleBackToQuiz} variant="outline" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="h-4 w-4 md:mr-2" />
             Back to Quiz
           </Button>
           <div>
@@ -377,7 +377,7 @@ const QuizResultPage: React.FC<QuizResultProps> = ({ params }) => {
               {attempts.map((attempt, index) => (
                 <div
                   key={attempt.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                  className="flex flex-col md:flex-row items-center justify-between p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
                   onClick={() => handleViewAttempt(attempt.id)}
                 >
                   <div className="flex items-center space-x-4">

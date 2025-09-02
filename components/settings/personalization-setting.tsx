@@ -83,7 +83,7 @@ const PersonalizationSetting = () => {
           {/* Theme Mode */}
           <div className="space-y-3">
             <Label className="text-base font-medium">Theme Mode</Label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid md:grid-cols-3 gap-3">
               <button
                 onClick={() => updateSetting("theme", "light")}
                 className={`p-4 border rounded-lg transition-colors ${
@@ -125,7 +125,7 @@ const PersonalizationSetting = () => {
           {/* Accent Color */}
           <div className="space-y-3">
             <Label className="text-base font-medium">Accent Color</Label>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {themeColors.map((color) => (
                 <button
                   key={color.value}

@@ -75,7 +75,8 @@ const BrowseQuizzesPage = () => {
     const matchesSubject =
       selectedSubject === "all" || quiz.subject === selectedSubject;
     const matchesGradeLevel =
-      selectedGradeLevel === "all" || quiz.academic_level === selectedGradeLevel;
+      selectedGradeLevel === "all" ||
+      quiz.academic_level === selectedGradeLevel;
 
     return matchesSearch && matchesSubject && matchesGradeLevel;
   });
@@ -166,7 +167,9 @@ const BrowseQuizzesPage = () => {
                   <SelectItem value="all">All Levels</SelectItem>
                   {gradeLevels.map((grade) => (
                     <SelectItem key={grade} value={grade!}>
-                      {grade?.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      {grade
+                        ?.replace("-", " ")
+                        .replace(/\b\w/g, (l) => l.toUpperCase())}
                     </SelectItem>
                   ))}
                 </SelectContent>

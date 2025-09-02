@@ -254,7 +254,7 @@ export function PaperBrowser({ showUploadButton = true }: PaperBrowserProps) {
               value={filters.subject}
               onValueChange={(value) => handleFilterChange("subject", value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Subject" />
               </SelectTrigger>
               <SelectContent>
@@ -275,7 +275,7 @@ export function PaperBrowser({ showUploadButton = true }: PaperBrowserProps) {
                 handleFilterChange("academicLevel", value)
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Academic Level" />
               </SelectTrigger>
               <SelectContent>
@@ -294,7 +294,7 @@ export function PaperBrowser({ showUploadButton = true }: PaperBrowserProps) {
               value={filters.paperType}
               onValueChange={(value) => handleFilterChange("paperType", value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Paper Type" />
               </SelectTrigger>
               <SelectContent>
@@ -315,7 +315,7 @@ export function PaperBrowser({ showUploadButton = true }: PaperBrowserProps) {
                 handleFilterChange("difficultyLevel", value)
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Difficulty" />
               </SelectTrigger>
               <SelectContent>
@@ -334,7 +334,7 @@ export function PaperBrowser({ showUploadButton = true }: PaperBrowserProps) {
                 handleFilterChange("hasSolution", value)
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Has Solution" />
               </SelectTrigger>
               <SelectContent>

@@ -9,7 +9,11 @@ export interface Quiz {
   thumbnailUrl?: string;
   description?: string;
   subject: string;
-  academic_level?: "high-school" | "undergraduate" | "graduate" | "professional";
+  academic_level?:
+    | "high-school"
+    | "undergraduate"
+    | "graduate"
+    | "professional";
   playCount: number;
   questions: Question[];
   timeLimitMinutes?: number; // in minutes, optional

@@ -19,14 +19,14 @@ interface UiTMEbookCardProps {
 
 const UiTMEbookCard: React.FC<UiTMEbookCardProps> = ({ ebook }) => {
   return (
-    <Card className="hover:shadow-md transition-shadow duration-300">
-      <CardContent className="p-6">
-        <div className="flex gap-4">
-          <div className="flex-shrink-0">
+    <Card className="w-full max-w-full overflow-hidden">
+      <CardContent className="p-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <div className="flex-shrink-0 self-start">
             <img
               src={ebook.image}
               alt={ebook.title}
-              className="w-32 h-full object-cover rounded border bg-gray-100"
+              className="w-20 sm:w-24 md:w-32 h-fit max-w-full object-contain rounded"
               onError={(e) => {
                 e.currentTarget.src = "/placeholder-book.png";
               }}
@@ -47,20 +47,24 @@ const UiTMEbookCard: React.FC<UiTMEbookCardProps> = ({ ebook }) => {
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <User className="h-4 w-4" />
-                <span className="text-foreground font-medium">Author:</span>
-                <span className="truncate">{ebook.author}</span>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-0">
+                <User className="h-4 w-4 flex-shrink-0" />
+                <span className="text-foreground font-medium flex-shrink-0">
+                  Author:
+                </span>
+                <span className="truncate min-w-0">{ebook.author}</span>
+              </div>
+
+              <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-0">
+                <Building2 className="h-4 w-4 flex-shrink-0" />
+                <span className="text-foreground font-medium flex-shrink-0">
+                  Publisher:
+                </span>
+                <span className="truncate min-w-0">{ebook.publisher}</span>
               </div>
 
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Building2 className="h-4 w-4" />
-                <span className="text-foreground font-medium">Publisher:</span>
-                <span className="truncate">{ebook.publisher}</span>
-              </div>
-
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Calendar className="h-4 w-4" />
+                <Calendar className="h-4 w-4 flex-shrink-0" />
                 <span className="text-foreground font-medium">Year:</span>
                 <Badge variant="outline" className="text-xs">
                   {ebook.publishYear}
@@ -68,10 +72,14 @@ const UiTMEbookCard: React.FC<UiTMEbookCardProps> = ({ ebook }) => {
               </div>
 
               {ebook.isbn && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <BookOpen className="h-4 w-4" />
-                  <span className="text-foreground font-medium">ISBN:</span>
-                  <span className="text-xs font-mono">{ebook.isbn}</span>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-0">
+                  <BookOpen className="h-4 w-4 flex-shrink-0" />
+                  <span className="text-foreground font-medium flex-shrink-0">
+                    ISBN:
+                  </span>
+                  <span className="text-xs font-mono truncate min-w-0">
+                    {ebook.isbn}
+                  </span>
                 </div>
               )}
 
@@ -85,15 +93,15 @@ const UiTMEbookCard: React.FC<UiTMEbookCardProps> = ({ ebook }) => {
             </div>
 
             <div className="pt-2">
-              <Button asChild size="sm">
+              <Button asChild size="sm" className="w-full sm:w-auto">
                 <a
                   href={`https://mykmsearch.uitm.edu.my/beta/${ebook.link}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2"
+                  className="flex items-center justify-center gap-2 min-w-0"
                 >
-                  <ExternalLink className="h-4 w-4" />
-                  Access E-book
+                  <ExternalLink className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">Access E-book</span>
                 </a>
               </Button>
             </div>

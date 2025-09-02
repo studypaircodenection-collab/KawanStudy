@@ -249,7 +249,7 @@ const ProfileSetting = () => {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Avatar Section */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col md:flex-row items-center gap-4">
               <div className="relative">
                 <Avatar className="h-20 w-20 border">
                   <AvatarImage

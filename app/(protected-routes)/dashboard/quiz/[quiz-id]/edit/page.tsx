@@ -111,7 +111,12 @@ const quizSchema = z.object({
 });
 
 type QuizFormData = z.infer<typeof quizSchema>;
-const AcademicLevel = ["high-school", "undergraduate", "graduate", "professional"];
+const AcademicLevel = [
+  "high-school",
+  "undergraduate",
+  "graduate",
+  "professional",
+];
 interface EditQuizPageProps {
   params: Promise<{
     "quiz-id": string;

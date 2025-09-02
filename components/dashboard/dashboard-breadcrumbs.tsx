@@ -19,30 +19,53 @@ const routeSegmentMap: Record<string, string> = {
   account: "Account",
   notifications: "Notifications",
   profile: "Profile",
-  trading: "Trading",
-  portfolio: "Portfolio",
-  transactions: "Transactions",
-  reports: "Reports",
-  analytics: "Analytics",
-  credits: "Carbon Credits",
-  projects: "Projects",
-  marketplace: "Marketplace",
-  compliance: "Compliance",
-  verification: "Verification",
+  notes: "Notes",
+  quiz: "Quizzes",
+  create: "Create",
+  edit: "Edit",
+  browse: "Browse",
+  answer: "Take Quiz",
+  result: "Results",
+  papers: "Papers",
+  chat: "Chat",
+  peer: "Peer Learning",
+  schedule: "Schedule",
+  gamification: "Achievements",
   // Add more route mappings as needed
 };
 
 const DashboardBreadcrumbs = () => {
   const pathname = usePathname();
 
+  // Function to check if a segment looks like an ID
+  const isIdSegment = (segment: string): boolean => {
+    // Check for UUID pattern (8-4-4-4-12 characters)
+    const uuidPattern =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    // Check for numeric ID
+    const numericPattern = /^\d+$/;
+
+    // Check for other common ID patterns (alphanumeric with certain length)
+    const alphanumericIdPattern = /^[a-zA-Z0-9]{8,}$/;
+
+    return (
+      uuidPattern.test(segment) ||
+      numericPattern.test(segment) ||
+      alphanumericIdPattern.test(segment)
+    );
+  };
+
   // Generate breadcrumb items from pathname
   const generateBreadcrumbs = () => {
     // Remove leading slash and split by '/'
     const segments = pathname.split("/").filter(Boolean);
 
-    // Filter out route groups (segments wrapped in parentheses)
+    // Filter out route groups (segments wrapped in parentheses) and ID segments
     const filteredSegments = segments.filter(
-      (segment) => !segment.startsWith("(") || !segment.endsWith(")")
+      (segment) =>
+        (!segment.startsWith("(") || !segment.endsWith(")")) &&
+        !isIdSegment(segment)
     );
 
     // Create breadcrumb items
@@ -73,7 +96,7 @@ const DashboardBreadcrumbs = () => {
   // If we're at root dashboard, show a simple breadcrumb
   if (breadcrumbs.length <= 1) {
     return (
-      <Breadcrumb>
+      <Breadcrumb className="hidden sm:flex">
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbPage>Dashboard</BreadcrumbPage>
@@ -84,7 +107,7 @@ const DashboardBreadcrumbs = () => {
   }
 
   return (
-    <Breadcrumb>
+    <Breadcrumb className="hidden sm:flex">
       <BreadcrumbList>
         {breadcrumbs.map((breadcrumb, index) => (
           <React.Fragment key={breadcrumb.href}>

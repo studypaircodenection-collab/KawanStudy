@@ -72,7 +72,8 @@ export class QuizService {
     if (params?.page) searchParams.set("page", params.page.toString());
     if (params?.limit) searchParams.set("limit", params.limit.toString());
     if (params?.subject) searchParams.set("subject", params.subject);
-    if (params?.academic_level) searchParams.set("academic_level", params.academic_level);
+    if (params?.academic_level)
+      searchParams.set("academic_level", params.academic_level);
     if (params?.search) searchParams.set("search", params.search);
     if (params?.createdBy) searchParams.set("createdBy", params.createdBy);
 

@@ -349,8 +349,8 @@ const UiTMLibrary = () => {
           <div className="grid lg:grid-cols-2 gap-4">
             {papers.map((paper, idx) => (
               <Card key={idx}>
-                <CardContent className="p-6">
-                  <div className="flex gap-4">
+                <CardContent>
+                  <div className="flex flex-col md:flex-row gap-4">
                     <img
                       src={paper.image}
                       alt={paper.title}

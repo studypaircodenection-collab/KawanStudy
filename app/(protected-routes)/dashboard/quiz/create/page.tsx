@@ -96,7 +96,12 @@ const quizSchema = z.object({
 
 type QuizFormData = z.infer<typeof quizSchema>;
 
-const AcademicLevel = ["high-school", "undergraduate", "graduate", "professional"];
+const AcademicLevel = [
+  "high-school",
+  "undergraduate",
+  "graduate",
+  "professional",
+];
 const CreateQuizPage = () => {
   const router = useRouter();
   const { toast } = useToast();
@@ -341,7 +346,7 @@ const CreateQuizPage = () => {
       });
 
       // Redirect to the created quiz
-      router.push(`/dashboard/quiz/${result.quiz.id}`);
+      router.push(`/dashboard/quiz`);
     } catch (error) {
       console.error("Error creating quiz:", error);
       toast({
@@ -453,20 +458,23 @@ const CreateQuizPage = () => {
         </p>
       </div>
 
-      <div className="mb-6 flex items-center gap-4">
+      <div className="mb-6 flex flex-col md:flex-row items-center gap-4">
         <Button
+          className="w-full md:w-auto"
           variant={currentStep === "details" ? "default" : "outline"}
           onClick={() => setCurrentStep("details")}
         >
           1. Quiz Details
         </Button>
         <Button
+          className="w-full md:w-auto"
           variant={currentStep === "questions" ? "default" : "outline"}
           onClick={() => setCurrentStep("questions")}
         >
           2. Questions
         </Button>
         <Button
+          className="w-full md:w-auto"
           variant="outline"
           onClick={() => setPreviewMode(true)}
           disabled={!form.formState.isValid}
@@ -960,13 +968,19 @@ const CreateQuizPage = () => {
                 </Card>
               ))}
 
-              <div className="flex gap-4">
-                <Button type="button" variant="outline" onClick={addQuestion}>
+              <div className="flex flex-col md:flex-row gap-4">
+                <Button
+                  className="w-full md:w-auto"
+                  type="button"
+                  variant="outline"
+                  onClick={addQuestion}
+                >
                   <Plus className="w-4 h-4" />
                   Add Question
                 </Button>
 
                 <Button
+                  className="w-full md:w-auto"
                   type="button"
                   variant="outline"
                   onClick={() => setCurrentStep("details")}
@@ -975,7 +989,11 @@ const CreateQuizPage = () => {
                   Back to Details
                 </Button>
 
-                <Button type="submit" disabled={isSaving}>
+                <Button
+                  className="w-full md:w-auto"
+                  type="submit"
+                  disabled={isSaving}
+                >
                   {isSaving ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
