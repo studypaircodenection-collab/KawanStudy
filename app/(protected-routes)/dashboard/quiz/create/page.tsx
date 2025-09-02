@@ -3,6 +3,7 @@ import React, { useState, useRef } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useRouter } from "next/navigation";
 import {
   Plus,
   Trash2,
@@ -12,6 +13,7 @@ import {
   ArrowRight,
   Upload,
   X,
+  Loader2,
 } from "lucide-react";
 import { QuestionKind, type Quiz, type Question } from "@/types/quiz";
 import {
@@ -43,6 +45,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
 
 // Form validation schema
 const singleChoiceQuestionSchema = z.object({
@@ -94,6 +99,8 @@ const quizSchema = z.object({
 type QuizFormData = z.infer<typeof quizSchema>;
 
 const CreateQuizPage = () => {
+  const router = useRouter();
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState<"details" | "questions">(
     "details"
   );
@@ -101,6 +108,7 @@ const CreateQuizPage = () => {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
   const [isDragging, setIsDragging] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<QuizFormData>({
@@ -283,10 +291,71 @@ const CreateQuizPage = () => {
     fileInputRef.current?.click();
   };
 
-  const onSubmit = (data: QuizFormData) => {
-    console.log("Quiz data:", data);
-    // TODO: Save quiz to database
-    alert("Quiz created successfully! (This would save to database)");
+  const onSubmit = async (data: QuizFormData) => {
+    try {
+      setIsSaving(true);
+
+      // Transform form data to API format
+      const quizData = {
+        title: data.title,
+        description: data.description || "",
+        thumbnailUrl: data.thumbnailUrl || "",
+        subject: data.subject,
+        gradeLevel: data.gradeLevel || "",
+        timeLimitMinutes: data.timeLimitMinutes,
+        shuffle: data.shuffle || false,
+        questions: data.questions.map((q, index) => ({
+          text: q.text,
+          kind: q.kind === QuestionKind.Multiple ? "multiple" : "single",
+          options: q.options,
+          correct:
+            q.kind === QuestionKind.Multiple
+              ? Array.isArray(q.correct)
+                ? q.correct
+                : [q.correct || 0]
+              : typeof q.correct === "number"
+              ? q.correct
+              : 0,
+          explanation: q.explanation || "",
+        })),
+      };
+
+      console.log("Sending quiz data:", quizData);
+
+      const response = await fetch("/api/quiz", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(quizData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to create quiz");
+      }
+
+      toast({
+        title: "Success",
+        description: "Quiz created successfully!",
+      });
+
+      // Redirect to the created quiz
+      router.push(`/dashboard/quiz/${result.quiz.id}`);
+    } catch (error) {
+      console.error("Error creating quiz:", error);
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to create quiz. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (previewMode) {
@@ -905,9 +974,18 @@ const CreateQuizPage = () => {
                   Back to Details
                 </Button>
 
-                <Button type="submit">
-                  <Save className="w-4 h-4" />
-                  Create Quiz
+                <Button type="submit" disabled={isSaving}>
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      Create Quiz
+                    </>
+                  )}
                 </Button>
               </div>
             </div>

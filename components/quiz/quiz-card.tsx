@@ -86,12 +86,6 @@ const QuizCard: React.FC<Props> = ({ quiz }) => {
               Play Quiz
             </Link>
           </Button>
-          <Button asChild variant="outline" size="sm">
-            <Link href={`/dashboard/quiz/${quiz.id}/preview`}>
-              <Eye className="w-4 h-4" />
-              Preview
-            </Link>
-          </Button>
         </div>
       </CardFooter>
     </Card>
