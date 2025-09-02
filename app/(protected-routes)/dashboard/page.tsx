@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GamificationDashboard } from "@/components/gamification/gamification-dashboard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { VideoCallLauncher } from "@/components/video/video-call-launcher";
-import { SimpleVideoRoom } from "@/components/video/simple-video-room";
+import { MultiUserVideoRoom } from "@/components/video/multi-user-video-room";
+import { AvailableRooms } from "@/components/video/available-rooms";
 import { Video, BookOpen, Users, Calendar, MessageSquare, Settings, Plus, ArrowRight, Zap } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -14,7 +15,17 @@ import { createClient } from "@/lib/supabase/client";
 export default function ProtectedPage() {
   const [currentVideoRoom, setCurrentVideoRoom] = useState<string | null>(null);
   const [isCreatingRoom, setIsCreatingRoom] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const supabase = createClient();
+
+  useEffect(() => {
+    // Get current user on component mount
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || null);
+    };
+    getCurrentUser();
+  }, []);
 
   const handleCreateVideoRoom = async () => {
     try {
@@ -143,7 +154,7 @@ export default function ProtectedPage() {
   // If in a video call, show the video room
   if (currentVideoRoom) {
     return (
-      <SimpleVideoRoom 
+      <MultiUserVideoRoom 
         roomId={currentVideoRoom} 
         onLeave={handleLeaveVideoRoom} 
       />
@@ -337,6 +348,15 @@ export default function ProtectedPage() {
                 <MessageSquare className="w-4 h-4 mr-2" />
                 Messages
               </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <AvailableRooms 
+                onJoinRoom={handleJoinVideoRoom} 
+                currentUserId={currentUserId}
+              />
             </CardContent>
           </Card>
         </div>

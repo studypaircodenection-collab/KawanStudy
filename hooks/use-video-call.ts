@@ -74,75 +74,180 @@ export function useVideoCall({ roomId: initialRoomId, autoJoin = false }: UseVid
   // Create room
   const createRoom = useCallback(async (roomType: string = 'peer_to_peer', participantUserId?: string) => {
     try {
-      const { data, error } = await supabase.rpc('create_video_room', {
-        p_room_type: roomType,
-        p_participant_user_id: participantUserId || null,
-        p_metadata: {}
-      });
+      if (!currentUser) return null;
+
+      // Generate unique room ID
+      const newRoomId = Math.random().toString(36).substring(2, 15);
+
+      // Create room in database
+      const { data, error } = await supabase
+        .from('video_rooms')
+        .insert({
+          room_id: newRoomId,
+          host_user_id: currentUser.id,
+          status: 'waiting',
+          metadata: { room_type: roomType }
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
-      const roomData = data[0];
-      setRoomId(roomData.room_id);
+      // Add creator as participant
+      const { error: participantError } = await supabase
+        .from('video_room_participants')
+        .insert({
+          room_id: newRoomId,
+          user_id: currentUser.id,
+          is_host: true,
+          connection_status: 'connecting'
+        });
+
+      if (participantError) throw participantError;
+
+      setRoomId(newRoomId);
       setRoomStatus('waiting');
       
-      console.log('Created room:', roomData);
-      return roomData.room_id;
+      console.log('Created room:', data);
+      toast.success(`Room created: ${newRoomId}`);
+      return newRoomId;
     } catch (error) {
       console.error('Error creating room:', error);
       toast.error('Failed to create video room');
       return null;
     }
-  }, [supabase]);
+  }, [supabase, currentUser]);
 
   // Join room
   const joinRoom = useCallback(async (roomIdToJoin: string) => {
     if (!currentUser) return false;
 
     try {
+      console.log('🔄 Starting to join room:', roomIdToJoin);
       setIsConnecting(true);
       
+      // Check if room exists and is active
+      console.log('📋 Checking if room exists...');
+      const { data: room, error: roomError } = await supabase
+        .from('video_rooms')
+        .select('*')
+        .eq('room_id', roomIdToJoin)
+        .single();
+
+      if (roomError || !room) {
+        console.error('❌ Room error:', roomError);
+        throw new Error('Room not found or inactive');
+      }
+      console.log('✅ Room found:', room);
+
       // Get user media first
+      console.log('🎥 Requesting camera and microphone access...');
       const stream = await navigator.mediaDevices.getUserMedia({
         video: isVideoEnabled,
         audio: isAudioEnabled,
       });
+      console.log('✅ Media access granted');
 
       localStreamRef.current = stream;
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
       }
 
-      // Join room in database
-      const { data, error } = await supabase.rpc('join_video_room', {
-        p_room_id: roomIdToJoin,
-        p_peer_id: currentUser.id
-      });
+      // Add user as participant
+      console.log('👥 Adding user as participant...');
+      const { error: participantError } = await supabase
+        .from('video_room_participants')
+        .upsert({
+          room_id: roomIdToJoin,
+          user_id: currentUser.id,
+          is_host: room.host_user_id === currentUser.id,
+          connection_status: 'connected'
+        }, {
+          onConflict: 'room_id,user_id'
+        });
 
-      if (error) throw error;
+      if (participantError) {
+        console.error('❌ Participant error:', participantError);
+        throw participantError;
+      }
+      console.log('✅ Added as participant');
 
-      const roomData = data[0];
-      if (!roomData.success) {
-        throw new Error('Room not found or inactive');
+      // Get all participants
+      console.log('👥 Getting all participants...');
+      const { data: participantData, error: participantsError } = await supabase
+        .from('video_room_participants')
+        .select(`
+          user_id,
+          is_host,
+          connection_status,
+          profiles (
+            id,
+            username,
+            full_name,
+            avatar_url
+          )
+        `)
+        .eq('room_id', roomIdToJoin)
+        .is('left_at', null);
+
+      if (!participantsError && participantData) {
+        const formattedParticipants = participantData
+          .filter(p => p.user_id !== currentUser.id)
+          .map(p => {
+            const profile = Array.isArray(p.profiles) ? p.profiles[0] : p.profiles;
+            return {
+              id: profile?.id || p.user_id,
+              username: profile?.username || 'Unknown',
+              full_name: profile?.full_name,
+              avatar_url: profile?.avatar_url
+            };
+          });
+        setParticipants(formattedParticipants);
+        console.log('✅ Participants loaded:', formattedParticipants.length);
+      }
+
+      // Update room status to active if it was waiting
+      if (room.status === 'waiting') {
+        console.log('📡 Updating room status to active...');
+        await supabase
+          .from('video_rooms')
+          .update({ status: 'active' })
+          .eq('room_id', roomIdToJoin);
       }
 
       setRoomId(roomIdToJoin);
       setIsInRoom(true);
-      setRoomStatus(roomData.room_data.status);
-      setParticipants(roomData.participants || []);
+      setRoomStatus(room.status === 'waiting' ? 'active' : room.status);
+      setIsConnecting(false); // Set connecting to false on success
       
       // Set up real-time listeners for this room
-      setupRealtimeListeners(roomIdToJoin);
-      
-      // Start call timer if room became active
-      if (roomData.room_data.status === 'active') {
-        startCallTimer();
+      console.log('📡 Setting up real-time listeners...');
+      if (!channelRef.current) {
+        const channel = supabase
+          .channel(`video_room_${roomIdToJoin}`)
+          .on('postgres_changes', {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'video_room_participants',
+            filter: `room_id=eq.${roomIdToJoin}`
+          }, (payload) => {
+            console.log('New participant joined:', payload.new);
+            // Reload participants when someone joins
+            if (payload.new.user_id !== currentUser.id) {
+              // TODO: Handle new participant joining for WebRTC
+            }
+          })
+          .subscribe();
+        
+        channelRef.current = channel;
+        console.log('✅ Real-time listeners set up');
       }
-
-      console.log('Joined room:', roomData);
+      
+      console.log('🎉 Successfully joined room:', roomIdToJoin);
+      toast.success(`Joined room: ${roomIdToJoin}`);
       return true;
     } catch (error) {
-      console.error('Error joining room:', error);
+      console.error('❌ Error joining room:', error);
       toast.error('Failed to join video room');
       if (localStreamRef.current) {
         localStreamRef.current.getTracks().forEach(track => track.stop());
@@ -352,18 +457,22 @@ export function useVideoCall({ roomId: initialRoomId, autoJoin = false }: UseVid
   // Send WebRTC signal via Supabase
   const sendSignal = useCallback(async (toUserId: string, signalType: string, signalData: any) => {
     try {
-      const { error } = await supabase.rpc('send_webrtc_signal', {
-        p_room_id: roomId,
-        p_to_user_id: toUserId,
-        p_signal_type: signalType,
-        p_signal_data: signalData
-      });
+      const { error } = await supabase
+        .from('video_room_signals')
+        .insert({
+          room_id: roomId,
+          from_user_id: currentUser?.id,
+          to_user_id: toUserId,
+          signal_type: signalType,
+          signal_data: signalData,
+          processed: false
+        });
 
       if (error) throw error;
     } catch (error) {
       console.error('Error sending signal:', error);
     }
-  }, [roomId, supabase]);
+  }, [roomId, currentUser, supabase]);
 
   // Start call timer
   const startCallTimer = useCallback(() => {
@@ -414,13 +523,15 @@ export function useVideoCall({ roomId: initialRoomId, autoJoin = false }: UseVid
 
   // Leave room
   const leaveRoom = useCallback(async () => {
-    if (!roomId) return;
+    if (!roomId || !currentUser) return;
 
     try {
-      // Leave room in database
-      const { error } = await supabase.rpc('leave_video_room', {
-        p_room_id: roomId
-      });
+      // Mark participant as left
+      const { error } = await supabase
+        .from('video_room_participants')
+        .update({ left_at: new Date().toISOString() })
+        .eq('room_id', roomId)
+        .eq('user_id', currentUser.id);
 
       if (error) throw error;
       
@@ -431,7 +542,7 @@ export function useVideoCall({ roomId: initialRoomId, autoJoin = false }: UseVid
       toast.error('Error leaving room');
       endCall(); // Clean up anyway
     }
-  }, [roomId, supabase]);
+  }, [roomId, currentUser, supabase]);
 
   // End call and clean up
   const endCall = useCallback(() => {
