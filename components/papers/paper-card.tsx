@@ -13,7 +13,6 @@ import {
   Calendar,
   User,
   Building,
-  FileText,
   ExternalLink,
   BookOpen,
 } from "lucide-react";

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -13,22 +13,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Upload,
   Search,
-  Filter,
   BookOpen,
-  Calendar,
   Eye,
   Heart,
   Download,
   Edit,
   Trash2,
   Plus,
-  FileText,
-  BarChart3,
-  TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
 import NoteCard from "@/components/notes/note-card";
@@ -79,7 +72,6 @@ const MyNotesPage = () => {
   const [filterSubject, setFilterSubject] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterVisibility, setFilterVisibility] = useState("all");
-  const [user, setUser] = useState<any>(null);
   const supabase = createClient();
   const router = useRouter();
 
@@ -116,8 +108,6 @@ const MyNotesPage = () => {
         console.error("Error fetching profile:", profileError);
         return;
       }
-
-      setUser(profile);
 
       // Fetch user's notes
       const { data: notesData, error: notesError } = await supabase
@@ -267,13 +257,6 @@ const MyNotesPage = () => {
     return subjects.sort();
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
 
   if (loading) {
     return (

@@ -15,7 +15,7 @@ insert into public.achievements (name, title, description, icon, points_required
 -- Insert daily challenges
 insert into public.daily_challenges (name, description, challenge_type, target_value, points_reward, difficulty) values
 -- Simple point-earning challenges
-('daily_login', 'Log in to StudyPair', 'profile_update', 1, 10, 'easy'),
+('daily_login', 'Log in to KawanStudy', 'profile_update', 1, 10, 'easy'),
 ('update_profile', 'Update your profile information', 'profile_update', 1, 10, 'easy'),
 ('complete_quiz', 'Complete at least 1 quiz', 'quiz', 1, 20, 'easy'),
 ('quiz_streak', 'Complete 3 quizzes in a row', 'quiz', 3, 35, 'medium'),

@@ -16,7 +16,7 @@ import {
   Loader2,
   AlertTriangle,
 } from "lucide-react";
-import { QuestionKind, type Quiz, type Question } from "@/types/quiz";
+import { QuestionKind, type Quiz } from "@/types/quiz";
 import { QuizService } from "@/lib/services/quiz";
 import {
   Card,
@@ -49,7 +49,6 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -458,8 +457,8 @@ const EditQuizPage: React.FC<EditQuizPageProps> = ({ params }) => {
               <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-4" />
               <h2 className="text-xl font-semibold mb-2">Quiz Not Found</h2>
               <p className="text-muted-foreground mb-4">
-                The quiz you're trying to edit doesn't exist or you don't have
-                permission to edit it.
+                The quiz you&aspos;re trying to edit doesn&aspos;t exist or you
+                don&aspos;t have permission to edit it.
               </p>
               <Button onClick={() => router.push("/dashboard/quiz")}>
                 Back to Quizzes

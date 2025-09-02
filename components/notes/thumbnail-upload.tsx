@@ -4,14 +4,7 @@ import React, { useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  ImageIcon,
-  Upload,
-  X,
-  Camera,
-  FileImage,
-  AlertCircle,
-} from "lucide-react";
+import { ImageIcon, X, Camera, FileImage, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 

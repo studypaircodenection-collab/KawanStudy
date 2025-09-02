@@ -90,7 +90,7 @@ export default function LeaderboardPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Leaderboard</h1>
         <p className="text-muted-foreground">
-          See how you rank against other students in the StudyPair community
+          See how you rank against other students in the KawanStudy community
         </p>
       </div>
 

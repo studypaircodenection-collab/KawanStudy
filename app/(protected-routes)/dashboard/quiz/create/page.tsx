@@ -15,7 +15,7 @@ import {
   X,
   Loader2,
 } from "lucide-react";
-import { QuestionKind, type Quiz, type Question } from "@/types/quiz";
+import { QuestionKind } from "@/types/quiz";
 import {
   Card,
   CardContent,
@@ -109,7 +109,6 @@ const CreateQuizPage = () => {
     "details"
   );
   const [previewMode, setPreviewMode] = useState(false);
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
   const [isDragging, setIsDragging] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -244,7 +243,6 @@ const CreateQuizPage = () => {
   // File upload handlers
   const handleFileSelect = (file: File) => {
     if (file && file.type.startsWith("image/")) {
-      setThumbnailFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
@@ -283,7 +281,6 @@ const CreateQuizPage = () => {
   };
 
   const clearThumbnail = () => {
-    setThumbnailFile(null);
     setThumbnailPreview("");
     form.setValue("thumbnailUrl", "");
     if (fileInputRef.current) {
@@ -308,7 +305,7 @@ const CreateQuizPage = () => {
         academic_level: data.academic_level || "",
         timeLimitMinutes: data.timeLimitMinutes,
         shuffle: data.shuffle || false,
-        questions: data.questions.map((q, index) => ({
+        questions: data.questions.map((q) => ({
           text: q.text,
           kind: q.kind === QuestionKind.Multiple ? "multiple" : "single",
           options: q.options,
@@ -615,7 +612,6 @@ const CreateQuizPage = () => {
                                   !e.target.value.startsWith("data:")
                                 ) {
                                   setThumbnailPreview("");
-                                  setThumbnailFile(null);
                                 }
                               }}
                             />

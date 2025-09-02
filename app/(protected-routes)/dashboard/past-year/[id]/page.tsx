@@ -37,7 +37,6 @@ import {
   Facebook,
   Linkedin,
   Flag,
-  Edit,
   Target,
   Clock,
 } from "lucide-react";
@@ -95,7 +94,6 @@ export default function PaperPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(0);
-  const [currentUser, setCurrentUser] = useState<any>(null);
 
   const paperId = params.id as string;
 
@@ -104,7 +102,7 @@ export default function PaperPage() {
       try {
         setLoading(true);
         const response = await fetch(`/api/papers/${paperId}`);
-        
+
         if (!response.ok) {
           if (response.status === 404) {
             setError("Paper not found");
@@ -128,30 +126,18 @@ export default function PaperPage() {
       }
     };
 
-    const getCurrentUser = async () => {
-      try {
-        const response = await fetch('/api/auth/user');
-        if (response.ok) {
-          const { user } = await response.json();
-          setCurrentUser(user);
-        }
-      } catch (error) {
-        console.error("Error fetching current user:", error);
-      }
-    };
 
     if (paperId) {
       fetchPaper();
-      getCurrentUser();
     }
   }, [paperId]);
 
   const handleLike = async () => {
     try {
       const response = await fetch(`/api/papers/${paperId}/like`, {
-        method: 'POST',
+        method: "POST",
       });
-      
+
       if (response.ok) {
         const result = await response.json();
         setIsLiked(result.liked);
@@ -167,16 +153,16 @@ export default function PaperPage() {
     try {
       // Trigger download
       if (paper?.questionFileUrl) {
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = paper.questionFileUrl;
-        link.download = paper.questionFileName || 'exam-paper.pdf';
+        link.download = paper.questionFileName || "exam-paper.pdf";
         link.click();
-        
+
         // Track download
         await fetch(`/api/papers/${paperId}/download`, {
-          method: 'POST',
+          method: "POST",
         });
-        
+
         toast.success("Download started!");
       }
     } catch (error) {
@@ -193,19 +179,24 @@ export default function PaperPage() {
       toast.success("Link copied to clipboard!");
     } catch (error) {
       toast.error("Failed to copy link");
+      console.error("Error copying link:", error);
     }
   };
 
   const shareViaEmail = () => {
-    const subject = encodeURIComponent(`Check out this exam paper: ${paper?.title}`);
+    const subject = encodeURIComponent(
+      `Check out this exam paper: ${paper?.title}`
+    );
     const body = encodeURIComponent(
-      `I found this exam paper on StudyPair:\n\n${paper?.title}\n${paper?.description}\n\n${window.location.href}`
+      `I found this exam paper on KawanStudy:\n\n${paper?.title}\n${paper?.description}\n\n${window.location.href}`
     );
     window.open(`mailto:?subject=${subject}&body=${body}`);
   };
 
   const shareOnTwitter = () => {
-    const text = encodeURIComponent(`Check out this exam paper: ${paper?.title}`);
+    const text = encodeURIComponent(
+      `Check out this exam paper: ${paper?.title}`
+    );
     const url = encodeURIComponent(window.location.href);
     window.open(
       `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
@@ -223,8 +214,8 @@ export default function PaperPage() {
 
   const shareOnLinkedIn = () => {
     const url = encodeURIComponent(window.location.href);
-    const title = encodeURIComponent(paper?.title || '');
-    const summary = encodeURIComponent(paper?.description || '');
+    const title = encodeURIComponent(paper?.title || "");
+    const summary = encodeURIComponent(paper?.description || "");
     window.open(
       `https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}&summary=${summary}`,
       "_blank"
@@ -487,7 +478,11 @@ export default function PaperPage() {
                           <span className="text-sm text-muted-foreground">
                             Difficulty:
                           </span>
-                          <Badge className={getDifficultyColor(paper.difficultyLevel)}>
+                          <Badge
+                            className={getDifficultyColor(
+                              paper.difficultyLevel
+                            )}
+                          >
                             {paper.difficultyLevel}
                           </Badge>
                         </div>
@@ -557,42 +552,48 @@ export default function PaperPage() {
                     <div className="space-y-4">
                       <Tabs defaultValue="question" className="w-full">
                         <TabsList className="grid w-full grid-cols-2">
-                          <TabsTrigger value="question">Question Paper</TabsTrigger>
-                          <TabsTrigger 
-                            value="solution" 
+                          <TabsTrigger value="question">
+                            Question Paper
+                          </TabsTrigger>
+                          <TabsTrigger
+                            value="solution"
                             disabled={!paper.hasSolution}
                           >
                             Solution {!paper.hasSolution && "(Not Available)"}
                           </TabsTrigger>
                         </TabsList>
-                        
+
                         <TabsContent value="question" className="mt-4">
                           {paper.questionFileUrl ? (
-                            <PDFViewer 
-                              fileUrl={paper.questionFileUrl} 
-                              className="h-[600px] w-full" 
+                            <PDFViewer
+                              fileUrl={paper.questionFileUrl}
+                              className="h-[600px] w-full"
                             />
                           ) : (
                             <div className="flex items-center justify-center h-[400px] bg-gray-50 rounded-lg">
                               <div className="text-center">
                                 <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                                <p className="text-gray-500">Question paper not available</p>
+                                <p className="text-gray-500">
+                                  Question paper not available
+                                </p>
                               </div>
                             </div>
                           )}
                         </TabsContent>
-                        
+
                         <TabsContent value="solution" className="mt-4">
                           {paper.hasSolution && paper.solutionFileUrl ? (
-                            <PDFViewer 
-                              fileUrl={paper.solutionFileUrl} 
-                              className="h-[600px] w-full" 
+                            <PDFViewer
+                              fileUrl={paper.solutionFileUrl}
+                              className="h-[600px] w-full"
                             />
                           ) : (
                             <div className="flex items-center justify-center h-[400px] bg-gray-50 rounded-lg">
                               <div className="text-center">
                                 <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                                <p className="text-gray-500">Solution not available</p>
+                                <p className="text-gray-500">
+                                  Solution not available
+                                </p>
                               </div>
                             </div>
                           )}
@@ -613,21 +614,33 @@ export default function PaperPage() {
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
                             <Badge variant="outline">{paper.paperType}</Badge>
-                            <span className="text-sm text-muted-foreground">Paper Type</span>
+                            <span className="text-sm text-muted-foreground">
+                              Paper Type
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Badge variant="outline">{paper.language}</Badge>
-                            <span className="text-sm text-muted-foreground">Language</span>
+                            <span className="text-sm text-muted-foreground">
+                              Language
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Badge className={getDifficultyColor(paper.difficultyLevel)}>
+                            <Badge
+                              className={getDifficultyColor(
+                                paper.difficultyLevel
+                              )}
+                            >
                               {paper.difficultyLevel}
                             </Badge>
-                            <span className="text-sm text-muted-foreground">Difficulty</span>
+                            <span className="text-sm text-muted-foreground">
+                              Difficulty
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Badge variant="outline">{paper.sourceType}</Badge>
-                            <span className="text-sm text-muted-foreground">Source Type</span>
+                            <span className="text-sm text-muted-foreground">
+                              Source Type
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -639,7 +652,9 @@ export default function PaperPage() {
                         </h3>
                         <div className="space-y-3">
                           <div>
-                            <span className="text-sm text-muted-foreground">Attribution:</span>
+                            <span className="text-sm text-muted-foreground">
+                              Attribution:
+                            </span>
                             <p className="text-sm">{paper.sourceAttribution}</p>
                           </div>
                         </div>
@@ -655,21 +670,35 @@ export default function PaperPage() {
                         <div className="flex items-center gap-2">
                           <Globe className="h-4 w-4 text-muted-foreground" />
                           <Badge variant="outline">{paper.visibility}</Badge>
-                          <span className="text-sm text-muted-foreground">Visibility</span>
+                          <span className="text-sm text-muted-foreground">
+                            Visibility
+                          </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Download className="h-4 w-4 text-muted-foreground" />
-                          <Badge variant={paper.allowDownload ? "default" : "secondary"}>
+                          <Badge
+                            variant={
+                              paper.allowDownload ? "default" : "secondary"
+                            }
+                          >
                             {paper.allowDownload ? "Allowed" : "Restricted"}
                           </Badge>
-                          <span className="text-sm text-muted-foreground">Download</span>
+                          <span className="text-sm text-muted-foreground">
+                            Download
+                          </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <MessageCircle className="h-4 w-4 text-muted-foreground" />
-                          <Badge variant={paper.allowComments ? "default" : "secondary"}>
+                          <Badge
+                            variant={
+                              paper.allowComments ? "default" : "secondary"
+                            }
+                          >
                             {paper.allowComments ? "Enabled" : "Disabled"}
                           </Badge>
-                          <span className="text-sm text-muted-foreground">Comments</span>
+                          <span className="text-sm text-muted-foreground">
+                            Comments
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -679,11 +708,15 @@ export default function PaperPage() {
                       <h3 className="text-lg font-semibold mb-3">Metadata</h3>
                       <div className="grid md:grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="text-muted-foreground">Created:</span>
+                          <span className="text-muted-foreground">
+                            Created:
+                          </span>
                           <p>{formatDate(paper.createdAt)}</p>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">Updated:</span>
+                          <span className="text-muted-foreground">
+                            Updated:
+                          </span>
                           <p>{formatDate(paper.updatedAt)}</p>
                         </div>
                       </div>
@@ -809,7 +842,9 @@ export default function PaperPage() {
                 </div>
               </div>
               <Button className="w-full mt-4" variant="outline" asChild>
-                <Link href={`/dashboard/profile/${paper.userProfile?.username}`}>
+                <Link
+                  href={`/dashboard/profile/${paper.userProfile?.username}`}
+                >
                   <User className="h-4 w-4 mr-2" />
                   View Profile
                 </Link>

@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Calculator,
@@ -26,13 +25,8 @@ import {
   BarChart3,
 } from "lucide-react";
 
-const uid = (() => {
-  let i = 1;
-  return () => i++;
-})();
-
 type ComponentRow = {
-  id: number;
+  id: string;
   name: string;
   weight: number;
   score: number | null;
@@ -41,10 +35,34 @@ type ComponentRow = {
 
 export default function CarryMarkCalculator() {
   const [rows, setRows] = useState<ComponentRow[]>([
-    { id: uid(), name: "Assignment", weight: 20, score: 80, maxScore: 100 },
-    { id: uid(), name: "Quiz", weight: 10, score: 35, maxScore: 40 },
-    { id: uid(), name: "Test", weight: 20, score: null, maxScore: 50 },
-    { id: uid(), name: "Final Exam", weight: 50, score: null, maxScore: 100 },
+    {
+      id: crypto.randomUUID(),
+      name: "Assignment",
+      weight: 20,
+      score: 80,
+      maxScore: 100,
+    },
+    {
+      id: crypto.randomUUID(),
+      name: "Quiz",
+      weight: 10,
+      score: 35,
+      maxScore: 40,
+    },
+    {
+      id: crypto.randomUUID(),
+      name: "Test",
+      weight: 20,
+      score: null,
+      maxScore: 50,
+    },
+    {
+      id: crypto.randomUUID(),
+      name: "Final Exam",
+      weight: 50,
+      score: null,
+      maxScore: 100,
+    },
   ]);
 
   const [target, setTarget] = useState<number>(50);
@@ -52,18 +70,24 @@ export default function CarryMarkCalculator() {
     string | null
   >(null);
 
-  function updateRow(id: number, patch: Partial<ComponentRow>) {
+  function updateRow(id: string, patch: Partial<ComponentRow>) {
     setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)));
   }
 
   function addRow() {
     setRows((rs) => [
       ...rs,
-      { id: uid(), name: "New", weight: 0, score: null, maxScore: 100 },
+      {
+        id: crypto.randomUUID(),
+        name: "New",
+        weight: 0,
+        score: null,
+        maxScore: 100,
+      },
     ]);
   }
 
-  function removeRow(id: number) {
+  function removeRow(id: string) {
     setRows((rs) => rs.filter((r) => r.id !== id));
   }
 
@@ -471,28 +495,28 @@ export default function CarryMarkCalculator() {
                   onClick={() =>
                     setRows([
                       {
-                        id: uid(),
+                        id: crypto.randomUUID(),
                         name: "Assignment",
                         weight: 20,
                         score: 80,
                         maxScore: 100,
                       },
                       {
-                        id: uid(),
+                        id: crypto.randomUUID(),
                         name: "Quiz",
                         weight: 10,
                         score: 35,
                         maxScore: 40,
                       },
                       {
-                        id: uid(),
+                        id: crypto.randomUUID(),
                         name: "Test",
                         weight: 20,
                         score: null,
                         maxScore: 50,
                       },
                       {
-                        id: uid(),
+                        id: crypto.randomUUID(),
                         name: "Final Exam",
                         weight: 50,
                         score: null,

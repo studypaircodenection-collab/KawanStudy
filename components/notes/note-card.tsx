@@ -17,11 +17,9 @@ import {
   Heart,
   Download,
   Globe,
-  GraduationCap,
-  User,
+
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ImageIcon } from "lucide-react";
 import Image from "next/image";
 
 interface NoteCardData {

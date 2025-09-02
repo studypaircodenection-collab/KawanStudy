@@ -20,7 +20,6 @@ import {
   Sun,
   Moon,
   Eye,
-  Type,
   Layout,
   Zap,
   Check,

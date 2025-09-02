@@ -2,8 +2,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { BarChart3, Calendar, Clock, TrendingUp, Download } from "lucide-react";
+
+import { Calendar, Clock, TrendingUp } from "lucide-react";
 import { SCHEDULE_TYPES } from "@/types/schedule";
 
 interface ScheduleStatsProps {

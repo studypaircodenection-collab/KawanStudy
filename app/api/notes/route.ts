@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { NoteUpload } from "@/types/notes";
-
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
@@ -101,7 +99,7 @@ export async function POST(request: NextRequest) {
       fileSize = file.size;
 
       // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from("notes")
         .upload(filePath, file, {
           cacheControl: "3600",
@@ -144,13 +142,12 @@ export async function POST(request: NextRequest) {
       thumbnailPath = thumbnailFilePath;
 
       // Upload thumbnail to Supabase Storage
-      const { data: thumbnailUploadData, error: thumbnailUploadError } =
-        await supabase.storage
-          .from("note-thumbnails")
-          .upload(thumbnailFilePath, thumbnailFile, {
-            cacheControl: "3600",
-            upsert: false,
-          });
+      const { error: thumbnailUploadError } = await supabase.storage
+        .from("note-thumbnails")
+        .upload(thumbnailFilePath, thumbnailFile, {
+          cacheControl: "3600",
+          upsert: false,
+        });
 
       if (thumbnailUploadError) {
         console.error("Thumbnail upload error:", thumbnailUploadError);

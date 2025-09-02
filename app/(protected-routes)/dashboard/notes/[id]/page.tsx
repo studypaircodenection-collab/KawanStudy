@@ -41,7 +41,6 @@ import {
   Twitter,
   Facebook,
   Linkedin,
-  Link as LinkIcon,
 } from "lucide-react";
 import { notesService } from "@/lib/services/notes";
 import { useNoteUpload } from "@/hooks/use-notes";
@@ -222,13 +221,14 @@ export default function NoteDetailsPage() {
       toast.success("Link copied to clipboard!");
     } catch (error) {
       toast.error("Failed to copy link");
+      console.error("Error copying to clipboard:", error);
     }
   };
 
   const shareViaEmail = () => {
     const subject = encodeURIComponent(`Check out this note: ${note.title}`);
     const body = encodeURIComponent(
-      `I found this interesting note on StudyPair:\n\n${note.title}\n${note.description}\n\n${window.location.href}`
+      `I found this interesting note on KawanStudy:\n\n${note.title}\n${note.description}\n\n${window.location.href}`
     );
     window.open(`mailto:?subject=${subject}&body=${body}`);
   };

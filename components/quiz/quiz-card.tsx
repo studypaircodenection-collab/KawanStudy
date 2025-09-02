@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { Play, Eye, Clock, Users } from "lucide-react";
+import { Play, Clock, Users } from "lucide-react";
 import type { Quiz } from "@/types/quiz";
 import {
   Card,

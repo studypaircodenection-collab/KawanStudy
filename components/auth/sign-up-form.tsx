@@ -53,9 +53,6 @@ export function SignUpForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -69,10 +66,8 @@ export function SignUpForm({
 
   const onSubmit = async (value: z.infer<typeof formSchema>) => {
     const supabase = createClient();
-    setError(null);
-    try {
-      setIsLoading(true);
 
+    try {
       const { error } = await supabase.auth.signUp({
         email: form.getValues("email"),
         password: form.getValues("password"),
@@ -83,9 +78,9 @@ export function SignUpForm({
       if (error) throw error;
       router.push("/auth/sign-up-success");
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
+      console.error(
+        error instanceof Error ? error.message : "An error occurred"
+      );
     }
   };
 

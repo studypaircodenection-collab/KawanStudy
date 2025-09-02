@@ -3,11 +3,9 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Clock,
   Users,
   BookOpen,
   Target,
-  Award,
   TrendingUp,
   Calendar,
   ArrowLeft,
@@ -27,10 +25,8 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toast } from "sonner";
 
 interface QuizAttempt {
   id: string;

@@ -121,7 +121,7 @@ const KawanStudyNotes = () => {
     Object.values(filters).filter(Boolean).length + (searchTerm ? 1 : 0);
 
   return (
-    <div>
+    <div className="container mx-auto">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-foreground mb-2">

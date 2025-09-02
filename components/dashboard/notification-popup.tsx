@@ -498,7 +498,7 @@ const NotificationPopup = () => {
             </p>
             {filter === "all" && (
               <p className="text-xs mt-1">
-                You'll see study reminders, messages, and updates here
+                You&apos;ll see study reminders, messages, and updates here
               </p>
             )}
           </div>

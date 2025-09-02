@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,14 +14,6 @@ import {
 import {
   Loader2,
   Search,
-  Filter,
-  Download,
-  Heart,
-  MessageCircle,
-  Eye,
-  Calendar,
-  User,
-  Building,
 } from "lucide-react";
 import { PaperCard } from "./paper-card";
 import { PaperUploadForm } from "./paper-upload-form";

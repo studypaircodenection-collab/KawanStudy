@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { toast } from "sonner";
 import FeedbackForm from "@/components/feedback/feedback-form";
 import {
   FeedbackFormData,
@@ -14,9 +13,6 @@ import {
   Mail,
   ExternalLink,
   Heart,
-  Bug,
-  Lightbulb,
-  Users,
 } from "lucide-react";
 
 export default function FeedbackPage() {
@@ -56,7 +52,7 @@ export default function FeedbackPage() {
             We Value Your Feedback
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Help us make StudyPair better by sharing your thoughts, reporting
+            Help us make KawanStudy better by sharing your thoughts, reporting
             issues, or suggesting new features. Every piece of feedback matters
             to us.
           </p>
@@ -93,7 +89,7 @@ export default function FeedbackPage() {
                     Feature Requests
                   </Badge>
                   <p className="text-sm text-muted-foreground">
-                    Describe the problem you're trying to solve and why this
+                    Describe the problem you&apos;re trying to solve and why this
                     feature would be helpful.
                   </p>
                 </div>
@@ -123,7 +119,7 @@ export default function FeedbackPage() {
                   <div>
                     <p className="font-medium">Email Support</p>
                     <p className="text-sm text-muted-foreground">
-                      support@studypair.com
+                      support@KawanStudy.com
                     </p>
                   </div>
                 </div>
@@ -178,7 +174,7 @@ export default function FeedbackPage() {
           <p className="text-muted-foreground">
             Your feedback helps us create a better learning experience for
             everyone. We appreciate you taking the time to help us improve
-            StudyPair.
+            KawanStudy.
           </p>
         </div>
       </div>

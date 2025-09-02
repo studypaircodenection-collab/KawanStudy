@@ -290,7 +290,7 @@ export default function FeedbackForm({ onSubmit }: FeedbackFormProps) {
                     />
                   </FormControl>
                   <FormDescription>
-                    Leave your email if you'd like us to follow up with you
+                    Leave your email if you&apos;d like us to follow up with you
                     about this feedback.
                   </FormDescription>
                   <FormMessage />

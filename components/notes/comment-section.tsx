@@ -6,13 +6,7 @@ import { MessageCircle, Plus, Minus } from "lucide-react";
 import { useComments } from "@/hooks/use-comments";
 import CommentCard from "./comment-card";
 import AddComment from "./add-comment";
-import { Separator } from "../ui/separator";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
+import { Separator } from "@/components/ui/separator";
 
 interface CommentSectionProps {
   noteId: string;

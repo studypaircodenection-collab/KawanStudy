@@ -2,12 +2,11 @@
 import React, { useState, useEffect } from "react";
 import QuizCard from "@/components/quiz/quiz-card";
 import type { Quiz } from "@/types/quiz";
-import { QuestionKind } from "@/types/quiz";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Search, Filter } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import {
   Select,
   SelectContent,

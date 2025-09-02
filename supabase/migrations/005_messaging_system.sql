@@ -1,5 +1,5 @@
 -- 005_messaging_system.sql
--- Persistent messaging system for StudyPair
+-- Persistent messaging system for KawanStudy
 
 -- Create conversations table to track chat sessions between users
 create table if not exists public.conversations (

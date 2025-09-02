@@ -30,7 +30,6 @@ import {
   Smartphone,
   Tablet,
   MapPin,
-  Calendar,
   Trash2,
   AlertTriangle,
   Loader2,

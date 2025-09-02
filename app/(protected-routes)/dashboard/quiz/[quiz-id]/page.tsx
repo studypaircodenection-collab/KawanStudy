@@ -9,9 +9,6 @@ import {
   Target,
   Award,
   Play,
-  ChevronRight,
-  Calendar,
-  User,
   Edit,
   Loader2,
 } from "lucide-react";
@@ -24,10 +21,8 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Quiz } from "@/types/quiz";
-import { toast } from "sonner";
 
 interface QuizDetailProps {
   params: Promise<{
@@ -291,8 +286,8 @@ const QuizDetailPage: React.FC<QuizDetailProps> = ({ params }) => {
                     Read each question carefully before selecting your answer
                   </li>
                   <li>You can navigate between questions during the quiz</li>
-                  <li>Make sure to submit your quiz when you're finished</li>
-                  <li>You can retake this quiz as many times as you'd like</li>
+                  <li>Make sure to submit your quiz when you&aspos;re finished</li>
+                  <li>You can retake this quiz as many times as you&aspos;d like</li>
                 </ul>
               </AlertDescription>
             </Alert>
@@ -320,7 +315,7 @@ const QuizDetailPage: React.FC<QuizDetailProps> = ({ params }) => {
           <CardHeader>
             <CardTitle>Sample Questions</CardTitle>
             <CardDescription>
-              Here's a preview of what you'll find in this quiz
+              Here&aspos;s a preview of what you&aspos;ll find in this quiz
             </CardDescription>
           </CardHeader>
           <CardContent>

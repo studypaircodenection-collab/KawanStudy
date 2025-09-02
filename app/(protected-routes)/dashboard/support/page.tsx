@@ -23,7 +23,6 @@ import {
   Video,
   FileText,
   AlertCircle,
-  CheckCircle,
   ExternalLink,
   Users,
   Settings,
@@ -330,7 +329,7 @@ const SupportPage = () => {
             <MessageCircle className="h-12 w-12 text-blue-600 mx-auto mb-4" />
             <h3 className="text-2xl font-semibold mb-2">Still Need Help?</h3>
             <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Can't find what you're looking for? Our support team is here to
+              Can&aspos;t find what you&aspos;re looking for? Our support team is here to
               help. We typically respond within 2-4 hours during business hours.
             </p>
             <div className="flex gap-4 justify-center">

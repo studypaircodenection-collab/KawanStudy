@@ -73,7 +73,7 @@ const Leaderboard = ({
 
   return (
     <div className={cn("space-y-2", className)}>
-      {entries.slice(0, showTop).map((entry, index) => (
+      {entries.slice(0, showTop).map((entry) => (
         <Card
           key={entry.user_id}
           className={cn(

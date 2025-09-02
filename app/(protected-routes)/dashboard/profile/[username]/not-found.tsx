@@ -21,7 +21,7 @@ export default function ProfileNotFound() {
             </div>
             <CardTitle>Profile Not Found</CardTitle>
             <CardDescription>
-              The user profile you're looking for doesn't exist or may have been
+              The user profile you&apos;re looking for doesn&apos;t exist or may have been
               removed.
             </CardDescription>
           </CardHeader>

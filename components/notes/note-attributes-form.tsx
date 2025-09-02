@@ -37,8 +37,6 @@ import {
 } from "@/types/notes";
 import {
   noteFormSchema,
-  type NoteFormSchema,
-  noteFormDefaults,
   type NoteFormInput,
 } from "@/lib/validations/note-form";
 import { X, Plus } from "lucide-react";
@@ -411,7 +409,7 @@ export function NoteAttributesForm({
                 <FormField
                   control={form.control}
                   name="tags"
-                  render={({ field }) => (
+                  render={() => (
                     <FormItem>
                       <FormLabel>Tags</FormLabel>
                       <div className="space-y-2">

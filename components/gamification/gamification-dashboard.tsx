@@ -12,7 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Trophy, Flame, Star, Target, Users } from "lucide-react";
+import { Trophy, Star, Target, Users } from "lucide-react";
 import AchievementBadge from "./achievement-badge";
 import Leaderboard from "./leaderboard";
 import { LeaderboardEntry } from "@/lib/types";

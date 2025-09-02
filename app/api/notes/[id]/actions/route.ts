@@ -39,7 +39,7 @@ export async function POST(
         }
 
         // Toggle like
-        const { data: existingLike, error: likeCheckError } = await supabase
+        const { data: existingLike } = await supabase
           .from("note_likes")
           .select("id")
           .eq("note_id", noteId)

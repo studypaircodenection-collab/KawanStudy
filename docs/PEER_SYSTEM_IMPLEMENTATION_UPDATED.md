@@ -64,30 +64,6 @@ Successfully implemented a complete peer connection system with full-stack funct
 
 **File:** `/app/(protected-routes)/dashboard/peer/page.tsx`
 
-### New Features:
-
-1. **Fixed Discovery Tab**: Now excludes already connected and blocked users
-2. **Blocked Users Tab**: New tab to manage blocked users
-3. **Unblock Functionality**: Users can unblock previously blocked users
-4. **Improved Filtering**: Real-time filtering without showing connected users
-
-### Updated Components:
-
-- **PeerCard**: Added `onUnblock` prop and unblock option in dropdown
-- **PeerEmptyState**: Added support for "blocked" type
-- **Tab Layout**: Expanded to 5 tabs including blocked users
-
-## 🎯 Key Fixes Applied
-
-### ✅ Discovery Filtering Issue
-
-**Problem**: Discover tab was showing already connected users
-**Solution**:
-
-- Created `search_peers_discover()` database function that excludes connected/blocked users
-- Updated API to use discover mode when `discover=true` parameter is provided
-- Modified frontend to use discover mode for the discover tab
-
 ### ✅ Blocked Users Management
 
 **Problem**: No way to view or unblock previously blocked users

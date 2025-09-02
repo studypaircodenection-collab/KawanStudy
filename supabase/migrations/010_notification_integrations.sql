@@ -1,4 +1,4 @@
--- Integration functions for StudyPair notifications
+-- Integration functions for KawanStudy notifications
 -- These functions create notifications automatically when certain events occur
 
 -- Function to create peer connection notifications

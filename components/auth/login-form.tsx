@@ -40,7 +40,6 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -54,9 +53,8 @@ export function LoginForm({
     },
   });
 
-  const onSubmit = async (value: z.infer<typeof formSchema>) => {
+  const onSubmit = async () => {
     const supabase = createClient();
-    setError(null);
     try {
       setIsLoading(true);
 
@@ -99,14 +97,16 @@ export function LoginForm({
         }
 
         if (error) {
-          setError(error.message);
+          console.error(error.message);
         }
         // Get redirect URL from sear chParams or default to dashboard
         const redirectTo = searchParams.get("redirect") || "/dashboard";
         router.push(redirectTo);
       }
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      console.error(
+        error instanceof Error ? error.message : "An error occurred"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -116,7 +116,6 @@ export function LoginForm({
     e.preventDefault();
     const supabase = createClient();
     setIsLoading(true);
-    setError(null);
 
     try {
       const options: Record<
@@ -133,14 +132,16 @@ export function LoginForm({
         };
       }
 
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options,
       });
 
       if (error) throw error;
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      console.error(
+        error instanceof Error ? error.message : "An error occurred"
+      );
     } finally {
       setIsLoading(false);
     }

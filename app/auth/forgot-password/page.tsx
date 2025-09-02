@@ -1,5 +1,4 @@
 import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
-import Link from "next/link";
 import { generateMetadata as generateSEOMetadata } from "@/lib/seo";
 import { Metadata } from "next";
 

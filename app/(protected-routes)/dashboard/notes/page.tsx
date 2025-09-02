@@ -161,7 +161,7 @@ export default function NotesPage() {
         <div className="relative z-10 max-w-4xl">
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="h-6 w-6" />
-            <span className="text-lg font-medium">StudyPair Notes Hub</span>
+            <span className="text-lg font-medium">KawanStudy Notes Hub</span>
           </div>
           <h1 className="text-4xl font-bold mb-4">
             Your Gateway to Academic Excellence
@@ -265,7 +265,7 @@ export default function NotesPage() {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredNotes.map((note, index) => (
+              {featuredNotes.map((note) => (
                 <Link key={note.id} href={`/dashboard/notes/${note.id}`}>
                   <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer border-0 shadow-md">
                     <div className="relative">
@@ -375,7 +375,7 @@ export default function NotesPage() {
               </div>
 
               <div className="space-y-4">
-                {recentUploads.map((upload, index) => (
+                {recentUploads.map((upload) => (
                   <Link key={upload.id} href={`/dashboard/notes/${upload.id}`}>
                     <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 border-l-4 border-l-transparent hover:border-l-blue-500 cursor-pointer">
                       <CardContent className="p-4">

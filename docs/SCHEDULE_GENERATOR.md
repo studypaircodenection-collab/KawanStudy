@@ -41,7 +41,7 @@ A comprehensive, fully customizable schedule generator built with Next.js, TypeS
 git clone <your-repo-url>
 
 # Navigate to project directory
-cd studypair
+cd KawanStudy
 
 # Install dependencies
 npm install

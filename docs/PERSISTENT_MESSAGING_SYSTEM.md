@@ -6,15 +6,6 @@ The persistent messaging system provides a complete chat solution where messages
 
 ## 🔄 **Key Improvements Over Realtime-Only Chat**
 
-### **Before (Realtime Only)**
-
-- ❌ Messages lost if user is offline
-- ❌ No message history
-- ❌ Both users must be online simultaneously
-- ❌ No conversation persistence
-
-### **After (Persistent + Realtime)**
-
 - ✅ Messages stored permanently in database
 - ✅ Complete message history
 - ✅ Works when users are offline
@@ -288,4 +279,4 @@ psql -f supabase/master_schema.sql
 - **Message encryption** for privacy
 - **Voice messages**
 
-The persistent messaging system provides a complete, production-ready chat solution that works reliably whether users are online or offline, making StudyPair a truly connected learning platform.
+The persistent messaging system provides a complete, production-ready chat solution that works reliably whether users are online or offline, making KawanStudy a truly connected learning platform.

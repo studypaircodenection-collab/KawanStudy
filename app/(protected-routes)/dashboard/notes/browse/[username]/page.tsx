@@ -1,6 +1,6 @@
 import React from "react";
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -10,7 +10,6 @@ import {
   Eye,
   Heart,
   Download,
-  Users,
   MapPin,
   GraduationCap,
   Star,
@@ -495,7 +494,7 @@ export default async function UserNotesPage({
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold">
-              {userProfile.fullName || userProfile.username}'s Notes
+              {userProfile.fullName || userProfile.username}&apos;s Notes
             </h2>
             <p className="text-muted-foreground">
               {stats.totalPublicNotes} public notes available
@@ -518,7 +517,7 @@ export default async function UserNotesPage({
                 No public notes yet
               </h3>
               <p className="text-muted-foreground">
-                {userProfile.fullName || userProfile.username} hasn't shared any
+                {userProfile.fullName || userProfile.username} hasn&apos;t shared any
                 public notes yet.
               </p>
             </CardContent>
