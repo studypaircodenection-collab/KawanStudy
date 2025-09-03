@@ -34,18 +34,18 @@ import Link from "next/link";
 const data = {
   navMain: [
     {
-      title: "Class Tutor",
-      url: "/dashboard/tutor",
+      title: "Class Room",
+      url: "/dashboard/room",
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: "Browse All Tutor Sessions",
-          url: "/dashboard/tutor/browse",
+          title: "Browse All Class Sessions",
+          url: "/dashboard/room/browse",
         },
         {
-          title: "Start a New Session",
-          url: "/dashboard/tutor/create",
+          title: "Start a New Class Sessions",
+          url: "/dashboard/room/create",
         },
       ],
     },
