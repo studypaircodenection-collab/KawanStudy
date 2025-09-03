@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Comment } from "@/lib/services/comments";
+import { Text } from "../ui/typography";
 import { createClient } from "@/lib/supabase/client";
 
 interface CommentCardProps {
@@ -134,24 +135,24 @@ const CommentCard: React.FC<CommentCardProps> = ({
             <div className="flex items-center gap-2 min-w-0">
               {comment.status === "deleted" ? (
                 <>
-                  <span className="font-medium text-sm truncate text-muted-foreground">
+                  <Text as="p" styleVariant="muted">
                     [Anonymous]
-                  </span>
-                  <span className="text-xs text-muted-foreground">
+                  </Text>
+                  <Text as="p" styleVariant="muted">
                     {formatDate(comment.created_at)}
-                  </span>
+                  </Text>
                 </>
               ) : (
                 <>
-                  <span className="font-medium text-sm truncate">
+                  <Text as="p" className="text-sm font-medium truncate">
                     {comment.profiles.full_name || comment.profiles.username}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
+                  </Text>
+                  <Text as="p" styleVariant="muted" className="text-xs">
                     @{comment.profiles.username}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
+                  </Text>
+                  <Text as="p" styleVariant="muted" className="text-xs">
                     {formatDate(comment.created_at)}
-                  </span>
+                  </Text>
                 </>
               )}
             </div>
@@ -212,13 +213,17 @@ const CommentCard: React.FC<CommentCardProps> = ({
           ) : (
             <>
               {comment.status === "deleted" ? (
-                <p className="text-sm mt-1 italic text-muted-foreground">
+                <Text
+                  as="p"
+                  styleVariant="muted"
+                  className="text-sm mt-1 italic"
+                >
                   [This comment has been deleted]
-                </p>
+                </Text>
               ) : (
                 <p className="text-sm mt-1 break-words">{comment.content}</p>
               )}
-
+  
               {user && depth < maxDepth && comment.status === "active" && (
                 <div className="mt-2">
                   <Button

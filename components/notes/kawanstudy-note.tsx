@@ -22,6 +22,9 @@ import {
 } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
+import { Text } from "../ui/typography";
+import { Label } from "../ui/label";
+import { Skeleton } from "../ui/skeleton";
 
 const KawanStudyNotes = () => {
   // State management
@@ -120,16 +123,20 @@ const KawanStudyNotes = () => {
   const activeFiltersCount =
     Object.values(filters).filter(Boolean).length + (searchTerm ? 1 : 0);
 
+  if (loading) {
+    return <Skeleton className="h-64 rounded"></Skeleton>;
+  }
+
   return (
     <div className="container mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-foreground mb-2">
+        <Text as="h2" className="mb-2">
           KawanStudy Public Notes
-        </h1>
-        <p className="text-muted-foreground text-lg">
+        </Text>
+        <Text as="p" styleVariant="muted" className="text-muted-foreground">
           Discover and explore academic notes from our community
-        </p>
+        </Text>
       </div>
 
       {/* Search and Filter Bar */}
@@ -142,7 +149,7 @@ const KawanStudyNotes = () => {
               placeholder="Search notes by title, description, or tags..."
               value={searchTerm}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-10 h-12"
+              className="pl-10"
             />
           </div>
 
@@ -187,9 +194,7 @@ const KawanStudyNotes = () => {
             <Separator className="my-6" />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
               <div>
-                <label className="text-sm font-medium text-slate-700 mb-2 block">
-                  Subject
-                </label>
+                <Label>Subject</Label>
                 <Select
                   value={filters.subject}
                   onValueChange={(value) =>
@@ -211,9 +216,7 @@ const KawanStudyNotes = () => {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-slate-700 mb-2 block">
-                  Note Type
-                </label>
+                <Label>Note Type</Label>
                 <Select
                   value={filters.noteType}
                   onValueChange={(value) =>
@@ -235,9 +238,7 @@ const KawanStudyNotes = () => {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-slate-700 mb-2 block">
-                  Language
-                </label>
+                <Label>Language</Label>
                 <Select
                   value={filters.language}
                   onValueChange={(value) =>
@@ -259,9 +260,7 @@ const KawanStudyNotes = () => {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-slate-700 mb-2 block">
-                  Difficulty
-                </label>
+                <Label>Difficulty</Label>
                 <Select
                   value={filters.difficulty}
                   onValueChange={(value) =>
@@ -286,9 +285,7 @@ const KawanStudyNotes = () => {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-slate-700 mb-2 block">
-                  Academic Level
-                </label>
+                <Label>Academic Level</Label>
                 <Select
                   value={filters.academicLevel}
                   onValueChange={(value) =>
@@ -324,9 +321,9 @@ const KawanStudyNotes = () => {
 
       {/* Results Header */}
       <div className="mb-6 flex justify-between items-center">
-        <p className="text-muted-foreground">
+        <Text as="p" styleVariant="muted">
           Showing {notesData.notes.length} of {notesData.total} notes
-        </p>
+        </Text>
       </div>
 
       {/* Notes Grid */}
@@ -354,12 +351,10 @@ const KawanStudyNotes = () => {
       {notesData.notes.length === 0 && (
         <div className="text-center py-16">
           <BookOpen className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-slate-600 mb-2">
-            No notes found
-          </h3>
-          <p className="text-slate-500 mb-4">
+          <Text as="h3">No notes found</Text>
+          <Text as="p" styleVariant="muted">
             Try adjusting your search terms or filters
-          </p>
+          </Text>
           <Button onClick={clearFilters}>Clear all filters</Button>
         </div>
       )}

@@ -16,6 +16,8 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import UiTMEbookCard from "./uitm-ebook-card";
+import { Text } from "../ui/typography";
+import { Label } from "../ui/label";
 
 const UiTMNotes = () => {
   const [ebooks, setEbooks] = useState<UiTMEbook[]>([]);
@@ -155,23 +157,23 @@ const UiTMNotes = () => {
 
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2 mb-2">
+        <Text as="h2" className="mb-2 flex gap-2 items-center">
           <BookOpen className="h-8 w-8 text-blue-600" />
           UiTM E-Book Digital Library
-        </h1>
-        <p className="text-muted-foreground text-lg">
+        </Text>
+        <Text as="p" styleVariant="muted" className="text-muted-foreground">
           Discover and explore E-Books provided by UiTM PTAR database.
-        </p>
+        </Text>
       </div>
 
       {/* Search Form */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Search Query */}
         <div className="space-y-2">
-          <label className="text-sm font-medium flex items-center gap-1">
+          <Label>
             <BookOpen className="h-4 w-4" />
             Book Title
-          </label>
+          </Label>
           <Input
             placeholder="Enter book title..."
             value={searchQuery.query || ""}
@@ -184,10 +186,10 @@ const UiTMNotes = () => {
 
         {/* Author Filter */}
         <div className="space-y-2">
-          <label className="text-sm font-medium flex items-center gap-1">
+          <Label>
             <User className="h-4 w-4" />
             Author
-          </label>
+          </Label>
           <Input
             placeholder="Enter author name..."
             value={searchQuery.author || ""}
@@ -200,10 +202,10 @@ const UiTMNotes = () => {
 
         {/* Publish Year Filter */}
         <div className="space-y-2">
-          <label className="text-sm font-medium flex items-center gap-1">
+          <Label>
             <Calendar className="h-4 w-4" />
             Publish Year
-          </label>
+          </Label>
           <Select
             value={searchQuery.publishYear || undefined}
             onValueChange={(value) =>
@@ -229,7 +231,7 @@ const UiTMNotes = () => {
 
         {/* Search Actions */}
         <div className="space-y-2">
-          <label className="text-sm font-medium invisible">Actions</label>
+          <Label>Actions</Label>
           <div className="flex gap-2">
             <Button onClick={handleSearch} className="flex-1">
               <Search className="h-4 w-4 mr-2" />
@@ -296,19 +298,21 @@ const UiTMNotes = () => {
         <Card>
           <CardContent className="text-center py-12">
             <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg">No e-books found.</p>
-            <p className="text-gray-400 text-sm mt-2">
+            <Text as="p" styleVariant="muted">
+              No e-books found.
+            </Text>
+            <Text as="p" styleVariant="muted" className="text-sm mt-2">
               Try adjusting your search criteria or clear filters to see more
               results.
-            </p>
+            </Text>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <p className="text-sm text-muted-foreground">
+            <Text as="p" className="text-sm">
               Showing {ebooks.length} e-books
-            </p>
+            </Text>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-4">
@@ -321,8 +325,8 @@ const UiTMNotes = () => {
 
       {/* Disclaimer */}
       <div className="max-w-3xl">
-        <h3 className="text-lg font-semibold mb-2">Disclaimer</h3>
-        <p className="text-sm text-muted-foreground">
+        <Text as="h3">Disclaimer</Text>
+        <Text as="p" styleVariant="muted" className="text-sm ">
           The e-books provided are for educational purposes only. KawanStudy
           does not claim ownership of any content or materials on this page. All
           rights of the respective owners are acknowledged. Visit{" "}
@@ -335,7 +339,7 @@ const UiTMNotes = () => {
             UiTM Official Website
           </a>
           .
-        </p>
+        </Text>
       </div>
     </div>
   );

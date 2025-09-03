@@ -16,6 +16,7 @@ import { Bell, Calendar, Users, Trophy } from "lucide-react";
 import { useNotifications } from "@/hooks/use-notifications-db";
 import { NOTIFICATION_TYPES } from "@/types/notification";
 import { toast } from "sonner";
+import { Text } from "@/components/ui/typography";
 
 export default function NotificationSetting() {
   const { notifications, settings, updateSettings, error, isLoading } =
@@ -60,9 +61,9 @@ export default function NotificationSetting() {
         <Card className="mb-6">
           <CardContent className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-sm text-gray-500">
+            <Text as="p" styleVariant="muted">
               Loading notification settings...
-            </p>
+            </Text>
           </CardContent>
         </Card>
       )}
@@ -105,9 +106,9 @@ export default function NotificationSetting() {
                   <Calendar className="h-4 w-4 text-gray-500" />
                   <div>
                     <Label htmlFor="study-reminders">Study Reminders</Label>
-                    <p className="text-sm text-gray-500">
+                    <Text as="p" styleVariant="muted">
                       Upcoming study sessions and exams
-                    </p>
+                    </Text>
                   </div>
                 </div>
                 <Switch
@@ -124,9 +125,9 @@ export default function NotificationSetting() {
                   <Users className="h-4 w-4 text-gray-500" />
                   <div>
                     <Label htmlFor="group-invites">Group Invitations</Label>
-                    <p className="text-sm text-gray-500">
+                    <Text as="p" styleVariant="muted">
                       Study group invites and updates
-                    </p>
+                    </Text>
                   </div>
                 </div>
                 <Switch
@@ -143,9 +144,9 @@ export default function NotificationSetting() {
                   <Calendar className="h-4 w-4 text-gray-500" />
                   <div>
                     <Label htmlFor="exam-reminders">Exam Reminders</Label>
-                    <p className="text-sm text-gray-500">
+                    <Text as="p" styleVariant="muted">
                       Important exam notifications
-                    </p>
+                    </Text>
                   </div>
                 </div>
                 <Switch
@@ -162,9 +163,9 @@ export default function NotificationSetting() {
                   <Trophy className="h-4 w-4 text-gray-500" />
                   <div>
                     <Label htmlFor="achievements">Achievements</Label>
-                    <p className="text-sm text-gray-500">
+                    <Text as="p" styleVariant="muted">
                       Study milestones and badges
-                    </p>
+                    </Text>
                   </div>
                 </div>
                 <Switch
@@ -208,17 +209,17 @@ export default function NotificationSetting() {
                   />
                   <div>
                     <span className="font-medium">{info.label}</span>
-                    <p className="text-sm text-gray-500">
+                    <Text as="p" styleVariant="muted">
                       {info.icon} {type.replace("_", " ")}
-                    </p>
+                    </Text>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="font-medium">{count} total</div>
                   {unreadCount > 0 && (
-                    <div className="text-sm text-red-600">
+                    <Text as="p" className="text-sm text-red-600">
                       {unreadCount} unread
-                    </div>
+                    </Text>
                   )}
                 </div>
               </div>
@@ -229,13 +230,13 @@ export default function NotificationSetting() {
 
       {/* Save Changes */}
       {hasUnsavedChanges && (
-        <div className="sticky bottom-6 mt-6 bg-white border border-gray-200 rounded-lg p-4 shadow-lg">
+        <div className="sticky bottom-6 mt-6 bg-background border rounded-lg p-4 shadow-lg">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-medium">You have unsaved changes</h4>
-              <p className="text-sm text-gray-600">
+              <Text as="h4">You have unsaved changes</Text>
+              <Text as="p" styleVariant="muted">
                 Save your notification preferences to apply changes
-              </p>
+              </Text>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" onClick={resetSettings}>

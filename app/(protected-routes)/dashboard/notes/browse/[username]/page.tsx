@@ -517,19 +517,12 @@ export default async function UserNotesPage({
                 No public notes yet
               </h3>
               <p className="text-muted-foreground">
-                {userProfile.fullName || userProfile.username} hasn&apos;t shared any
-                public notes yet.
+                {userProfile.fullName || userProfile.username} hasn&apos;t
+                shared any public notes yet.
               </p>
             </CardContent>
           </Card>
         )}
-
-        {/* Back to Browse */}
-        <div className="flex justify-center">
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/notes/browse">← Back to Browse Notes</Link>
-          </Button>
-        </div>
       </div>
     );
   } catch (error) {

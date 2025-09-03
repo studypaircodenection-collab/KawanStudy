@@ -21,6 +21,7 @@ import { notesService } from "@/lib/services/notes";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Upload, FileText, CheckCircle, AlertCircle, Save } from "lucide-react";
+import { Text } from "@/components/ui/typography";
 
 export default function UploadNotesPage() {
   const [activeTab, setActiveTab] = useState<"pdf" | "text">("pdf");
@@ -136,7 +137,9 @@ export default function UploadNotesPage() {
     <div className="container mx-auto space-y-6">
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Upload Notes</h1>
+        <Text as="h2" className="mb-2">
+          Upload Notes
+        </Text>
         <p className="text-muted-foreground">
           Share your knowledge with the community by uploading your study notes
           or creating new content.
@@ -348,7 +351,7 @@ export default function UploadNotesPage() {
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div className="space-y-1">
-                <h4 className="font-medium">File Requirements:</h4>
+                <Text as="p">File Requirements:</Text>
                 <ul className="text-muted-foreground space-y-1 ml-4">
                   <li>• PDF files only, max 10MB</li>
                   <li>• Clear, readable content</li>
@@ -357,7 +360,7 @@ export default function UploadNotesPage() {
               </div>
 
               <div className="space-y-1">
-                <h4 className="font-medium">Content Guidelines:</h4>
+                <Text as="p">Content Guidelines:</Text>
                 <ul className="text-muted-foreground space-y-1 ml-4">
                   <li>• Use descriptive titles</li>
                   <li>• Add relevant tags</li>

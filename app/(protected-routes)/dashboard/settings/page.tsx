@@ -1,19 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   User,
   Bell,
   Shield,
-  BookOpen,
   Settings as SettingsIcon,
   Palette,
 } from "lucide-react";
 import { Text } from "@/components/ui/typography";
 import NotificationSetting from "@/components/settings/notification-setting";
 import ProfileSetting from "@/components/settings/profile-setting";
-import StudySetting from "@/components/settings/study-setting";
 import PrivacySetting from "@/components/settings/privacy-setting";
 import AccountSetting from "@/components/settings/account-setting";
 import PersonalizationSetting from "@/components/settings/personalization-setting";
@@ -24,7 +22,7 @@ const SettingsPage = () => {
   const settingsTabs = [
     { id: "profile", label: "Profile", icon: User },
     { id: "personalization", label: "Personalization", icon: Palette },
-    { id: "study", label: "Study", icon: BookOpen },
+
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "privacy", label: "Privacy", icon: Shield },
     { id: "account", label: "Account", icon: SettingsIcon },
@@ -77,10 +75,6 @@ const SettingsPage = () => {
 
           {/* Personalization Settings */}
           {activeTab === "personalization" && <PersonalizationSetting />}
-
-          {/* Study Settings */}
-          {activeTab === "study" && <StudySetting />}
-
           {/* Notifications Settings */}
           {activeTab === "notifications" && <NotificationSetting />}
 

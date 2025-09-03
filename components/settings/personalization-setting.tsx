@@ -25,6 +25,7 @@ import {
   Check,
 } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
+import { Text } from "@/components/ui/typography";
 
 const PersonalizationSetting = () => {
   const { settings, updateSettings, resetToDefaults, mounted } = useTheme();
@@ -249,31 +250,27 @@ const PersonalizationSetting = () => {
       </Card>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-between pt-6 border-t">
-        <Button
-          variant="outline"
-          onClick={handleResetToDefaults}
-          className="flex items-center gap-2"
-        >
-          Reset to Defaults
-        </Button>
 
-        <div className="flex items-center gap-3">
-          {hasChanges && (
-            <Badge variant="secondary" className="text-orange-600">
-              Unsaved changes
-            </Badge>
-          )}
-          <Button
-            onClick={handleSaveSettings}
-            disabled={!hasChanges}
-            className="flex items-center gap-2"
-          >
-            <Check className="h-4 w-4" />
-            Save Changes
-          </Button>
+      {hasChanges && (
+        <div className="sticky bottom-6 mt-6 bg-background border rounded-lg p-4 shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <Text as="h4">You have unsaved changes</Text>
+              <Text as="p" styleVariant="muted">
+                Save your personalization preferences to apply changes
+              </Text>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={handleResetToDefaults}>
+                Cancel
+              </Button>
+              <Button type="submit" onClick={handleSaveSettings}>
+                Save Changes
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

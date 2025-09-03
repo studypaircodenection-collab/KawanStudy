@@ -16,6 +16,7 @@ import {
   Edit3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Text } from "../ui/typography";
 
 interface RichTextEditorProps {
   content: string;
@@ -192,11 +193,11 @@ export function RichTextEditor({
           />
 
           {/* Formatting Help */}
-          <div className="mt-2 text-xs text-gray-500">
-            <p>
+          <div className="mt-2">
+            <Text as="p">
               <strong>Formatting tips:</strong> **bold**, *italic*, # heading, -
               bullet points, 1. numbered lists, &gt; quotes
-            </p>
+            </Text>
           </div>
         </>
       )}
@@ -209,9 +210,9 @@ export function RichTextEditor({
               dangerouslySetInnerHTML={{ __html: markdownToHtml(content) }}
             />
           ) : (
-            <p className="text-gray-500 italic">
+            <Text as="p" styleVariant="muted" className=" italic">
               Nothing to preview yet. Start writing to see your formatted notes.
-            </p>
+            </Text>
           )}
         </div>
       )}

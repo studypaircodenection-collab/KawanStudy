@@ -4,7 +4,7 @@ import { Textarea } from "../ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { MessageCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-
+import { Text } from "../ui/typography";
 interface AddCommentProps {
   onSubmit: (content: string) => Promise<{ success: boolean; error?: string }>;
   placeholder?: string;
@@ -78,10 +78,10 @@ const AddComment: React.FC<AddCommentProps> = ({
             maxLength={1000}
           />
           <div className="flex justify-between items-center mt-2">
-            <span className="text-xs text-muted-foreground">
+            <Text as="p" styleVariant="muted" className="text-xs">
               {content.length}/1000 {content.length > 950 && "characters"}
               {content && " • Press Ctrl+Enter to post"}
-            </span>
+            </Text>
             <Button
               onClick={handleSubmit}
               disabled={!content.trim() || isSubmitting}

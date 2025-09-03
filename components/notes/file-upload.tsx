@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Upload, FileText, X, CheckCircle, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-
+import { Text } from "../ui/typography";
 interface FileUploadProps {
   onFileSelect: (file: File | null) => void;
   selectedFile: File | null;
@@ -123,7 +123,7 @@ export function FileUpload({
           className={cn(
             "border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors",
             isDragOver
-              ? "border-blue-500 bg-blue-50"
+              ? "border-primary bg-primary/20"
               : "border-gray-300 hover:border-gray-400"
           )}
         >
@@ -134,17 +134,17 @@ export function FileUpload({
             onChange={handleFileChange}
             className="hidden"
           />
-          <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+          <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
           <div className="space-y-2">
-            <p className="text-lg font-medium">
+            <Text as="p" className="text-lg font-medium">
               {isDragOver ? "Drop your PDF here" : "Upload your PDF notes"}
-            </p>
-            <p className="text-sm text-gray-500">
+            </Text>
+            <Text as="p" styleVariant="muted" className="text-sm ">
               Drag and drop or click to browse files
-            </p>
-            <p className="text-xs text-gray-400">
+            </Text>
+            <Text as="p" styleVariant="muted" className="text-xs ">
               PDF files only, max {Math.round(maxSize / (1024 * 1024))}MB
-            </p>
+            </Text>
           </div>
         </div>
       ) : (
@@ -155,28 +155,32 @@ export function FileUpload({
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-medium text-gray-900 truncate">
+              <Text as="h4" className="text-sm font-medium truncate">
                 {selectedFile.name}
-              </h4>
+              </Text>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={removeFile}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-muted-foreground"
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
 
-            <p className="text-sm text-gray-500 mb-3">
+            <Text as="p" styleVariant="muted" className="text-sm  mb-3">
               {formatFileSize(selectedFile.size)}
-            </p>
+            </Text>
 
             {isUploading && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Uploading...</span>
-                  <span className="text-gray-600">{uploadProgress}%</span>
+                  <Text as="p" styleVariant="muted">
+                    Uploading...
+                  </Text>
+                  <Text as="p" styleVariant="muted">
+                    {uploadProgress}%
+                  </Text>
                 </div>
                 <Progress value={uploadProgress} className="h-2" />
               </div>

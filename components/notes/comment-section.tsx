@@ -7,7 +7,7 @@ import { useComments } from "@/hooks/use-comments";
 import CommentCard from "./comment-card";
 import AddComment from "./add-comment";
 import { Separator } from "@/components/ui/separator";
-
+import { Text } from "../ui/typography";
 interface CommentSectionProps {
   noteId: string;
   allowComments: boolean;
@@ -50,9 +50,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground text-center py-4">
+          <Text as="p" styleVariant="muted" className="py-4">
             Comments are not allowed on this note.
-          </p>
+          </Text>
         </CardContent>
       </Card>
     );
@@ -96,18 +96,18 @@ const CommentSection: React.FC<CommentSectionProps> = ({
         )}
 
         {loading ? (
-          <div className="text-center py-8 text-muted-foreground">
+          <Text as="p" className="text-center py-8 text-muted-foreground">
             Loading comments...
-          </div>
+          </Text>
         ) : error ? (
-          <div className="text-center py-8 text-red-500">
+          <Text as="p" className="text-center py-8 text-red-500">
             Failed to load comments: {error}
-          </div>
+          </Text>
         ) : comments.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-30" />
-            <p className="mb-2">No comments yet</p>
-            <p className="text-sm">Be the first to share your thoughts!</p>
+            <Text as="p" className="mb-2">No comments yet</Text>
+            <Text as="p" className="text-sm">Be the first to share your thoughts!</Text>
           </div>
         ) : (
           <ScrollArea className="h-[400px] pr-4">

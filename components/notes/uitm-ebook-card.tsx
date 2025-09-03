@@ -12,6 +12,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { UiTMEbook } from "@/lib/types";
+import { Text } from "../ui/typography";
 
 interface UiTMEbookCardProps {
   ebook: UiTMEbook;
@@ -35,15 +36,9 @@ const UiTMEbookCard: React.FC<UiTMEbookCardProps> = ({ ebook }) => {
 
           <div className="flex-1 min-w-0 space-y-3">
             <div>
-              <h3 className="text-lg font-semibold leading-tight line-clamp-2 mb-2">
-                {ebook.title}
-              </h3>
+              <Text as="h3">{ebook.title}</Text>
 
-              {ebook.description && (
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
-                  {ebook.description}
-                </p>
-              )}
+              {ebook.description && <Text as="p">{ebook.description}</Text>}
             </div>
 
             <div className="space-y-2">

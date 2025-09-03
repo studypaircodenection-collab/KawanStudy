@@ -42,6 +42,7 @@ import {
 import { useAuth } from "@/lib/context/auth-provider";
 import { toast } from "sonner";
 import { profileSchema, ProfileFormData } from "@/lib/validations/profile";
+import { Text } from "@/components/ui/typography";
 
 // Import Claims type from auth provider
 type Claims = {
@@ -265,13 +266,13 @@ const ProfileSetting = () => {
                   </AvatarFallback>
                 </Avatar>
                 {uploadingAvatar && (
-                  <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
-                    <RefreshCw className="h-6 w-6 text-white animate-spin" />
+                  <div className="absolute inset-0 bg-background bg-opacity-50 rounded-full flex items-center justify-center">
+                    <RefreshCw className="h-6 w-6 text-foreground animate-spin" />
                   </div>
                 )}
               </div>
               <div className="space-y-2">
-                <h3 className="font-medium">Profile Picture</h3>
+                <Text as="h3">Profile Picture</Text>
                 <div className="flex gap-2">
                   <Button
                     type="button"
@@ -297,7 +298,9 @@ const ProfileSetting = () => {
                     Remove
                   </Button>
                 </div>
-                <p className="text-xs text-gray-500">JPG, PNG, GIF up to 5MB</p>
+                <Text as="p" styleVariant="muted">
+                  JPG, PNG, GIF up to 5MB
+                </Text>
               </div>
             </div>
 
@@ -407,7 +410,9 @@ const ProfileSetting = () => {
                   </FormControl>
                   <div className="flex justify-between text-xs text-gray-500">
                     <FormMessage />
-                    <span>{field.value?.length || 0}/500</span>
+                    <Text as="p" styleVariant="muted">
+                      {field.value?.length || 0}/500
+                    </Text>
                   </div>
                 </FormItem>
               )}
@@ -513,13 +518,13 @@ const ProfileSetting = () => {
         </Card>
 
         {isDirty && !isSubmitting && (
-          <div className="sticky bottom-6 mt-6 bg-white border border-gray-200 rounded-lg p-4 shadow-lg">
+          <div className="sticky bottom-6 mt-6 bg-background border rounded-lg p-4 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-medium">You have unsaved changes</h4>
-                <p className="text-sm text-gray-600">
-                  Save your notification preferences to apply changes
-                </p>
+                <Text as="h4">You have unsaved changes</Text>
+                <Text as="p" styleVariant="muted">
+                  Save your personalization preferences to apply changes
+                </Text>
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="outline" onClick={resetForm}>
