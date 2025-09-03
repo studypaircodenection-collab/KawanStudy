@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { VideoRoom } from "@/components/video/video-room";
-import { MultiUserVideoRoom } from "@/components/video/multi-user-video-room";
+import { WebRTCVideoRoom } from "@/components/video/webrtc-video-room";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Text } from "@/components/ui/typography";
@@ -186,7 +186,7 @@ const ActiveRoomPage = () => {
         return <VideoRoom roomId={roomId} onLeave={handleLeaveRoom} />;
       case "group":
       case "tutor_session":
-        return <MultiUserVideoRoom roomId={roomId} onLeave={handleLeaveRoom} />;
+        return <WebRTCVideoRoom roomId={roomId} onLeave={handleLeaveRoom} />;
       default:
         return <VideoRoom roomId={roomId} onLeave={handleLeaveRoom} />;
     }

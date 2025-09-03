@@ -71,6 +71,287 @@ export function useVideoCall({ roomId: initialRoomId, autoJoin = false }: UseVid
     getCurrentUser();
   }, [supabase]);
 
+  // Format call duration
+  const formatDuration = useCallback((seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }, []);
+
+  // Start call timer
+  const startCallTimer = useCallback(() => {
+    if (!callTimerRef.current) {
+      callStartTimeRef.current = new Date();
+      callTimerRef.current = setInterval(() => {
+        if (callStartTimeRef.current) {
+          const elapsed = Math.floor((Date.now() - callStartTimeRef.current.getTime()) / 1000);
+          setCallDuration(formatDuration(elapsed));
+        }
+      }, 1000);
+    }
+  }, [formatDuration]);
+
+  // Stop call timer
+  const stopCallTimer = useCallback(() => {
+    if (callTimerRef.current) {
+      clearInterval(callTimerRef.current);
+      callTimerRef.current = null;
+      callStartTimeRef.current = null;
+      setCallDuration('00:00');
+    }
+  }, []);
+
+  // Create peer connection for a specific user (WebDevSimplified approach)
+  const createPeerConnection = useCallback((userId: string): RTCPeerConnection => {
+    const peerConnection = new RTCPeerConnection(iceServers);
+
+    // Add local stream to peer connection
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach(track => {
+        peerConnection.addTrack(track, localStreamRef.current!);
+      });
+    }
+
+    // Handle remote stream (WebDevSimplified addVideoStream equivalent)
+    peerConnection.ontrack = (event) => {
+      console.log('Received remote stream from:', userId);
+      const [remoteStream] = event.streams;
+      remoteStreamRef.current = remoteStream;
+      
+      // Display remote stream in video element
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = remoteStream;
+      }
+    };
+
+    // Handle ICE candidates (WebDevSimplified approach)
+    peerConnection.onicecandidate = (event) => {
+      if (event.candidate && channelRef.current) {
+        console.log('Sending ICE candidate to:', userId);
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'ice-candidate',
+          payload: {
+            candidate: event.candidate,
+            targetUserId: userId,
+            fromUserId: currentUser?.id
+          }
+        });
+      }
+    };
+
+    // Handle connection state changes
+    peerConnection.onconnectionstatechange = () => {
+      console.log('Connection state for', userId, ':', peerConnection.connectionState);
+      if (peerConnection.connectionState === 'connected') {
+        console.log('✅ Connected to user:', userId);
+        setRoomStatus('active');
+        if (!callTimerRef.current) {
+          startCallTimer();
+        }
+      } else if (peerConnection.connectionState === 'failed') {
+        console.log('❌ Connection failed, attempting to restart ICE');
+        peerConnection.restartIce();
+      }
+    };
+
+    peerConnectionsRef.current[userId] = peerConnection;
+    return peerConnection;
+  }, [currentUser, iceServers, startCallTimer]);
+
+  // Connect to a new user (WebDevSimplified connectToNewUser function)
+  const connectToNewUser = useCallback(async (userId: string) => {
+    if (!currentUser || !localStreamRef.current) return;
+
+    console.log('🤝 Connecting to new user:', userId);
+    const peerConnection = createPeerConnection(userId);
+
+    try {
+      // Create offer
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+
+      // Send offer via Supabase Realtime (replacing Socket.io)
+      if (channelRef.current) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'offer',
+          payload: {
+            offer,
+            targetUserId: userId,
+            fromUserId: currentUser.id
+          }
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error creating offer for user', userId, ':', error);
+    }
+  }, [currentUser, createPeerConnection]);
+
+  // Handle incoming WebRTC signaling messages
+  const handleSignalingMessage = useCallback(async (event: string, payload: any) => {
+    if (!currentUser || payload.targetUserId !== currentUser.id) return;
+
+    const { fromUserId } = payload;
+    console.log(`📨 Received ${event} from:`, fromUserId);
+
+    switch (event) {
+      case 'offer':
+        try {
+          let peerConnection = peerConnectionsRef.current[fromUserId];
+          if (!peerConnection) {
+            peerConnection = createPeerConnection(fromUserId);
+          }
+
+          await peerConnection.setRemoteDescription(payload.offer);
+          const answer = await peerConnection.createAnswer();
+          await peerConnection.setLocalDescription(answer);
+
+          // Send answer back
+          if (channelRef.current) {
+            channelRef.current.send({
+              type: 'broadcast',
+              event: 'answer',
+              payload: {
+                answer,
+                targetUserId: fromUserId,
+                fromUserId: currentUser.id
+              }
+            });
+          }
+        } catch (error) {
+          console.error('❌ Error handling offer:', error);
+        }
+        break;
+
+      case 'answer':
+        try {
+          const peerConnection = peerConnectionsRef.current[fromUserId];
+          if (peerConnection) {
+            await peerConnection.setRemoteDescription(payload.answer);
+          }
+        } catch (error) {
+          console.error('❌ Error handling answer:', error);
+        }
+        break;
+
+      case 'ice-candidate':
+        try {
+          const peerConnection = peerConnectionsRef.current[fromUserId];
+          if (peerConnection && payload.candidate) {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate));
+          }
+        } catch (error) {
+          console.error('❌ Error handling ICE candidate:', error);
+        }
+        break;
+    }
+  }, [currentUser, createPeerConnection]);
+
+  // Set up real-time listeners for WebRTC signaling (replacing Socket.io with Supabase Realtime)
+  const setupRealtimeListeners = useCallback((roomIdToListen: string) => {
+    if (!currentUser) return;
+
+    console.log('📡 Setting up real-time listeners for room:', roomIdToListen);
+
+    // Clean up existing channel
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+    }
+
+    const channel = supabase
+      .channel(`video_room_${roomIdToListen}`)
+      // Listen for WebRTC signaling messages (replacing Socket.io events)
+      .on('broadcast', { event: 'user-connected' }, async (payload) => {
+        const { userId } = payload.payload;
+        if (userId !== currentUser.id) {
+          console.log('👋 User connected:', userId);
+          
+          // Get user profile and add to participants
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
+
+          if (profile) {
+            const newParticipant: VideoCallUser = {
+              id: profile.id,
+              username: profile.username,
+              full_name: profile.full_name,
+              avatar_url: profile.avatar_url
+            };
+
+            setParticipants(prev => [...prev.filter(p => p.id !== newParticipant.id), newParticipant]);
+            
+            // Connect to the new user (WebDevSimplified approach)
+            setTimeout(() => connectToNewUser(userId), 1000);
+          }
+        }
+      })
+      .on('broadcast', { event: 'user-disconnected' }, (payload) => {
+        const { userId } = payload.payload;
+        if (userId !== currentUser.id) {
+          console.log('👋 User disconnected:', userId);
+          
+          // Clean up peer connection (WebDevSimplified cleanup)
+          if (peerConnectionsRef.current[userId]) {
+            peerConnectionsRef.current[userId].close();
+            delete peerConnectionsRef.current[userId];
+          }
+
+          // Remove from participants
+          setParticipants(prev => prev.filter(p => p.id !== userId));
+        }
+      })
+      .on('broadcast', { event: 'offer' }, (payload) => {
+        handleSignalingMessage('offer', payload.payload);
+      })
+      .on('broadcast', { event: 'answer' }, (payload) => {
+        handleSignalingMessage('answer', payload.payload);
+      })
+      .on('broadcast', { event: 'ice-candidate' }, (payload) => {
+        handleSignalingMessage('ice-candidate', payload.payload);
+      })
+      // Listen for new participants joining (database changes)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'video_room_participants',
+        filter: `room_id=eq.${roomIdToListen}`
+      }, async (payload) => {
+        console.log('📊 New participant joined database:', payload.new);
+        
+        if (payload.new.user_id !== currentUser.id) {
+          // Broadcast user connection via realtime (replacing Socket.io emit)
+          channel.send({
+            type: 'broadcast',
+            event: 'user-connected',
+            payload: {
+              userId: payload.new.user_id
+            }
+          });
+        }
+      })
+      .subscribe();
+    
+    channelRef.current = channel;
+    console.log('✅ Real-time listeners set up for WebRTC signaling');
+  }, [currentUser, supabase, connectToNewUser, handleSignalingMessage]);
+
+  // Notify other users when we join (replacing Socket.io emit)
+  const notifyUserConnected = useCallback(() => {
+    if (channelRef.current && currentUser) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'user-connected',
+        payload: {
+          userId: currentUser.id
+        }
+      });
+    }
+  }, [currentUser]);
+
   // Create room
   const createRoom = useCallback(async (roomType: string = 'peer_to_peer', participantUserId?: string) => {
     try {
@@ -108,17 +389,17 @@ export function useVideoCall({ roomId: initialRoomId, autoJoin = false }: UseVid
       setRoomId(newRoomId);
       setRoomStatus('waiting');
       
-      console.log('Created room:', data);
+      console.log('✅ Created room:', data);
       toast.success(`Room created: ${newRoomId}`);
       return newRoomId;
     } catch (error) {
-      console.error('Error creating room:', error);
+      console.error('❌ Error creating room:', error);
       toast.error('Failed to create video room');
       return null;
     }
   }, [supabase, currentUser]);
 
-  // Join room
+  // Join room (WebDevSimplified approach with Supabase)
   const joinRoom = useCallback(async (roomIdToJoin: string) => {
     if (!currentUser) return false;
 
@@ -140,7 +421,7 @@ export function useVideoCall({ roomId: initialRoomId, autoJoin = false }: UseVid
       }
       console.log('✅ Room found:', room);
 
-      // Get user media first
+      // Get user media first (WebDevSimplified getUserMedia)
       console.log('🎥 Requesting camera and microphone access...');
       const stream = await navigator.mediaDevices.getUserMedia({
         video: isVideoEnabled,
@@ -218,30 +499,13 @@ export function useVideoCall({ roomId: initialRoomId, autoJoin = false }: UseVid
       setRoomId(roomIdToJoin);
       setIsInRoom(true);
       setRoomStatus(room.status === 'waiting' ? 'active' : room.status);
-      setIsConnecting(false); // Set connecting to false on success
+      setIsConnecting(false);
       
-      // Set up real-time listeners for this room
-      console.log('📡 Setting up real-time listeners...');
-      if (!channelRef.current) {
-        const channel = supabase
-          .channel(`video_room_${roomIdToJoin}`)
-          .on('postgres_changes', {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'video_room_participants',
-            filter: `room_id=eq.${roomIdToJoin}`
-          }, (payload) => {
-            console.log('New participant joined:', payload.new);
-            // Reload participants when someone joins
-            if (payload.new.user_id !== currentUser.id) {
-              // TODO: Handle new participant joining for WebRTC
-            }
-          })
-          .subscribe();
-        
-        channelRef.current = channel;
-        console.log('✅ Real-time listeners set up');
-      }
+      // Set up real-time listeners for this room (replacing Socket.io)
+      setupRealtimeListeners(roomIdToJoin);
+      
+      // Notify other users we joined (replacing Socket.io emit)
+      setTimeout(() => notifyUserConnected(), 500);
       
       console.log('🎉 Successfully joined room:', roomIdToJoin);
       toast.success(`Joined room: ${roomIdToJoin}`);
@@ -256,312 +520,34 @@ export function useVideoCall({ roomId: initialRoomId, autoJoin = false }: UseVid
       setIsConnecting(false);
       return false;
     }
-  }, [currentUser, isVideoEnabled, isAudioEnabled, supabase]);
+  }, [currentUser, isVideoEnabled, isAudioEnabled, supabase, setupRealtimeListeners, notifyUserConnected]);
 
-  // Set up real-time listeners for WebRTC signaling (WebDevSimplified approach)
-  const setupRealtimeListeners = useCallback((roomIdToListen: string) => {
-    if (!currentUser) return;
-
-    // Clean up existing channel
-    if (channelRef.current) {
-      supabase.removeChannel(channelRef.current);
-    }
-
-    const channel = supabase
-      .channel(`video_room_${roomIdToListen}`)
-      // Listen for new participants joining
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'video_room_participants',
-        filter: `room_id=eq.${roomIdToListen}`
-      }, async (payload) => {
-        console.log('New participant joined:', payload.new);
-        
-        if (payload.new.user_id !== currentUser.id) {
-          // Get participant profile
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', payload.new.user_id)
-            .single();
-
-          if (profile) {
-            const newParticipant: VideoCallUser = {
-              id: profile.id,
-              username: profile.username,
-              full_name: profile.full_name,
-              avatar_url: profile.avatar_url
-            };
-
-            setParticipants(prev => [...prev.filter(p => p.id !== newParticipant.id), newParticipant]);
-            
-            // Create peer connection for new user
-            if (localStreamRef.current) {
-              await createPeerConnection(newParticipant.id, true);
-            }
-          }
-        }
-      })
-      // Listen for WebRTC signals
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'video_room_signals',
-        filter: `room_id=eq.${roomIdToListen}`
-      }, async (payload) => {
-        const signal = payload.new;
-        
-        // Only process signals meant for us
-        if (signal.to_user_id === currentUser.id || signal.to_user_id === null) {
-          console.log('Received signal:', signal);
-          await handleWebRTCSignal(signal);
-        }
-      })
-      // Listen for room status changes
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'video_rooms',
-        filter: `room_id=eq.${roomIdToListen}`
-      }, (payload) => {
-        console.log('Room updated:', payload.new);
-        const newStatus = payload.new.status;
-        setRoomStatus(newStatus);
-        
-        if (newStatus === 'active' && !callTimerRef.current) {
-          startCallTimer();
-        } else if (newStatus === 'ended') {
-          endCall();
-        }
-      })
-      .subscribe((status) => {
-        console.log('Channel status:', status);
-        if (status === 'SUBSCRIBED') {
-          setIsConnecting(false);
-        }
-      });
-
-    channelRef.current = channel;
-  }, [currentUser, supabase]);
-
-  // Create peer connection (WebDevSimplified approach)
-  const createPeerConnection = useCallback(async (userId: string, isInitiator: boolean) => {
-    if (!localStreamRef.current || peerConnectionsRef.current[userId]) return;
-
-    const peerConnection = new RTCPeerConnection(iceServers);
-    peerConnectionsRef.current[userId] = peerConnection;
-
-    // Add local stream to peer connection
-    localStreamRef.current.getTracks().forEach(track => {
-      peerConnection.addTrack(track, localStreamRef.current!);
-    });
-
-    // Handle incoming stream
-    peerConnection.ontrack = (event) => {
-      console.log('Received remote stream from:', userId);
-      const [remoteStream] = event.streams;
-      remoteStreamRef.current = remoteStream;
-      
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = remoteStream;
-      }
-    };
-
-    // Handle ICE candidates
-    peerConnection.onicecandidate = async (event) => {
-      if (event.candidate) {
-        console.log('Sending ICE candidate to:', userId);
-        await sendSignal(userId, 'ice-candidate', {
-          candidate: event.candidate.candidate,
-          sdpMLineIndex: event.candidate.sdpMLineIndex,
-          sdpMid: event.candidate.sdpMid
-        });
-      }
-    };
-
-    // Handle connection state changes
-    peerConnection.onconnectionstatechange = () => {
-      console.log('Connection state with', userId, ':', peerConnection.connectionState);
-      if (peerConnection.connectionState === 'connected') {
-        setIsConnecting(false);
-      }
-    };
-
-    // If we're the initiator, create and send offer
-    if (isInitiator) {
-      const offer = await peerConnection.createOffer();
-      await peerConnection.setLocalDescription(offer);
-      
-      console.log('Sending offer to:', userId);
-      await sendSignal(userId, 'offer', {
-        sdp: offer.sdp,
-        type: offer.type
-      });
-    }
-  }, []);
-
-  // Handle WebRTC signals
-  const handleWebRTCSignal = useCallback(async (signal: any) => {
-    const { from_user_id, signal_type, signal_data } = signal;
-    const peerConnection = peerConnectionsRef.current[from_user_id];
-
-    switch (signal_type) {
-      case 'offer':
-        console.log('Received offer from:', from_user_id);
-        
-        if (!peerConnection && localStreamRef.current) {
-          await createPeerConnection(from_user_id, false);
-        }
-        
-        const pc = peerConnectionsRef.current[from_user_id];
-        if (pc) {
-          await pc.setRemoteDescription(new RTCSessionDescription(signal_data));
-          const answer = await pc.createAnswer();
-          await pc.setLocalDescription(answer);
-          
-          console.log('Sending answer to:', from_user_id);
-          await sendSignal(from_user_id, 'answer', {
-            sdp: answer.sdp,
-            type: answer.type
-          });
-        }
-        break;
-
-      case 'answer':
-        console.log('Received answer from:', from_user_id);
-        if (peerConnection) {
-          await peerConnection.setRemoteDescription(new RTCSessionDescription(signal_data));
-        }
-        break;
-
-      case 'ice-candidate':
-        console.log('Received ICE candidate from:', from_user_id);
-        if (peerConnection) {
-          await peerConnection.addIceCandidate(new RTCIceCandidate({
-            candidate: signal_data.candidate,
-            sdpMLineIndex: signal_data.sdpMLineIndex,
-            sdpMid: signal_data.sdpMid
-          }));
-        }
-        break;
-    }
-
-    // Mark signal as processed
-    await supabase
-      .from('video_room_signals')
-      .update({ processed: true })
-      .eq('id', signal.id);
-  }, [supabase]);
-
-  // Send WebRTC signal via Supabase
-  const sendSignal = useCallback(async (toUserId: string, signalType: string, signalData: any) => {
-    try {
-      const { error } = await supabase
-        .from('video_room_signals')
-        .insert({
-          room_id: roomId,
-          from_user_id: currentUser?.id,
-          to_user_id: toUserId,
-          signal_type: signalType,
-          signal_data: signalData,
-          processed: false
-        });
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error sending signal:', error);
-    }
-  }, [roomId, currentUser, supabase]);
-
-  // Start call timer
-  const startCallTimer = useCallback(() => {
-    if (callTimerRef.current) return; // Already running
-    
-    callStartTimeRef.current = new Date();
-    callTimerRef.current = setInterval(() => {
-      if (callStartTimeRef.current) {
-        const elapsed = Date.now() - callStartTimeRef.current.getTime();
-        const minutes = Math.floor(elapsed / 60000);
-        const seconds = Math.floor((elapsed % 60000) / 1000);
-        setCallDuration(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
-      }
-    }, 1000);
-  }, []);
-
-  // Stop call timer
-  const stopCallTimer = useCallback(() => {
-    if (callTimerRef.current) {
-      clearInterval(callTimerRef.current);
-      callTimerRef.current = null;
-    }
-    callStartTimeRef.current = null;
-    setCallDuration('00:00');
-  }, []);
-
-  // Toggle video
-  const toggleVideo = useCallback(() => {
-    if (localStreamRef.current) {
-      const videoTrack = localStreamRef.current.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !videoTrack.enabled;
-        setIsVideoEnabled(videoTrack.enabled);
-      }
-    }
-  }, []);
-
-  // Toggle audio
-  const toggleAudio = useCallback(() => {
-    if (localStreamRef.current) {
-      const audioTrack = localStreamRef.current.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = !audioTrack.enabled;
-        setIsAudioEnabled(audioTrack.enabled);
-      }
-    }
-  }, []);
-
-  // Leave room
+  // Leave room (WebDevSimplified cleanup)
   const leaveRoom = useCallback(async () => {
-    if (!roomId || !currentUser) return;
-
-    try {
-      // Mark participant as left
-      const { error } = await supabase
-        .from('video_room_participants')
-        .update({ left_at: new Date().toISOString() })
-        .eq('room_id', roomId)
-        .eq('user_id', currentUser.id);
-
-      if (error) throw error;
-      
-      // Clean up everything
-      endCall();
-    } catch (error) {
-      console.error('Error leaving room:', error);
-      toast.error('Error leaving room');
-      endCall(); // Clean up anyway
+    console.log('👋 Leaving room...');
+    
+    // Notify other users we're disconnecting
+    if (channelRef.current && currentUser) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'user-disconnected',
+        payload: {
+          userId: currentUser.id
+        }
+      });
     }
-  }, [roomId, currentUser, supabase]);
 
-  // End call and clean up
-  const endCall = useCallback(() => {
-    // Stop all streams
+    // Stop all media tracks
     if (localStreamRef.current) {
       localStreamRef.current.getTracks().forEach(track => track.stop());
       localStreamRef.current = null;
-    }
-
-    if (remoteStreamRef.current) {
-      remoteStreamRef.current.getTracks().forEach(track => track.stop());
-      remoteStreamRef.current = null;
     }
 
     // Close all peer connections
     Object.values(peerConnectionsRef.current).forEach(pc => pc.close());
     peerConnectionsRef.current = {};
 
-    // Clear video elements
+    // Clean up video elements
     if (localVideoRef.current) {
       localVideoRef.current.srcObject = null;
     }
@@ -569,35 +555,72 @@ export function useVideoCall({ roomId: initialRoomId, autoJoin = false }: UseVid
       remoteVideoRef.current.srcObject = null;
     }
 
-    // Clean up channel
+    // Clean up realtime channel
     if (channelRef.current) {
       supabase.removeChannel(channelRef.current);
       channelRef.current = null;
     }
 
-    // Reset state
-    setIsInRoom(false);
-    setIsConnecting(false);
-    setParticipants([]);
-    setRoomStatus('ended');
+    // Stop call timer
     stopCallTimer();
 
-    console.log('Call ended and cleaned up');
-  }, [supabase, stopCallTimer]);
+    // Update database
+    if (currentUser && roomId) {
+      await supabase
+        .from('video_room_participants')
+        .update({ 
+          left_at: new Date().toISOString(),
+          connection_status: 'disconnected' 
+        })
+        .eq('room_id', roomId)
+        .eq('user_id', currentUser.id);
+    }
 
-  // Auto join if roomId provided and autoJoin is true
+    // Reset state
+    setIsInRoom(false);
+    setParticipants([]);
+    setRoomStatus('ended');
+    
+    console.log('✅ Left room successfully');
+  }, [currentUser, roomId, supabase, stopCallTimer]);
+
+  // Toggle video (WebDevSimplified approach)
+  const toggleVideo = useCallback(() => {
+    if (localStreamRef.current) {
+      const videoTrack = localStreamRef.current.getVideoTracks()[0];
+      if (videoTrack) {
+        videoTrack.enabled = !videoTrack.enabled;
+        setIsVideoEnabled(videoTrack.enabled);
+        console.log('🎥 Video', videoTrack.enabled ? 'enabled' : 'disabled');
+      }
+    }
+  }, []);
+
+  // Toggle audio (WebDevSimplified approach)
+  const toggleAudio = useCallback(() => {
+    if (localStreamRef.current) {
+      const audioTrack = localStreamRef.current.getAudioTracks()[0];
+      if (audioTrack) {
+        audioTrack.enabled = !audioTrack.enabled;
+        setIsAudioEnabled(audioTrack.enabled);
+        console.log('🎤 Audio', audioTrack.enabled ? 'enabled' : 'disabled');
+      }
+    }
+  }, []);
+
+  // Auto-join room if specified
   useEffect(() => {
-    if (initialRoomId && autoJoin && currentUser && !isInRoom) {
+    if (autoJoin && initialRoomId && currentUser && !isInRoom && !isConnecting) {
       joinRoom(initialRoomId);
     }
-  }, [initialRoomId, autoJoin, currentUser, isInRoom, joinRoom]);
+  }, [autoJoin, initialRoomId, currentUser, isInRoom, isConnecting, joinRoom]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      endCall();
+      leaveRoom();
     };
-  }, [endCall]);
+  }, [leaveRoom]);
 
   return {
     // State
@@ -611,7 +634,7 @@ export function useVideoCall({ roomId: initialRoomId, autoJoin = false }: UseVid
     currentUser,
     roomStatus,
     
-    // Refs
+    // Refs (for video elements)
     localVideoRef,
     remoteVideoRef,
     
@@ -619,7 +642,6 @@ export function useVideoCall({ roomId: initialRoomId, autoJoin = false }: UseVid
     createRoom,
     joinRoom,
     leaveRoom,
-    endCall,
     toggleVideo,
     toggleAudio,
   };
