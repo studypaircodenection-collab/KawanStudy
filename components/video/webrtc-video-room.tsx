@@ -1,12 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Video, VideoOff, Mic, MicOff, Phone, Users, Copy, UserCheck } from 'lucide-react';
-import { toast } from 'sonner';
-import { useVideoCall } from '@/hooks/use-video-call';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useEffect, useRef, useState, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  Video,
+  VideoOff,
+  Mic,
+  MicOff,
+  Phone,
+  Users,
+  Copy,
+  UserCheck,
+} from "lucide-react";
+import { toast } from "sonner";
+import { useVideoCall } from "@/hooks/use-video-call";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface MultiUserVideoRoomProps {
   roomId: string;
@@ -16,11 +25,15 @@ interface MultiUserVideoRoomProps {
 // WebDevSimplified style video grid component
 export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
   const [showControls, setShowControls] = useState(true);
-  const [controlsTimeout, setControlsTimeout] = useState<NodeJS.Timeout | null>(null);
-  
+  const [controlsTimeout, setControlsTimeout] = useState<NodeJS.Timeout | null>(
+    null
+  );
+
   // Grid of video elements for multiple participants (WebDevSimplified approach)
   const videoGridRef = useRef<HTMLDivElement>(null);
-  const participantVideosRef = useRef<{ [userId: string]: HTMLVideoElement }>({});
+  const participantVideosRef = useRef<{ [userId: string]: HTMLVideoElement }>(
+    {}
+  );
 
   const {
     isInRoom,
@@ -51,45 +64,16 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
     setControlsTimeout(timeout);
   }, [controlsTimeout]);
 
-  // WebDevSimplified addVideoStream function equivalent
-  const addVideoStream = useCallback((video: HTMLVideoElement, stream: MediaStream, userId?: string) => {
-    video.srcObject = stream;
-    video.addEventListener('loadedmetadata', () => {
-      video.play().catch(console.error);
-    });
-    
-    if (videoGridRef.current && !video.parentElement) {
-      // Create video container with user info overlay
-      const videoContainer = document.createElement('div');
-      videoContainer.className = 'relative bg-gray-800 rounded-lg overflow-hidden';
-      videoContainer.style.aspectRatio = '16/9';
-      
-      // Add video element
-      videoContainer.appendChild(video);
-      video.className = 'w-full h-full object-cover';
-      
-      // Add user info overlay if we have user data
-      if (userId && participants.find(p => p.id === userId)) {
-        const userInfo = participants.find(p => p.id === userId)!;
-        const overlay = document.createElement('div');
-        overlay.className = 'absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm rounded px-2 py-1 text-white text-sm';
-        overlay.textContent = userInfo.full_name || userInfo.username;
-        videoContainer.appendChild(overlay);
-      }
-      
-      videoGridRef.current.appendChild(videoContainer);
-    }
-  }, [participants]);
-
   // Clean up video elements when participants leave
   useEffect(() => {
     if (!videoGridRef.current) return;
-    
-    const currentParticipantIds = participants.map(p => p.id);
-    const videoElements = videoGridRef.current.querySelectorAll('[data-user-id]');
-    
-    videoElements.forEach(element => {
-      const userId = element.getAttribute('data-user-id');
+
+    const currentParticipantIds = participants.map((p) => p.id);
+    const videoElements =
+      videoGridRef.current.querySelectorAll("[data-user-id]");
+
+    videoElements.forEach((element) => {
+      const userId = element.getAttribute("data-user-id");
       if (userId && !currentParticipantIds.includes(userId)) {
         element.remove();
         delete participantVideosRef.current[userId];
@@ -106,7 +90,6 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
   // Copy room ID to clipboard
   const copyRoomId = () => {
     navigator.clipboard.writeText(roomId);
-    toast.success('Room ID copied to clipboard!');
   };
 
   // Cleanup on unmount
@@ -125,10 +108,12 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
         <Card className="p-8 text-center bg-gray-800 border-gray-700 text-white max-w-md">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <h3 className="text-lg font-semibold mb-2">
-            {!currentUser ? 'Loading user profile...' : 'Connecting to video room...'}
+            {!currentUser
+              ? "Loading user profile..."
+              : "Connecting to video room..."}
           </h3>
           <p className="text-gray-400 mb-2">
-            {!currentUser ? 'Please wait' : 'Setting up WebRTC connections...'}
+            {!currentUser ? "Please wait" : "Setting up WebRTC connections..."}
           </p>
           <div className="text-sm text-gray-500">Room: {roomId}</div>
         </Card>
@@ -143,7 +128,9 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
         <Card className="p-8 text-center bg-gray-800 border-gray-700 text-white max-w-md">
           <Phone className="w-16 h-16 text-red-500 mx-auto mb-4 rotate-[135deg]" />
           <h3 className="text-lg font-semibold mb-2">Connection Failed</h3>
-          <p className="text-gray-400 mb-4">Unable to join the video room. Please check your connection.</p>
+          <p className="text-gray-400 mb-4">
+            Unable to join the video room. Please check your connection.
+          </p>
           <Button onClick={onLeave} variant="outline">
             Go Back
           </Button>
@@ -153,9 +140,12 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
   }
 
   // Waiting for participants
-  if (roomStatus === 'waiting' && participants.length === 0) {
+  if (participants.length === 0) {
     return (
-      <div className="fixed inset-0 bg-gray-900 z-50" onMouseMove={handleMouseMove}>
+      <div
+        className="fixed inset-0 bg-gray-900 z-50"
+        onMouseMove={handleMouseMove}
+      >
         {/* Local video preview */}
         <div className="w-full h-full relative">
           <video
@@ -165,7 +155,7 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
             muted
             className="w-full h-full object-cover"
           />
-          
+
           {!isVideoEnabled && (
             <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
               <div className="text-center">
@@ -181,30 +171,39 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
             <Card className="p-8 text-center bg-gray-800/90 border-gray-700 text-white">
               <Users className="w-16 h-16 text-blue-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Waiting for others to join...</h3>
-              <p className="text-gray-300 mb-6">Share this room ID with others to start the call</p>
-              
+              <h3 className="text-xl font-semibold mb-2">
+                Waiting for others to join...
+              </h3>
+              <p className="text-gray-300 mb-6">
+                Share this room ID with others to start the call
+              </p>
+
               <div className="bg-gray-700 rounded-lg p-3 mb-4 flex items-center justify-between">
                 <code className="text-blue-300 text-sm">{roomId}</code>
-                <Button 
+                <Button
                   onClick={copyRoomId}
-                  size="sm" 
+                  size="sm"
                   variant="outline"
                   className="ml-2 bg-gray-600 border-gray-500 hover:bg-gray-500"
                 >
                   <Copy className="w-4 h-4" />
                 </Button>
               </div>
-              
+
               <p className="text-xs text-gray-400">
-                Your camera and microphone are ready. Others will see you when they join.
+                Your camera and microphone are ready. Others will see you when
+                they join.
               </p>
             </Card>
           </div>
         </div>
 
         {/* Controls */}
-        <div className={`absolute bottom-6 left-1/2 transform -translate-x-1/2 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
+        <div
+          className={`absolute bottom-6 left-1/2 transform -translate-x-1/2 transition-opacity duration-300 ${
+            showControls ? "opacity-100" : "opacity-0"
+          }`}
+        >
           <div className="bg-gray-800/90 backdrop-blur-sm rounded-lg p-4">
             <div className="flex items-center justify-center gap-4">
               <Button
@@ -213,7 +212,11 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
                 onClick={toggleVideo}
                 className="w-14 h-14 rounded-full"
               >
-                {isVideoEnabled ? <Video className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
+                {isVideoEnabled ? (
+                  <Video className="w-6 h-6" />
+                ) : (
+                  <VideoOff className="w-6 h-6" />
+                )}
               </Button>
 
               <Button
@@ -222,7 +225,11 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
                 onClick={toggleAudio}
                 className="w-14 h-14 rounded-full"
               >
-                {isAudioEnabled ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
+                {isAudioEnabled ? (
+                  <Mic className="w-6 h-6" />
+                ) : (
+                  <MicOff className="w-6 h-6" />
+                )}
               </Button>
 
               <Button
@@ -240,19 +247,34 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
     );
   }
 
-  // Main video call interface - WebDevSimplified grid style
+  // Main video call interface - Dynamic grid for multiple participants
   return (
-    <div className="fixed inset-0 bg-gray-900 z-50" onMouseMove={handleMouseMove}>
-      {/* Video Grid - WebDevSimplified approach */}
-      <div 
+    <div
+      className="fixed inset-0 bg-gray-900 z-50"
+      onMouseMove={handleMouseMove}
+    >
+      {/* Video Grid - Dynamic sizing based on participant count */}
+      <div
         ref={videoGridRef}
         className="video-grid w-full h-full p-4 grid gap-4"
         style={{
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-          gridAutoRows: '300px'
+          gridTemplateColumns:
+            participants.length <= 1
+              ? "1fr"
+              : participants.length <= 4
+              ? "repeat(2, 1fr)"
+              : participants.length <= 9
+              ? "repeat(3, 1fr)"
+              : "repeat(4, 1fr)",
+          gridAutoRows:
+            participants.length <= 1
+              ? "1fr"
+              : participants.length <= 4
+              ? "1fr"
+              : "minmax(250px, 1fr)",
         }}
       >
-        {/* Local Video */}
+        {/* Local Video - Always show current user */}
         <div className="relative bg-gray-800 rounded-lg overflow-hidden">
           <video
             ref={localVideoRef}
@@ -261,7 +283,7 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
             muted
             className="w-full h-full object-cover"
           />
-          
+
           {!isVideoEnabled && (
             <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
               <div className="text-center">
@@ -275,7 +297,7 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
               </div>
             </div>
           )}
-          
+
           {/* User info overlay */}
           <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm rounded px-2 py-1 text-white text-sm flex items-center gap-2">
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -283,39 +305,67 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
           </div>
         </div>
 
-        {/* Remote Video */}
-        <div className="relative bg-gray-800 rounded-lg overflow-hidden">
-          <video
-            ref={remoteVideoRef}
-            autoPlay
-            playsInline
-            className="w-full h-full object-cover"
-          />
-          
-          {/* Show participant info if available */}
-          {participants.length > 0 && (
+        {/* Other Participants - Show all connected participants */}
+        {participants.map((participant, index) => (
+          <div
+            key={participant.id}
+            className="relative bg-gray-800 rounded-lg overflow-hidden"
+          >
+            {/* For now, we use the single remoteVideoRef for the first participant
+                In a full implementation, you'd create separate video elements for each participant */}
+            {index === 0 && (
+              <video
+                ref={remoteVideoRef}
+                autoPlay
+                playsInline
+                className="w-full h-full object-cover"
+              />
+            )}
+
+            {/* Placeholder for additional participants */}
+            {index > 0 && (
+              <div className="w-full h-full flex items-center justify-center bg-gray-800">
+                <div className="text-center">
+                  <Avatar className="w-20 h-20 mx-auto mb-2">
+                    <AvatarImage src={participant.avatar_url} />
+                    <AvatarFallback className="bg-gray-600 text-white text-lg">
+                      {participant.full_name?.[0] || participant.username[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  <p className="text-white text-sm">Connecting...</p>
+                </div>
+              </div>
+            )}
+
+            {/* Participant info overlay */}
             <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm rounded px-2 py-1 text-white text-sm flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span>{participants[0]?.full_name || participants[0]?.username}</span>
+              <span>{participant?.full_name || participant?.username}</span>
             </div>
-          )}
-        </div>
+          </div>
+        ))}
       </div>
 
       {/* Call Info */}
-      <div className={`absolute top-4 left-4 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 text-white transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-30'}`}>
+      <div
+        className={`absolute top-4 left-4 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 text-white transition-opacity duration-300 ${
+          showControls ? "opacity-100" : "opacity-30"
+        }`}
+      >
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
             <span className="font-mono text-lg">{callDuration}</span>
           </div>
-          
+
           {participants.length > 0 && (
             <>
               <div className="w-px h-4 bg-gray-600"></div>
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
-                <span className="text-sm">{participants.length + 1} participants</span>
+                <span className="text-sm">
+                  {participants.length + 1} participants
+                </span>
               </div>
             </>
           )}
@@ -323,7 +373,11 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
       </div>
 
       {/* Controls Bar */}
-      <div className={`absolute bottom-6 left-1/2 transform -translate-x-1/2 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
+      <div
+        className={`absolute bottom-6 left-1/2 transform -translate-x-1/2 transition-opacity duration-300 ${
+          showControls ? "opacity-100" : "opacity-0"
+        }`}
+      >
         <div className="bg-gray-800/90 backdrop-blur-sm rounded-lg p-4">
           <div className="flex items-center justify-center gap-4">
             {/* Toggle Video */}
@@ -333,7 +387,11 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
               onClick={toggleVideo}
               className="w-14 h-14 rounded-full bg-gray-700 hover:bg-gray-600 border-gray-600"
             >
-              {isVideoEnabled ? <Video className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
+              {isVideoEnabled ? (
+                <Video className="w-6 h-6" />
+              ) : (
+                <VideoOff className="w-6 h-6" />
+              )}
             </Button>
 
             {/* Toggle Audio */}
@@ -344,7 +402,11 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
               onClick={toggleAudio}
               className="w-14 h-14 rounded-full bg-gray-700 hover:bg-gray-600 border-gray-600"
             >
-              {isAudioEnabled ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
+              {isAudioEnabled ? (
+                <Mic className="w-6 h-6" />
+              ) : (
+                <MicOff className="w-6 h-6" />
+              )}
             </Button>
 
             {/* End Call */}
@@ -361,14 +423,18 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
       </div>
 
       {/* Room ID display */}
-      <div className={`absolute bottom-4 right-4 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-30'}`}>
+      <div
+        className={`absolute bottom-4 right-4 transition-opacity duration-300 ${
+          showControls ? "opacity-100" : "opacity-30"
+        }`}
+      >
         <div className="bg-black/60 backdrop-blur-sm rounded-lg px-3 py-2 text-white text-xs">
           <div className="flex items-center gap-2">
             <span>Room:</span>
             <code className="text-blue-300">{roomId}</code>
-            <Button 
+            <Button
               onClick={copyRoomId}
-              size="sm" 
+              size="sm"
               variant="ghost"
               className="h-6 w-6 p-0 hover:bg-white/20"
             >
