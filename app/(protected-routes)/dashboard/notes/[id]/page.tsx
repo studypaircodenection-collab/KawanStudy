@@ -298,9 +298,9 @@ export default function NoteDetailsPage() {
         </Button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 xl:grid-cols-3">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="xl:col-span-2 space-y-6">
           {/* Note Content Tabs */}
           <Card>
             <CardHeader>
@@ -309,72 +309,13 @@ export default function NoteDetailsPage() {
                   <h1 className="text-2xl font-bold">{note.title}</h1>
                   <p className="text-muted-foreground">{note.description}</p>
                 </div>
-                <div className="flex items-center gap-2 ml-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleLike}
-                    className={isLiked ? "text-red-600 border-red-200" : ""}
-                  >
-                    <Heart
-                      className={`h-4 w-4 mr-1 ${
-                        isLiked ? "fill-current" : ""
-                      }`}
-                    />
-                    {likes}
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <Share2 className="h-4 w-4 mr-1" />
-                        Share
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuLabel>Share this note</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {typeof window !== "undefined" &&
-                        "share" in navigator && (
-                          <>
-                            <DropdownMenuItem onClick={shareNative}>
-                              <Share2 className="h-4 w-4 mr-2" />
-                              Share...
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                          </>
-                        )}
-                      <DropdownMenuItem onClick={copyToClipboard}>
-                        <Copy className="h-4 w-4 mr-2" />
-                        Copy link
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={shareViaEmail}>
-                        <Mail className="h-4 w-4 mr-2" />
-                        Email
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={shareOnTwitter}>
-                        <Twitter className="h-4 w-4 mr-2" />
-                        Twitter
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={shareOnFacebook}>
-                        <Facebook className="h-4 w-4 mr-2" />
-                        Facebook
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={shareOnLinkedIn}>
-                        <Linkedin className="h-4 w-4 mr-2" />
-                        LinkedIn
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
               </div>
             </CardHeader>
             <Tabs defaultValue="overview" className="w-full">
               <CardHeader>
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-2 bg-background">
                   <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="content">Content</TabsTrigger>
-                  <TabsTrigger value="details">Details</TabsTrigger>
                 </TabsList>
               </CardHeader>
 
@@ -537,161 +478,6 @@ export default function NoteDetailsPage() {
                     )}
                   </div>
                 </TabsContent>
-
-                <TabsContent value="details" className="mt-0">
-                  <div className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      {/* Classification Details */}
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">
-                          Classification
-                        </h3>
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground w-20">
-                              Type:
-                            </span>
-                            <Badge variant="outline">
-                              {note.note_type?.replace("-", " ")}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground w-20">
-                              Format:
-                            </span>
-                            <Badge
-                              variant="outline"
-                              className="flex items-center gap-1"
-                            >
-                              {getFormatIcon(note.content_type)}
-                              {note.content_type.toUpperCase()}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground w-20">
-                              Language:
-                            </span>
-                            <Badge
-                              variant="outline"
-                              className="flex items-center gap-1"
-                            >
-                              <Globe className="h-3 w-3" />
-                              {note.language?.replace("-", " ")}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground w-20">
-                              Difficulty:
-                            </span>
-                            <Badge
-                              className={getDifficultyColor(
-                                note.difficulty_level
-                              )}
-                            >
-                              {note.difficulty_level || "Not specified"}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Source & Attribution */}
-                      <div>
-                        <h3 className="text-lg font-semibold mb-3">
-                          Source & Attribution
-                        </h3>
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground w-20">
-                              Source:
-                            </span>
-                            <Badge variant="outline">{note.source_type}</Badge>
-                          </div>
-                          <div>
-                            <span className="text-sm text-muted-foreground block mb-1">
-                              Reference:
-                            </span>
-                            <p className="text-sm">{note.source_reference}</p>
-                          </div>
-                          <div>
-                            <span className="text-sm text-muted-foreground block mb-1">
-                              Topic:
-                            </span>
-                            <p className="text-sm">{note.topic}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Sharing & Permissions */}
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3">
-                        Sharing & Permissions
-                      </h3>
-                      <div className="grid md:grid-cols-3 gap-4">
-                        <div className="flex items-center gap-2">
-                          <Globe className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">
-                            Visibility:
-                          </span>
-                          <Badge
-                            variant={
-                              note.visibility === "public"
-                                ? "default"
-                                : "secondary"
-                            }
-                          >
-                            {note.visibility}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Download className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">
-                            Downloads:
-                          </span>
-                          <Badge
-                            variant={
-                              note.allow_download ? "default" : "secondary"
-                            }
-                          >
-                            {note.allow_download ? "Allowed" : "Restricted"}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <MessageCircle className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">
-                            Comments:
-                          </span>
-                          <Badge
-                            variant={
-                              note.allow_comments ? "default" : "secondary"
-                            }
-                          >
-                            {note.allow_comments ? "Enabled" : "Disabled"}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Metadata */}
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3">Metadata</h3>
-                      <div className="grid md:grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">
-                            Created:
-                          </span>
-                          <p>{formatDate(note.created_at)}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">
-                            Last Updated:
-                          </span>
-                          <p>{formatDate(note.updated_at)}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
               </CardContent>
             </Tabs>
           </Card>
@@ -701,8 +487,21 @@ export default function NoteDetailsPage() {
         <div className="space-y-6">
           {/* Quick Actions */}
           <Card>
-            <CardHeader>
+            <CardHeader className="flex justify-between items-center gap-2">
               <CardTitle className="text-lg">Quick Actions</CardTitle>
+              <div className="flex items-center gap-2 ml-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLike}
+                  className={isLiked ? "text-red-600 border-red-200" : ""}
+                >
+                  <Heart
+                    className={`h-4 w-4 mr-1 ${isLiked ? "fill-current" : ""}`}
+                  />
+                  {likes}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-3">
               {note.allow_download && (
@@ -783,9 +582,12 @@ export default function NoteDetailsPage() {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-medium">
+                  <Link
+                    href={`/dashboard/profile/${note.profiles.username}`}
+                    className="font-medium hover:underline"
+                  >
                     {note.profiles.full_name || note.profiles.username}
-                  </p>
+                  </Link>
                   <p className="text-sm text-muted-foreground">
                     @{note.profiles.username}
                   </p>
@@ -805,12 +607,6 @@ export default function NoteDetailsPage() {
                   <span className="font-medium">Jan 2024</span>
                 </div>
               </div>
-              <Button className="w-full mt-4" variant="outline" asChild>
-                <Link href={`/dashboard/profile/${note.profiles.username}`}>
-                  <User className="h-4 w-4 mr-2" />
-                  View Profile
-                </Link>
-              </Button>
             </CardContent>
           </Card>
           {/* Comment Section */}

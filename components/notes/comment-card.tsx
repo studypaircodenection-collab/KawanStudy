@@ -12,6 +12,7 @@ import {
 import { Comment } from "@/lib/services/comments";
 import { Text } from "../ui/typography";
 import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
 
 interface CommentCardProps {
   comment: Comment;
@@ -144,9 +145,12 @@ const CommentCard: React.FC<CommentCardProps> = ({
                 </>
               ) : (
                 <>
-                  <Text as="p" className="text-sm font-medium truncate">
+                  <Link
+                    href={`/dashboard/profile/${comment.profiles.username}`}
+                    className="text-sm font-medium truncate hover:underline"
+                  >
                     {comment.profiles.full_name || comment.profiles.username}
-                  </Text>
+                  </Link>
                   <Text as="p" styleVariant="muted" className="text-xs">
                     @{comment.profiles.username}
                   </Text>
@@ -223,7 +227,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
               ) : (
                 <p className="text-sm mt-1 break-words">{comment.content}</p>
               )}
-  
+
               {user && depth < maxDepth && comment.status === "active" && (
                 <div className="mt-2">
                   <Button
