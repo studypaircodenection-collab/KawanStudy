@@ -25,49 +25,49 @@ import { Separator } from "@/components/ui/separator";
 import { Text } from "../ui/typography";
 import { Label } from "../ui/label";
 import { Skeleton } from "../ui/skeleton";
+import { debounce } from "lodash";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationItem,
+  PaginationLink,
+} from "../ui/pagination";
 
 const KawanStudyNotes = () => {
   // State management
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<NoteSearchFilters>({});
   const [sortBy, setSortBy] = useState<string>("created_at");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [sortDirection] = useState<"asc" | "desc">("desc");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(12); // Fixed items per page
   const [notesData, setNotesData] = useState<NotesListResponse>({
     notes: [],
     total: 0,
     page: 1,
-    limit: 10,
+    limit: 12,
     hasMore: false,
   });
 
   // Load notes data
-  const loadNotes = async (resetPage = false) => {
+  const loadNotes = async (pageNumber: number = currentPage) => {
     setLoading(true);
     try {
-      const currentPage = resetPage ? 1 : page;
       const result = await notesService.searchNotes(
         searchTerm,
         filters,
         sortBy,
         sortDirection,
-        currentPage,
-        10
+        pageNumber,
+        itemsPerPage
       );
 
-      if (resetPage) {
-        setNotesData(result);
-        setPage(1);
-      } else {
-        // Append new notes for pagination
-        setNotesData((prev) => ({
-          ...result,
-          notes:
-            currentPage === 1 ? result.notes : [...prev.notes, ...result.notes],
-        }));
-      }
+      setNotesData(result);
+      setCurrentPage(pageNumber);
     } catch (error) {
       console.error("Error loading notes:", error);
     } finally {
@@ -77,15 +77,62 @@ const KawanStudyNotes = () => {
 
   // Load notes on component mount and when filters change
   useEffect(() => {
-    loadNotes(true);
-  }, [searchTerm, filters, sortBy, sortDirection]);
+    loadNotes(1); // Always start from page 1 when filters change
+  }, [filters, sortBy, sortDirection]);
 
-  // Handle load more
-  const handleLoadMore = () => {
-    if (!loading && notesData.hasMore) {
-      setPage((prev) => prev + 1);
-      loadNotes(false);
+  // Debounced search effect
+  useEffect(() => {
+    const debouncedSearch = debounce(() => {
+      if (searchTerm !== undefined) {
+        loadNotes(1); // Always start from page 1 when search changes
+      }
+    }, 500); // 500ms delay
+
+    debouncedSearch();
+
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [searchTerm]);
+
+  // Handle page change
+  const handlePageChange = (pageNumber: number) => {
+    if (pageNumber !== currentPage && pageNumber > 0) {
+      loadNotes(pageNumber);
+      // Scroll to top of results
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
+  };
+
+  // Calculate pagination info
+  const totalPages = Math.ceil(notesData.total / itemsPerPage);
+  const startItem = (currentPage - 1) * itemsPerPage + 1;
+  const endItem = Math.min(currentPage * itemsPerPage, notesData.total);
+
+  // Generate page numbers for pagination
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      const halfVisible = Math.floor(maxVisiblePages / 2);
+      let startPage = Math.max(1, currentPage - halfVisible);
+      let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+      if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+    }
+
+    return pages;
   };
 
   // Filter options using the actual constants from types
@@ -322,8 +369,15 @@ const KawanStudyNotes = () => {
       {/* Results Header */}
       <div className="mb-6 flex justify-between items-center">
         <Text as="p" styleVariant="muted">
-          Showing {notesData.notes.length} of {notesData.total} notes
+          {notesData.total > 0
+            ? `Showing ${startItem}-${endItem} of ${notesData.total} notes`
+            : "No notes found"}
         </Text>
+        {totalPages > 1 && (
+          <Text as="p" styleVariant="muted" className="text-sm">
+            Page {currentPage} of {totalPages}
+          </Text>
+        )}
       </div>
 
       {/* Notes Grid */}
@@ -333,18 +387,54 @@ const KawanStudyNotes = () => {
         ))}
       </div>
 
-      {/* Load More / Pagination */}
-      {notesData.hasMore && (
-        <div className="text-center">
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={handleLoadMore}
-            disabled={loading}
-          >
-            {loading ? "Loading..." : "Load More Notes"}
-          </Button>
-        </div>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handlePageChange(currentPage - 1);
+                }}
+                className={
+                  currentPage === 1 ? "pointer-events-none opacity-50" : ""
+                }
+              />
+            </PaginationItem>
+
+            {getPageNumbers().map((pageNum: number) => (
+              <PaginationItem key={pageNum}>
+                <PaginationLink
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePageChange(pageNum);
+                  }}
+                  isActive={pageNum === currentPage}
+                >
+                  {pageNum}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handlePageChange(currentPage + 1);
+                }}
+                className={
+                  currentPage === totalPages
+                    ? "pointer-events-none opacity-50"
+                    : ""
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       )}
 
       {/* Empty State */}

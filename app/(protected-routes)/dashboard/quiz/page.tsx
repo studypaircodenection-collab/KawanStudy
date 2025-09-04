@@ -2,12 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Clock, Users, Award, Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { QuizService } from "@/lib/services/quiz";
 import { Quiz } from "@/types/quiz";
+import QuizCard from "@/components/quiz/quiz-card";
 
 export default function QuizPage() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
@@ -69,66 +68,7 @@ export default function QuizPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {quizzes.map((quiz) => (
-          <Card key={quiz.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <Badge variant="outline">{quiz.subject}</Badge>
-                  {quiz.academic_level && (
-                    <Badge variant="secondary">
-                      Grade {quiz.academic_level}
-                    </Badge>
-                  )}
-                </div>
-                {quiz.thumbnailUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={quiz.thumbnailUrl}
-                    alt={quiz.title}
-                    className="w-16 h-16 object-cover rounded-lg"
-                  />
-                )}
-              </div>
-              <CardTitle className="text-xl">{quiz.title}</CardTitle>
-              {quiz.description && (
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {quiz.description}
-                </p>
-              )}
-            </CardHeader>
-
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    {quiz.timeLimitMinutes || 15} min
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Award className="w-4 h-4" />
-                    {quiz.questions.length} questions
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Users className="w-4 h-4" />
-                    {quiz.playCount} plays
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Link href={`/dashboard/quiz/${quiz.id}`} className="flex-1">
-                    <Button className="w-full" size="sm">
-                      View Quiz
-                    </Button>
-                  </Link>
-                  <Link href={`/dashboard/quiz/${quiz.id}/edit`}>
-                    <Button variant="outline" size="sm">
-                      Edit
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <QuizCard key={quiz.id} quiz={quiz} />
         ))}
       </div>
 

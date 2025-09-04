@@ -103,7 +103,7 @@ const BrowseQuizzesPage = () => {
     return (
       <div className="container mx-auto py-6 max-w-6xl">
         <Card>
-          <CardContent className="pt-6">
+          <CardContent>
             <div className="text-center">
               <p className="text-destructive mb-4">{error}</p>
               <Button onClick={fetchQuizzes}>Try Again</Button>
@@ -125,7 +125,7 @@ const BrowseQuizzesPage = () => {
 
       {/* Search and Filters */}
       <Card className="mb-6">
-        <CardContent className="pt-6">
+        <CardContent>
           <div className="flex flex-col gap-4 md:flex-row md:items-center">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -181,7 +181,7 @@ const BrowseQuizzesPage = () => {
       {/* Results */}
       {filteredQuizzes.length === 0 ? (
         <Card>
-          <CardContent className="pt-6">
+          <CardContent>
             <div className="text-center">
               <p className="text-muted-foreground">
                 {searchQuery ||

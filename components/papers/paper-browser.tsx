@@ -11,10 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Loader2,
-  Search,
-} from "lucide-react";
+import { Loader2, Search, ChevronDown, X } from "lucide-react";
 import { PaperCard } from "./paper-card";
 import { PaperUploadForm } from "./paper-upload-form";
 import {
@@ -24,6 +21,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
 
 interface Paper {
   id: string;
@@ -76,6 +77,7 @@ export function PaperBrowser({ showUploadButton = true }: PaperBrowserProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const subjects = [
     "mathematics",
@@ -118,6 +120,12 @@ export function PaperBrowser({ showUploadButton = true }: PaperBrowserProps) {
   ];
 
   const difficultyLevels = ["easy", "medium", "hard", "expert"];
+
+  // Active filters count
+  const activeFiltersCount =
+    Object.values(filters).filter(
+      (value) => value && value !== "all" && value !== ""
+    ).length + (searchQuery ? 1 : 0);
 
   const fetchPapers = async () => {
     setIsLoading(true);
@@ -219,14 +227,12 @@ export function PaperBrowser({ showUploadButton = true }: PaperBrowserProps) {
         )}
       </div>
 
-      {/* Search and Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Search & Filters</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Search */}
-          <div className="flex gap-2">
+      {/* Search and Filter Bar */}
+      <div className="space-y-4">
+        {/* Search and Filter Toggle */}
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Search Input */}
+          <div className="flex-1 flex gap-2">
             <Input
               placeholder="Search papers..."
               value={searchQuery}
@@ -239,150 +245,196 @@ export function PaperBrowser({ showUploadButton = true }: PaperBrowserProps) {
             </Button>
           </div>
 
-          {/* Filters */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            <Select
-              value={filters.subject}
-              onValueChange={(value) => handleFilterChange("subject", value)}
+          {/* Filter Toggle and Sort */}
+          <div className="flex gap-2">
+            <Button
+              variant={isFiltersOpen ? "default" : "outline"}
+              onClick={() => setIsFiltersOpen(!isFiltersOpen)}
             >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Subject" />
+              Filters
+              {activeFiltersCount > 0 && (
+                <Badge variant="secondary" className="ml-2 text-xs">
+                  {activeFiltersCount}
+                </Badge>
+              )}
+              <ChevronDown
+                className={`w-4 h-4 ml-2 transition-transform ${
+                  isFiltersOpen ? "rotate-180" : ""
+                }`}
+              />
+            </Button>
+
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Subjects</SelectItem>
-                {subjects.map((subject) => (
-                  <SelectItem key={subject} value={subject}>
-                    {subject
-                      .replace(/_/g, " ")
-                      .replace(/\b\w/g, (l) => l.toUpperCase())}
-                  </SelectItem>
-                ))}
+                <SelectItem value="created_at">Date Created</SelectItem>
+                <SelectItem value="view_count">Most Viewed</SelectItem>
+                <SelectItem value="like_count">Most Liked</SelectItem>
+                <SelectItem value="download_count">Most Downloaded</SelectItem>
+                <SelectItem value="title">Title</SelectItem>
               </SelectContent>
             </Select>
 
             <Select
-              value={filters.academicLevel}
-              onValueChange={(value) =>
-                handleFilterChange("academicLevel", value)
-              }
+              value={sortOrder}
+              onValueChange={(value: "asc" | "desc") => setSortOrder(value)}
             >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Academic Level" />
+              <SelectTrigger className="w-32">
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Levels</SelectItem>
-                {academicLevels.map((level) => (
-                  <SelectItem key={level} value={level}>
-                    {level
-                      .replace(/_/g, " ")
-                      .replace(/\b\w/g, (l) => l.toUpperCase())}
-                  </SelectItem>
-                ))}
+                <SelectItem value="desc">Descending</SelectItem>
+                <SelectItem value="asc">Ascending</SelectItem>
               </SelectContent>
             </Select>
-
-            <Select
-              value={filters.paperType}
-              onValueChange={(value) => handleFilterChange("paperType", value)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Paper Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                {paperTypes.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type
-                      .replace(/_/g, " ")
-                      .replace(/\b\w/g, (l) => l.toUpperCase())}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={filters.difficultyLevel}
-              onValueChange={(value) =>
-                handleFilterChange("difficultyLevel", value)
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Difficulty" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Difficulties</SelectItem>
-                {difficultyLevels.map((level) => (
-                  <SelectItem key={level} value={level}>
-                    {level.charAt(0).toUpperCase() + level.slice(1)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={filters.hasSolution}
-              onValueChange={(value) =>
-                handleFilterChange("hasSolution", value)
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Has Solution" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Papers</SelectItem>
-                <SelectItem value="true">With Solution</SelectItem>
-                <SelectItem value="false">Question Only</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Input
-              placeholder="Year"
-              type="number"
-              value={filters.year}
-              onChange={(e) => handleFilterChange("year", e.target.value)}
-              min="2000"
-              max="2030"
-            />
           </div>
+        </div>
 
-          {/* Sort and Clear */}
-          <div className="flex flex-wrap gap-2 items-center justify-between">
-            <div className="flex gap-2 items-center">
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="created_at">Date Created</SelectItem>
-                  <SelectItem value="view_count">Most Viewed</SelectItem>
-                  <SelectItem value="like_count">Most Liked</SelectItem>
-                  <SelectItem value="download_count">
-                    Most Downloaded
-                  </SelectItem>
-                  <SelectItem value="title">Title</SelectItem>
-                </SelectContent>
-              </Select>
+        {/* Collapsible Filters */}
+        <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+          <CollapsibleContent>
+            <Separator className="my-4" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div>
+                <Label>Subject</Label>
+                <Select
+                  value={filters.subject}
+                  onValueChange={(value) =>
+                    handleFilterChange("subject", value)
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="All Subjects" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Subjects</SelectItem>
+                    {subjects.map((subject) => (
+                      <SelectItem key={subject} value={subject}>
+                        {subject
+                          .replace(/_/g, " ")
+                          .replace(/\b\w/g, (l) => l.toUpperCase())}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <Select
-                value={sortOrder}
-                onValueChange={(value: "asc" | "desc") => setSortOrder(value)}
-              >
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="desc">Descending</SelectItem>
-                  <SelectItem value="asc">Ascending</SelectItem>
-                </SelectContent>
-              </Select>
+              <div>
+                <Label>Academic Level</Label>
+                <Select
+                  value={filters.academicLevel}
+                  onValueChange={(value) =>
+                    handleFilterChange("academicLevel", value)
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="All Levels" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Levels</SelectItem>
+                    {academicLevels.map((level) => (
+                      <SelectItem key={level} value={level}>
+                        {level
+                          .replace(/_/g, " ")
+                          .replace(/\b\w/g, (l) => l.toUpperCase())}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Paper Type</Label>
+                <Select
+                  value={filters.paperType}
+                  onValueChange={(value) =>
+                    handleFilterChange("paperType", value)
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="All Types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    {paperTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type
+                          .replace(/_/g, " ")
+                          .replace(/\b\w/g, (l) => l.toUpperCase())}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Difficulty</Label>
+                <Select
+                  value={filters.difficultyLevel}
+                  onValueChange={(value) =>
+                    handleFilterChange("difficultyLevel", value)
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="All Difficulties" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Difficulties</SelectItem>
+                    {difficultyLevels.map((level) => (
+                      <SelectItem key={level} value={level}>
+                        {level.charAt(0).toUpperCase() + level.slice(1)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Has Solution</Label>
+                <Select
+                  value={filters.hasSolution}
+                  onValueChange={(value) =>
+                    handleFilterChange("hasSolution", value)
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="All Papers" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Papers</SelectItem>
+                    <SelectItem value="true">With Solution</SelectItem>
+                    <SelectItem value="false">Question Only</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Year</Label>
+                <Input
+                  placeholder="Year"
+                  type="number"
+                  value={filters.year}
+                  onChange={(e) => handleFilterChange("year", e.target.value)}
+                  min="2000"
+                  max="2030"
+                />
+              </div>
             </div>
 
-            <Button variant="outline" onClick={clearFilters}>
-              Clear Filters
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            {/* Clear Filters */}
+            {activeFiltersCount > 0 && (
+              <div className="mt-4">
+                <Button variant="outline" size="sm" onClick={clearFilters}>
+                  <X className="w-4 h-4 mr-2" />
+                  Clear all filters
+                </Button>
+              </div>
+            )}
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
 
       {/* Papers Grid */}
       {isLoading ? (
@@ -392,9 +444,7 @@ export function PaperBrowser({ showUploadButton = true }: PaperBrowserProps) {
       ) : papers.length === 0 ? (
         <Card>
           <CardContent className="text-center py-12">
-            <p className="text-muted-foreground">
-              No papers found matching your criteria.
-            </p>
+            <p className="text-muted-foreground">No papers found.</p>
           </CardContent>
         </Card>
       ) : (

@@ -1,5 +1,3 @@
-
-
 import React from "react";
 import { LeaderboardEntry } from "@/lib/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -7,6 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Crown, Trophy, Medal, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 
 interface LeaderboardProps {
   entries: LeaderboardEntry[];
@@ -102,9 +107,26 @@ const Leaderboard = ({
               {/* User Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-semibold text-base truncate">
-                    {entry.full_name || entry.username || "Anonymous User"}
-                  </h3>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link
+                          href={`/dashboard/profile/${entry.username}`}
+                          className="font-semibold text-base truncate hover:underline"
+                          target="_BLANK"
+                        >
+                          {entry.full_name ||
+                            entry.username ||
+                            "Anonymous User"}
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">
+                          View {entry.username || "user"}'s profile
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                   <Badge
                     variant="secondary"
                     className={cn(
@@ -123,7 +145,7 @@ const Leaderboard = ({
                   </div>
 
                   {entry.university && (
-                    <div className="truncate max-w-[120px]">
+                    <div className="truncate max-w-[250px]">
                       📚 {entry.university}
                     </div>
                   )}
