@@ -39,13 +39,14 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
     isInRoom,
     isConnecting,
     participants,
+    participantStreams,
     isVideoEnabled,
     isAudioEnabled,
     currentUser,
     roomStatus,
     callDuration,
     localVideoRef,
-    remoteVideoRef,
+    getParticipantStreamsWithInfo,
     joinRoom,
     leaveRoom,
     toggleVideo,
@@ -64,24 +65,68 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
     setControlsTimeout(timeout);
   }, [controlsTimeout]);
 
-  // Clean up video elements when participants leave
-  useEffect(() => {
-    if (!videoGridRef.current) return;
+  // Dynamic video element management for multiple participants
+  const createVideoElement = useCallback(
+    (stream: MediaStream, userId: string) => {
+      // Create or update video element for this participant
+      let videoElement = participantVideosRef.current[userId];
 
-    const currentParticipantIds = participants.map((p) => p.id);
-    const videoElements =
-      videoGridRef.current.querySelectorAll("[data-user-id]");
-
-    videoElements.forEach((element) => {
-      const userId = element.getAttribute("data-user-id");
-      if (userId && !currentParticipantIds.includes(userId)) {
-        element.remove();
-        delete participantVideosRef.current[userId];
+      if (!videoElement) {
+        videoElement = document.createElement("video");
+        videoElement.autoplay = true;
+        videoElement.playsInline = true;
+        videoElement.style.width = "100%";
+        videoElement.style.height = "100%";
+        videoElement.style.objectFit = "cover";
+        participantVideosRef.current[userId] = videoElement;
       }
-    });
-  }, [participants]);
 
-  // Handle end call
+      videoElement.srcObject = stream;
+      return videoElement;
+    },
+    []
+  );
+
+  // Get participant streams with user information
+  const participantStreamData = getParticipantStreamsWithInfo();
+
+  // Custom video component for participant streams
+  const ParticipantVideo = ({
+    stream,
+    participant,
+    className = "",
+  }: {
+    stream: MediaStream;
+    participant: any;
+    className?: string;
+  }) => {
+    const videoRef = useRef<HTMLVideoElement>(null);
+
+    useEffect(() => {
+      if (videoRef.current && stream) {
+        videoRef.current.srcObject = stream;
+      }
+    }, [stream]);
+
+    return (
+      <div
+        className={`relative bg-gray-800 rounded-lg overflow-hidden ${className}`}
+      >
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          className="w-full h-full object-cover"
+        />
+
+        {/* Participant info overlay */}
+        <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm rounded px-2 py-1 text-white text-sm flex items-center gap-2">
+          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+          <span>{participant?.full_name || participant?.username}</span>
+        </div>
+      </div>
+    );
+  };
   const handleEndCall = async () => {
     await leaveRoom();
     onLeave();
@@ -140,7 +185,7 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
   }
 
   // Waiting for participants
-  if (participants.length === 0) {
+  if (participantStreamData.length === 0) {
     return (
       <div
         className="fixed inset-0 bg-gray-900 z-50"
@@ -259,17 +304,17 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
         className="video-grid w-full h-full p-4 grid gap-4"
         style={{
           gridTemplateColumns:
-            participants.length <= 1
+            participantStreamData.length <= 1
               ? "1fr"
-              : participants.length <= 4
+              : participantStreamData.length <= 4
               ? "repeat(2, 1fr)"
-              : participants.length <= 9
+              : participantStreamData.length <= 9
               ? "repeat(3, 1fr)"
               : "repeat(4, 1fr)",
           gridAutoRows:
-            participants.length <= 1
+            participantStreamData.length <= 1
               ? "1fr"
-              : participants.length <= 4
+              : participantStreamData.length <= 4
               ? "1fr"
               : "minmax(250px, 1fr)",
         }}
@@ -306,43 +351,12 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
         </div>
 
         {/* Other Participants - Show all connected participants */}
-        {participants.map((participant, index) => (
-          <div
-            key={participant.id}
-            className="relative bg-gray-800 rounded-lg overflow-hidden"
-          >
-            {/* For now, we use the single remoteVideoRef for the first participant
-                In a full implementation, you'd create separate video elements for each participant */}
-            {index === 0 && (
-              <video
-                ref={remoteVideoRef}
-                autoPlay
-                playsInline
-                className="w-full h-full object-cover"
-              />
-            )}
-
-            {/* Placeholder for additional participants */}
-            {index > 0 && (
-              <div className="w-full h-full flex items-center justify-center bg-gray-800">
-                <div className="text-center">
-                  <Avatar className="w-20 h-20 mx-auto mb-2">
-                    <AvatarImage src={participant.avatar_url} />
-                    <AvatarFallback className="bg-gray-600 text-white text-lg">
-                      {participant.full_name?.[0] || participant.username[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <p className="text-white text-sm">Connecting...</p>
-                </div>
-              </div>
-            )}
-
-            {/* Participant info overlay */}
-            <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm rounded px-2 py-1 text-white text-sm flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span>{participant?.full_name || participant?.username}</span>
-            </div>
-          </div>
+        {participantStreamData.map((participantStream) => (
+          <ParticipantVideo
+            key={participantStream.userId}
+            stream={participantStream.stream}
+            participant={participantStream.user}
+          />
         ))}
       </div>
 
@@ -358,13 +372,13 @@ export function WebRTCVideoRoom({ roomId, onLeave }: MultiUserVideoRoomProps) {
             <span className="font-mono text-lg">{callDuration}</span>
           </div>
 
-          {participants.length > 0 && (
+          {participantStreamData.length > 0 && (
             <>
               <div className="w-px h-4 bg-gray-600"></div>
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
                 <span className="text-sm">
-                  {participants.length + 1} participants
+                  {participantStreamData.length + 1} participants
                 </span>
               </div>
             </>

@@ -11,6 +11,12 @@ interface VideoCallUser {
   avatar_url?: string;
 }
 
+interface ParticipantStream {
+  userId: string;
+  stream: MediaStream;
+  user: VideoCallUser;
+}
+
 interface UseVideoCallProps {
   roomId?: string;
   autoJoin?: boolean;
@@ -24,6 +30,9 @@ export function useVideoCall({
   const [roomId, setRoomId] = useState<string>(initialRoomId || "");
   const [isInRoom, setIsInRoom] = useState(false);
   const [participants, setParticipants] = useState<VideoCallUser[]>([]);
+  const [participantStreams, setParticipantStreams] = useState<{
+    [userId: string]: MediaStream;
+  }>({});
   const [isConnecting, setIsConnecting] = useState(false);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
@@ -35,9 +44,7 @@ export function useVideoCall({
 
   // Refs for WebRTC
   const localVideoRef = useRef<HTMLVideoElement>(null);
-  const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
-  const remoteStreamRef = useRef<MediaStream | null>(null);
   const peerConnectionsRef = useRef<{ [userId: string]: RTCPeerConnection }>(
     {}
   );
@@ -126,16 +133,18 @@ export function useVideoCall({
         });
       }
 
-      // Handle remote stream (WebDevSimplified addVideoStream equivalent)
+      // Handle remote stream - Store in participantStreams for dynamic display
       peerConnection.ontrack = (event) => {
         console.log("Received remote stream from:", userId);
         const [remoteStream] = event.streams;
-        remoteStreamRef.current = remoteStream;
 
-        // Display remote stream in video element
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = remoteStream;
-        }
+        // Store stream for this specific user
+        setParticipantStreams((prev) => ({
+          ...prev,
+          [userId]: remoteStream,
+        }));
+
+        console.log("✅ Stream stored for user:", userId);
       };
 
       // Handle ICE candidates (WebDevSimplified approach)
@@ -212,7 +221,36 @@ export function useVideoCall({
     [currentUser, createPeerConnection]
   );
 
-  // Handle incoming WebRTC signaling messages
+  // Clean up participant stream
+  const removeParticipantStream = useCallback((userId: string) => {
+    setParticipantStreams((prev) => {
+      const updated = { ...prev };
+      if (updated[userId]) {
+        // Stop all tracks in the stream
+        updated[userId].getTracks().forEach((track) => track.stop());
+        delete updated[userId];
+        console.log("🧹 Cleaned up stream for user:", userId);
+      }
+      return updated;
+    });
+  }, []);
+
+  // Get all current participant streams with user info
+  const getParticipantStreamsWithInfo = useCallback((): ParticipantStream[] => {
+    return Object.entries(participantStreams).map(([userId, stream]) => {
+      const user = participants.find((p) => p.id === userId);
+      return {
+        userId,
+        stream,
+        user: user || {
+          id: userId,
+          username: "Unknown User",
+          full_name: undefined,
+          avatar_url: undefined,
+        },
+      };
+    });
+  }, [participantStreams, participants]);
   const handleSignalingMessage = useCallback(
     async (event: string, payload: any) => {
       if (!currentUser || payload.targetUserId !== currentUser.id) return;
@@ -429,11 +467,14 @@ export function useVideoCall({
               ) {
                 console.log("👋 Participant left:", payload.new.user_id);
 
-                // Clean up peer connection
+                // Clean up peer connection and stream
                 if (peerConnectionsRef.current[payload.new.user_id]) {
                   peerConnectionsRef.current[payload.new.user_id].close();
                   delete peerConnectionsRef.current[payload.new.user_id];
                 }
+
+                // Remove participant stream
+                removeParticipantStream(payload.new.user_id);
 
                 // Remove from participants list
                 setParticipants((prev) =>
@@ -499,11 +540,14 @@ export function useVideoCall({
                 payload.old.user_id
               );
 
-              // Clean up peer connection
+              // Clean up peer connection and stream
               if (peerConnectionsRef.current[payload.old.user_id]) {
                 peerConnectionsRef.current[payload.old.user_id].close();
                 delete peerConnectionsRef.current[payload.old.user_id];
               }
+
+              // Remove participant stream
+              removeParticipantStream(payload.old.user_id);
 
               // Remove from participants list
               setParticipants((prev) =>
@@ -528,6 +572,7 @@ export function useVideoCall({
       handleSignalingMessage,
       connectToNewUser,
       fetchCurrentParticipants,
+      removeParticipantStream,
     ]
   );
 
@@ -774,16 +819,16 @@ export function useVideoCall({
       localStreamRef.current = null;
     }
 
-    // Close all peer connections
-    Object.values(peerConnectionsRef.current).forEach((pc) => pc.close());
+    // Close all peer connections and clean up streams
+    Object.keys(peerConnectionsRef.current).forEach((userId) => {
+      peerConnectionsRef.current[userId].close();
+      removeParticipantStream(userId);
+    });
     peerConnectionsRef.current = {};
 
-    // Clean up video elements
+    // Clean up local video element
     if (localVideoRef.current) {
       localVideoRef.current.srcObject = null;
-    }
-    if (remoteVideoRef.current) {
-      remoteVideoRef.current.srcObject = null;
     }
 
     // Clean up realtime channel
@@ -801,7 +846,7 @@ export function useVideoCall({
     setRoomStatus("ended");
 
     console.log("✅ Left room successfully");
-  }, [currentUser, roomId, supabase, stopCallTimer]);
+  }, [currentUser, roomId, supabase, stopCallTimer, removeParticipantStream]);
 
   // Toggle video (WebDevSimplified approach)
   const toggleVideo = useCallback(() => {
@@ -879,6 +924,7 @@ export function useVideoCall({
     roomId,
     isInRoom,
     participants,
+    participantStreams,
     isConnecting,
     isVideoEnabled,
     isAudioEnabled,
@@ -888,7 +934,10 @@ export function useVideoCall({
 
     // Refs (for video elements)
     localVideoRef,
-    remoteVideoRef,
+
+    // Stream utilities
+    getParticipantStreamsWithInfo,
+    removeParticipantStream,
 
     // Actions
     createRoom,
