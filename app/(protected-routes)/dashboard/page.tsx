@@ -5,21 +5,27 @@ import { useAuth } from "@/lib/context/auth-provider";
 import { useGamification } from "@/hooks/use-gamification";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  ShoppingBag, 
-  Coins, 
-  BookOpen, 
-  Users, 
-  MessageSquare, 
-  Trophy, 
-  Calendar, 
-  Bell, 
-  Target, 
+import {
+  ShoppingBag,
+  Coins,
+  BookOpen,
+  Users,
+  MessageSquare,
+  Trophy,
+  Calendar,
+  Bell,
+  Target,
   Star,
   TrendingUp,
   Clock,
@@ -49,7 +55,7 @@ import {
   ChevronRight,
   BookmarkPlus,
   GraduationCap,
-  Lightbulb
+  Lightbulb,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { DailyClaimButton } from "@/components/dashboard/daily-claim-button";
@@ -64,11 +70,11 @@ export default function ProtectedPage() {
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     const hour = new Date().getHours();
-    
+
     if (hour < 12) setGreeting("Good Morning");
     else if (hour < 18) setGreeting("Good Afternoon");
     else setGreeting("Good Evening");
-    
+
     return () => clearInterval(timer);
   }, []);
 
@@ -81,7 +87,7 @@ export default function ProtectedPage() {
       type: "feature",
       urgent: false,
       timestamp: "2 hours ago",
-      category: "Update"
+      category: "Update",
     },
     {
       id: 2,
@@ -90,7 +96,7 @@ export default function ProtectedPage() {
       type: "warning",
       urgent: true,
       timestamp: "1 hour ago",
-      category: "System"
+      category: "System",
     },
     {
       id: 3,
@@ -99,8 +105,8 @@ export default function ProtectedPage() {
       type: "success",
       urgent: false,
       timestamp: "3 hours ago",
-      category: "Challenge"
-    }
+      category: "Challenge",
+    },
   ];
 
   // Enhanced quick stats with better design
@@ -109,38 +115,38 @@ export default function ProtectedPage() {
       title: "Study Points",
       value: userStats?.profile?.total_points || 0,
       icon: Trophy,
-      color: "text-yellow-600",
-      bgColor: "bg-gradient-to-br from-yellow-50 to-orange-50",
+      color: "text-primary",
+      bgColor: "bg-secondary",
       trend: "+12%",
-      description: "Total points earned"
+      description: "Total points earned",
     },
     {
       title: "Current Level",
       value: userStats?.profile?.level || 1,
       icon: Star,
-      color: "text-purple-600",
-      bgColor: "bg-gradient-to-br from-purple-50 to-pink-50",
+      color: "text-primary",
+      bgColor: "bg-secondary",
       trend: "+1",
-      description: "Your current level"
+      description: "Your current level",
     },
     {
       title: "Study Streak",
       value: 3, // Placeholder - can be connected to actual streak data later
       icon: Flame,
-      color: "text-orange-600",
-      bgColor: "bg-gradient-to-br from-orange-50 to-red-50",
+      color: "text-primary",
+      bgColor: "bg-secondary",
       trend: "🔥",
-      description: "Days in a row"
+      description: "Days in a row",
     },
     {
       title: "Achievements",
       value: achievements?.length || 0,
       icon: Award,
-      color: "text-green-600",
-      bgColor: "bg-gradient-to-br from-green-50 to-emerald-50",
+      color: "text-primary",
+      bgColor: "bg-secondary",
       trend: "+2",
-      description: "Unlocked badges"
-    }
+      description: "Unlocked badges",
+    },
   ];
 
   const quickActions = [
@@ -149,109 +155,120 @@ export default function ProtectedPage() {
       description: "Customize your profile",
       icon: ShoppingBag,
       href: "/dashboard/store",
-      color: "bg-gradient-to-r from-purple-500 to-pink-500"
+      color: "bg-primary",
     },
     {
       title: "Study Notes",
       description: "Access your materials",
       icon: BookOpen,
       href: "/dashboard/notes",
-      color: "bg-gradient-to-r from-blue-500 to-cyan-500"
+      color: "bg-primary",
     },
     {
       title: "Find Study Buddy",
       description: "Connect with peers",
       icon: Users,
       href: "/dashboard/peer",
-      color: "bg-gradient-to-r from-green-500 to-emerald-500"
+      color: "bg-primary",
     },
     {
       title: "Take Quiz",
       description: "Test your knowledge",
       icon: Brain,
       href: "/dashboard/quiz",
-      color: "bg-gradient-to-r from-orange-500 to-red-500"
+      color: "bg-primary",
     },
     {
       title: "Gamification",
       description: "View achievements & challenges",
       icon: Trophy,
       href: "/gamification",
-      color: "bg-gradient-to-r from-yellow-500 to-orange-500"
+      color: "bg-primary",
     },
     {
       title: "Video Call",
       description: "Start group study",
       icon: Video,
       href: "/video-call",
-      color: "bg-gradient-to-r from-indigo-500 to-blue-500"
+      color: "bg-primary",
     },
     {
       title: "Chat Room",
       description: "Join discussions",
       icon: MessageSquare,
       href: "/dashboard/chat",
-      color: "bg-gradient-to-r from-teal-500 to-green-500"
-    }
+      color: "bg-primary",
+    },
   ];
 
   const getNoticeIcon = (type: string) => {
     switch (type) {
-      case 'success': return '✅';
-      case 'warning': return '⚠️';
-      case 'error': return '❌';
-      default: return 'ℹ️';
+      case "success":
+        return "✅";
+      case "warning":
+        return "⚠️";
+      case "error":
+        return "❌";
+      default:
+        return "ℹ️";
     }
   };
 
   const getNoticeColors = (type: string, urgent: boolean) => {
-    if (urgent) return "border-red-200 bg-red-50";
+    if (urgent) return "border-destructive bg-destructive/10";
     switch (type) {
-      case 'success': return "border-green-200 bg-green-50";
-      case 'warning': return "border-yellow-200 bg-yellow-50";
-      case 'error': return "border-red-200 bg-red-50";
-      default: return "border-blue-200 bg-blue-50";
+      case "success":
+        return "border-primary bg-primary/10";
+      case "warning":
+        return "border-primary bg-secondary";
+      case "error":
+        return "border-destructive bg-destructive/10";
+      default:
+        return "border-primary bg-secondary";
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto py-6 space-y-8">
-        
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 p-8 text-white">
+        <div className="relative overflow-hidden rounded-lg bg-primary p-8 text-primary-foreground">
           <div className="relative z-10">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-4xl font-bold mb-2">
-                  {greeting}, {claims?.username || claims?.full_name || 'Student'}! 👋
+                  {greeting},{" "}
+                  {claims?.username || claims?.full_name || "Student"}! 👋
                 </h1>
-                <p className="text-blue-100 text-lg">
+                <p className="text-primary-foreground/80 text-lg">
                   Ready to continue your learning journey?
                 </p>
-                <p className="text-blue-200 text-sm mt-1">
-                  {currentTime.toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
+                <p className="text-primary-foreground/70 text-sm mt-1">
+                  {currentTime.toLocaleDateString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
                   })}
                 </p>
               </div>
               <div className="text-right">
-                <Badge variant="secondary" className="bg-white/20 text-white border-white/30 mb-2">
+                <Badge
+                  variant="secondary"
+                  className="bg-primary/20 text-primary-foreground border-primary/30 mb-2"
+                >
                   <Clock className="h-3 w-3 mr-1" />
-                  {currentTime.toLocaleTimeString('en-US', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
+                  {currentTime.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
                   })}
                 </Badge>
                 {claims && (
                   <div className="mt-4">
                     <UserProfileCard
                       userId={claims.sub}
-                      username={claims.username || 'User'}
-                      avatarUrl={claims.avatar_url || ''}
+                      username={claims.username || "User"}
+                      avatarUrl={claims.avatar_url || ""}
                       totalPoints={userStats?.profile?.total_points}
                       level={userStats?.profile?.level}
                       showStats={false}
@@ -261,21 +278,26 @@ export default function ProtectedPage() {
               </div>
             </div>
           </div>
-          
+
           {/* Decorative elements */}
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full"></div>
-          <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full"></div>
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 rounded-full"></div>
+          <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-primary/10 rounded-full"></div>
         </div>
 
         {/* Quick Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {quickStats.map((stat, index) => (
-            <Card key={index} className="relative overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <Card
+              key={index}
+              className="relative overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+            >
               <CardContent className="p-6">
-                <div className={`absolute inset-0 ${stat.bgColor} opacity-50`}></div>
+                <div
+                  className={`absolute inset-0 ${stat.bgColor} opacity-50`}
+                ></div>
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-4">
-                    <div className={`p-3 rounded-xl bg-white shadow-sm`}>
+                    <div className="p-3 rounded-xl bg-card shadow-sm">
                       <stat.icon className={`h-6 w-6 ${stat.color}`} />
                     </div>
                     {stat.trend && (
@@ -286,8 +308,12 @@ export default function ProtectedPage() {
                   </div>
                   <div>
                     <p className="text-3xl font-bold mb-1">{stat.value}</p>
-                    <p className="text-sm font-medium text-gray-700">{stat.title}</p>
-                    <p className="text-xs text-gray-500">{stat.description}</p>
+                    <p className="text-sm font-medium text-foreground">
+                      {stat.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {stat.description}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -297,18 +323,16 @@ export default function ProtectedPage() {
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
           {/* Left Column - Notices & Quick Actions */}
           <div className="lg:col-span-2 space-y-6">
-            
             {/* Notice Board */}
             <Card className="border-0 shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-t-lg">
+              <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Bell className="h-5 w-5" />
                   📢 Latest Updates
                 </CardTitle>
-                <CardDescription className="text-blue-100">
+                <CardDescription>
                   Stay updated with the latest announcements
                 </CardDescription>
               </CardHeader>
@@ -317,15 +341,23 @@ export default function ProtectedPage() {
                   {notices.map((notice) => (
                     <div
                       key={notice.id}
-                      className={`relative p-4 rounded-xl border-l-4 ${getNoticeColors(notice.type, notice.urgent)} hover:shadow-md transition-shadow`}
+                      className={`relative p-4 rounded-xl border-l-4 ${getNoticeColors(
+                        notice.type,
+                        notice.urgent
+                      )} hover:shadow-md transition-shadow`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="text-lg">{getNoticeIcon(notice.type)}</span>
+                            <span className="text-lg">
+                              {getNoticeIcon(notice.type)}
+                            </span>
                             <h4 className="font-semibold">{notice.title}</h4>
                             {notice.urgent && (
-                              <Badge variant="destructive" className="text-xs animate-pulse">
+                              <Badge
+                                variant="destructive"
+                                className="text-xs animate-pulse"
+                              >
                                 URGENT
                               </Badge>
                             )}
@@ -333,14 +365,14 @@ export default function ProtectedPage() {
                               {notice.category}
                             </Badge>
                           </div>
-                          <p className="text-sm text-gray-600 mb-2">
+                          <p className="text-sm text-foreground mb-2">
                             {notice.message}
                           </p>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-xs text-muted-foreground">
                             {notice.timestamp}
                           </p>
                         </div>
-                        <ChevronRight className="h-4 w-4 text-gray-400" />
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       </div>
                     </div>
                   ))}
@@ -352,7 +384,7 @@ export default function ProtectedPage() {
             <Card className="border-0 shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-yellow-500" />
+                  <Zap className="h-5 w-5 text-primary" />
                   Quick Actions
                 </CardTitle>
                 <CardDescription>
@@ -366,11 +398,13 @@ export default function ProtectedPage() {
                       <Card className="cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg border-0 group">
                         <CardContent className="p-4">
                           <div className="flex flex-col items-center text-center space-y-3">
-                            <div className={`p-4 rounded-2xl ${action.color} text-white group-hover:scale-110 transition-transform`}>
+                            <div className="p-4 rounded-2xl bg-primary text-primary-foreground group-hover:scale-110 transition-transform">
                               <action.icon className="h-6 w-6" />
                             </div>
                             <div>
-                              <h3 className="font-semibold text-sm">{action.title}</h3>
+                              <h3 className="font-semibold text-sm">
+                                {action.title}
+                              </h3>
                               <p className="text-xs text-muted-foreground">
                                 {action.description}
                               </p>
@@ -387,24 +421,28 @@ export default function ProtectedPage() {
 
           {/* Right Column - Activity Feed & Challenges */}
           <div className="space-y-6">
-            
             {/* Today's Challenges */}
             <Card className="border-0 shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-t-lg">
+              <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Target className="h-5 w-5" />
                   🎯 Daily Challenges
                 </CardTitle>
-                <CardDescription className="text-green-100">
+                <CardDescription>
                   Complete challenges to earn points!
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-4">
                   {dailyChallenges?.slice(0, 3).map((challenge, index) => (
-                    <div key={index} className="space-y-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                    <div
+                      key={index}
+                      className="space-y-3 p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
+                    >
                       <div className="flex items-center justify-between">
-                        <h4 className="font-medium text-sm">{challenge.challenge_name}</h4>
+                        <h4 className="font-medium text-sm">
+                          {challenge.challenge_name}
+                        </h4>
                         <Badge variant="outline" className="text-xs">
                           +{challenge.points_reward} pts
                         </Badge>
@@ -417,7 +455,10 @@ export default function ProtectedPage() {
                           <span>Progress</span>
                           <span>{challenge.progress_percentage || 0}%</span>
                         </div>
-                        <Progress value={challenge.progress_percentage || 0} className="h-2" />
+                        <Progress
+                          value={challenge.progress_percentage || 0}
+                          className="h-2"
+                        />
                       </div>
                       {!challenge.is_completed && (
                         <Button size="sm" className="w-full">
@@ -426,7 +467,10 @@ export default function ProtectedPage() {
                         </Button>
                       )}
                       {challenge.is_completed && (
-                        <Badge variant="outline" className="w-full justify-center text-green-600">
+                        <Badge
+                          variant="outline"
+                          className="w-full justify-center text-primary"
+                        >
                           <CheckCircle className="h-3 w-3 mr-1" />
                           Completed!
                         </Badge>
@@ -434,7 +478,7 @@ export default function ProtectedPage() {
                     </div>
                   )) || (
                     <div className="text-center py-6">
-                      <Trophy className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+                      <Trophy className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
                       <p className="text-sm text-muted-foreground">
                         No challenges yet. Check back tomorrow!
                       </p>
@@ -446,7 +490,7 @@ export default function ProtectedPage() {
 
             {/* Recent Achievements */}
             <Card className="border-0 shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-t-lg">
+              <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
                 <CardTitle className="flex items-center gap-2">
                   <Award className="h-5 w-5" />
                   🏆 Recent Achievements
@@ -455,21 +499,26 @@ export default function ProtectedPage() {
               <CardContent className="p-6">
                 <div className="space-y-3">
                   {achievements?.slice(0, 3).map((achievement, index) => (
-                    <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 transition-colors">
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
+                    >
                       <div className="text-2xl">🏆</div>
                       <div className="flex-1">
-                        <p className="font-medium text-sm">{achievement.achievement_title}</p>
+                        <p className="font-medium text-sm">
+                          {achievement.achievement_title}
+                        </p>
                         <p className="text-xs text-muted-foreground">
                           {achievement.achievement_description}
                         </p>
                       </div>
-                      <Badge variant="outline" className="bg-white">
+                      <Badge variant="outline" className="bg-card">
                         {achievement.achievement_name}
                       </Badge>
                     </div>
                   )) || (
                     <div className="text-center py-6">
-                      <Star className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+                      <Star className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
                       <p className="text-sm text-muted-foreground">
                         Start studying to unlock achievements!
                       </p>
@@ -480,25 +529,29 @@ export default function ProtectedPage() {
             </Card>
 
             {/* Study Tips */}
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-amber-50 to-orange-50">
+            <Card className="border-0 shadow-lg bg-secondary">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-amber-700">
+                <CardTitle className="flex items-center gap-2 text-foreground">
                   <Lightbulb className="h-5 w-5" />
                   💡 Study Tip of the Day
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="bg-white p-4 rounded-lg shadow-sm">
-                  <p className="text-sm text-gray-700 italic">
-                    "Take regular breaks every 25-30 minutes to maintain focus and improve retention. The Pomodoro Technique can boost your productivity by up to 40%!"
+                <div className="bg-card p-4 rounded-lg shadow-sm">
+                  <p className="text-sm text-foreground italic">
+                    "Take regular breaks every 25-30 minutes to maintain focus
+                    and improve retention. The Pomodoro Technique can boost your
+                    productivity by up to 40%!"
                   </p>
                   <div className="flex items-center justify-between mt-3">
                     <Badge variant="outline" className="text-xs">
                       Study Method
                     </Badge>
                     <div className="flex gap-1">
-                      <Heart className="h-4 w-4 text-red-500" />
-                      <span className="text-xs text-gray-500">127 likes</span>
+                      <Heart className="h-4 w-4 text-primary" />
+                      <span className="text-xs text-muted-foreground">
+                        127 likes
+                      </span>
                     </div>
                   </div>
                 </div>
