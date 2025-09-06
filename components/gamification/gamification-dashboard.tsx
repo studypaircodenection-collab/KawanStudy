@@ -280,6 +280,20 @@ export function GamificationDashboard({ userId }: GamificationDashboardProps) {
             >
               Study Session (+10)
             </Button>
+            <Button 
+              size="sm" 
+              onClick={() => simulateActivity("profile_update", 0)}
+              variant="outline"
+            >
+              Profile Update Activity
+            </Button>
+            <Button 
+              size="sm" 
+              onClick={() => simulateActivity("quiz_completed", 0)}
+              variant="outline"
+            >
+              Quiz Activity
+            </Button>
           </div>
         </CardContent>
       </Card>
