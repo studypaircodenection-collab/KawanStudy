@@ -129,11 +129,11 @@ const data = {
       url: "/dashboard/support",
       icon: LifeBuoy,
     },
-    {
-      title: "View Documentation",
-      url: "/dashboard/documentation",
-      icon: FilesIcon,
-    },
+    // {
+    //   title: "View Documentation",
+    //   url: "/dashboard/documentation",
+    //   icon: FilesIcon,
+    // },
     {
       title: "Drop a Feedback",
       url: "/dashboard/feedback",

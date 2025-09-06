@@ -1,7 +1,5 @@
 "use client";
 
-import { GamificationDashboard } from "@/components/gamification/gamification-dashboard";
-import { DailyClaimButton } from "@/components/dashboard/daily-claim-button";
 import { UserProfileCard } from "@/components/ui/user-profile-card";
 import { useAuth } from "@/lib/context/auth-provider";
 import { useGamification } from "@/hooks/use-gamification";
@@ -9,6 +7,9 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   ShoppingBag, 
   Coins, 
@@ -28,76 +29,117 @@ import {
   Gift,
   Zap,
   Brain,
-  PenTool
+  PenTool,
+  Award,
+  Activity,
+  BarChart3,
+  CheckCircle,
+  Flame,
+  PlayCircle,
+  Plus,
+  ArrowUp,
+  ArrowRight,
+  Heart,
+  Share2,
+  Download,
+  Upload,
+  Eye,
+  Timer,
+  Sparkles,
+  ChevronRight,
+  BookmarkPlus,
+  GraduationCap,
+  Lightbulb
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { DailyClaimButton } from "@/components/dashboard/daily-claim-button";
+import { GamificationDashboard } from "@/components/gamification/gamification-dashboard";
 
 export default function ProtectedPage() {
   const { claims } = useAuth();
   const { userStats, achievements, dailyChallenges } = useGamification();
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [greeting, setGreeting] = useState("");
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    const hour = new Date().getHours();
+    
+    if (hour < 12) setGreeting("Good Morning");
+    else if (hour < 18) setGreeting("Good Afternoon");
+    else setGreeting("Good Evening");
+    
     return () => clearInterval(timer);
   }, []);
 
-  // Sample notices - in a real app, these would come from an API
+  // Enhanced notices with better categorization
   const notices = [
     {
       id: 1,
-      title: "📚 New Study Materials Available",
-      message: "Check out the latest notes on Advanced Mathematics and Physics",
+      title: "🎉 New Feature: AI Study Assistant",
+      message: "Get personalized study recommendations powered by AI",
+      type: "feature",
+      urgent: false,
       timestamp: "2 hours ago",
-      type: "info",
-      urgent: false
+      category: "Update"
     },
     {
       id: 2,
-      title: "🎉 Weekly Leaderboard Results",
-      message: "Congratulations to this week's top performers! See your ranking.",
-      timestamp: "1 day ago",
-      type: "success",
-      urgent: false
+      title: "⚡ Server Maintenance Scheduled",
+      message: "Brief maintenance window tonight from 2-3 AM EST",
+      type: "warning",
+      urgent: true,
+      timestamp: "1 hour ago",
+      category: "System"
     },
     {
       id: 3,
-      title: "⚡ System Maintenance Tonight",
-      message: "Scheduled maintenance from 11 PM to 1 AM. Plan accordingly.",
+      title: "📚 Weekly Study Challenge",
+      message: "Complete 5 quizzes this week to earn bonus points!",
+      type: "success",
+      urgent: false,
       timestamp: "3 hours ago",
-      type: "warning",
-      urgent: true
+      category: "Challenge"
     }
   ];
 
+  // Enhanced quick stats with better design
   const quickStats = [
     {
-      title: "Total Points",
+      title: "Study Points",
       value: userStats?.profile?.total_points || 0,
-      icon: Coins,
+      icon: Trophy,
       color: "text-yellow-600",
-      bgColor: "bg-yellow-50"
-    },
-    {
-      title: "Study Sessions",
-      value: "12",
-      icon: Clock,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50"
-    },
-    {
-      title: "Notes Created",
-      value: "8",
-      icon: FileText,
-      color: "text-green-600",
-      bgColor: "bg-green-50"
+      bgColor: "bg-gradient-to-br from-yellow-50 to-orange-50",
+      trend: "+12%",
+      description: "Total points earned"
     },
     {
       title: "Current Level",
       value: userStats?.profile?.level || 1,
       icon: Star,
       color: "text-purple-600",
-      bgColor: "bg-purple-50"
+      bgColor: "bg-gradient-to-br from-purple-50 to-pink-50",
+      trend: "+1",
+      description: "Your current level"
+    },
+    {
+      title: "Study Streak",
+      value: 3, // Placeholder - can be connected to actual streak data later
+      icon: Flame,
+      color: "text-orange-600",
+      bgColor: "bg-gradient-to-br from-orange-50 to-red-50",
+      trend: "🔥",
+      description: "Days in a row"
+    },
+    {
+      title: "Achievements",
+      value: achievements?.length || 0,
+      icon: Award,
+      color: "text-green-600",
+      bgColor: "bg-gradient-to-br from-green-50 to-emerald-50",
+      trend: "+2",
+      description: "Unlocked badges"
     }
   ];
 
@@ -173,287 +215,298 @@ export default function ProtectedPage() {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Welcome back, {claims?.username || 'Student'}!</h1>
-          <p className="text-muted-foreground">
-            {currentTime.toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="flex items-center gap-1">
-            <Clock className="h-3 w-3" />
-            {currentTime.toLocaleTimeString('en-US', { 
-              hour: '2-digit', 
-              minute: '2-digit' 
-            })}
-          </Badge>
-        </div>
-      </div>
-
-      {/* Notice Board */}
-      <Card className="border-l-4 border-l-blue-500">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bell className="h-5 w-5" />
-            Notice Board
-          </CardTitle>
-          <CardDescription>
-            Latest updates and announcements
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {notices.map((notice) => (
-              <div
-                key={notice.id}
-                className={`p-3 rounded-lg border ${getNoticeColors(notice.type, notice.urgent)}`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span>{getNoticeIcon(notice.type)}</span>
-                      <h4 className="font-medium text-sm">{notice.title}</h4>
-                      {notice.urgent && (
-                        <Badge variant="destructive" className="text-xs">
-                          URGENT
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-1">
-                      {notice.message}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {notice.timestamp}
-                    </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900">
+      <div className="container mx-auto py-6 space-y-8">
+        
+        {/* Hero Header */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 p-8 text-white">
+          <div className="relative z-10">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-4xl font-bold mb-2">
+                  {greeting}, {claims?.username || claims?.full_name || 'Student'}! 👋
+                </h1>
+                <p className="text-blue-100 text-lg">
+                  Ready to continue your learning journey?
+                </p>
+                <p className="text-blue-200 text-sm mt-1">
+                  {currentTime.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}
+                </p>
+              </div>
+              <div className="text-right">
+                <Badge variant="secondary" className="bg-white/20 text-white border-white/30 mb-2">
+                  <Clock className="h-3 w-3 mr-1" />
+                  {currentTime.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                  })}
+                </Badge>
+                {claims && (
+                  <div className="mt-4">
+                    <UserProfileCard
+                      userId={claims.sub}
+                      username={claims.username || 'User'}
+                      avatarUrl={claims.avatar_url || ''}
+                      totalPoints={userStats?.profile?.total_points}
+                      level={userStats?.profile?.level}
+                      showStats={false}
+                    />
                   </div>
-                </div>
+                )}
               </div>
-            ))}
+            </div>
           </div>
-        </CardContent>
-      </Card>
+          
+          {/* Decorative elements */}
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full"></div>
+          <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full"></div>
+        </div>
 
-      {/* Quick Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {quickStats.map((stat, index) => (
-          <Card key={index} className="relative overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {stat.title}
-                  </p>
-                  <p className="text-2xl font-bold">{stat.value}</p>
-                </div>
-                <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* User Profile Preview */}
-          {claims && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  Your Profile
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="max-w-sm">
-                  <UserProfileCard
-                    userId={claims.sub}
-                    username={claims.username || 'User'}
-                    avatarUrl={claims.avatar_url || ''}
-                    totalPoints={userStats?.profile?.total_points}
-                    level={userStats?.profile?.level}
-                    showStats={true}
-                  />
+        {/* Quick Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {quickStats.map((stat, index) => (
+            <Card key={index} className="relative overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <CardContent className="p-6">
+                <div className={`absolute inset-0 ${stat.bgColor} opacity-50`}></div>
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`p-3 rounded-xl bg-white shadow-sm`}>
+                      <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                    </div>
+                    {stat.trend && (
+                      <Badge variant="outline" className="text-xs">
+                        {stat.trend}
+                      </Badge>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold mb-1">{stat.value}</p>
+                    <p className="text-sm font-medium text-gray-700">{stat.title}</p>
+                    <p className="text-xs text-gray-500">{stat.description}</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          )}
+          ))}
+        </div>
 
-          {/* Quick Actions Grid */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Zap className="h-5 w-5" />
-                Quick Actions
-              </CardTitle>
-              <CardDescription>
-                Access your favorite features
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {quickActions.map((action, index) => (
-                  <Link key={index} href={action.href}>
-                    <Card className="cursor-pointer transition-all hover:scale-105 hover:shadow-md">
-                      <CardContent className="p-4">
-                        <div className="flex flex-col items-center text-center space-y-2">
-                          <div className={`p-3 rounded-full ${action.color} text-white`}>
-                            <action.icon className="h-6 w-6" />
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Left Column - Notices & Quick Actions */}
+          <div className="lg:col-span-2 space-y-6">
+            
+            {/* Notice Board */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-t-lg">
+                <CardTitle className="flex items-center gap-2">
+                  <Bell className="h-5 w-5" />
+                  📢 Latest Updates
+                </CardTitle>
+                <CardDescription className="text-blue-100">
+                  Stay updated with the latest announcements
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {notices.map((notice) => (
+                    <div
+                      key={notice.id}
+                      className={`relative p-4 rounded-xl border-l-4 ${getNoticeColors(notice.type, notice.urgent)} hover:shadow-md transition-shadow`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-lg">{getNoticeIcon(notice.type)}</span>
+                            <h4 className="font-semibold">{notice.title}</h4>
+                            {notice.urgent && (
+                              <Badge variant="destructive" className="text-xs animate-pulse">
+                                URGENT
+                              </Badge>
+                            )}
+                            <Badge variant="outline" className="text-xs">
+                              {notice.category}
+                            </Badge>
                           </div>
-                          <h3 className="font-semibold text-sm">{action.title}</h3>
-                          <p className="text-xs text-muted-foreground">
-                            {action.description}
+                          <p className="text-sm text-gray-600 mb-2">
+                            {notice.message}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {notice.timestamp}
                           </p>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                        <ChevronRight className="h-4 w-4 text-gray-400" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* Right Column */}
-        <div className="space-y-6">
-          {/* Daily Bonus */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Gift className="h-5 w-5" />
-                Daily Bonus
-                <Badge variant="secondary" className="text-xs">
-                  Limited Time
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <DailyClaimButton />
-            </CardContent>
-          </Card>
+            {/* Quick Actions Grid */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-yellow-500" />
+                  Quick Actions
+                </CardTitle>
+                <CardDescription>
+                  Jump into your favorite study activities
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {quickActions.map((action, index) => (
+                    <Link key={index} href={action.href}>
+                      <Card className="cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg border-0 group">
+                        <CardContent className="p-4">
+                          <div className="flex flex-col items-center text-center space-y-3">
+                            <div className={`p-4 rounded-2xl ${action.color} text-white group-hover:scale-110 transition-transform`}>
+                              <action.icon className="h-6 w-6" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-sm">{action.title}</h3>
+                              <p className="text-xs text-muted-foreground">
+                                {action.description}
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* Recent Achievements */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Trophy className="h-5 w-5" />
-                Recent Achievements
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {achievements?.slice(0, 3).map((achievement, index) => (
-                  <div key={index} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
-                    <div className="text-2xl">🏆</div>
-                    <div className="flex-1">
-                      <p className="font-medium text-sm">{achievement.achievement_title}</p>
+          {/* Right Column - Activity Feed & Challenges */}
+          <div className="space-y-6">
+            
+            {/* Today's Challenges */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-t-lg">
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5" />
+                  🎯 Daily Challenges
+                </CardTitle>
+                <CardDescription className="text-green-100">
+                  Complete challenges to earn points!
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {dailyChallenges?.slice(0, 3).map((challenge, index) => (
+                    <div key={index} className="space-y-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-medium text-sm">{challenge.challenge_name}</h4>
+                        <Badge variant="outline" className="text-xs">
+                          +{challenge.points_reward} pts
+                        </Badge>
+                      </div>
                       <p className="text-xs text-muted-foreground">
-                        {achievement.achievement_description}
+                        {challenge.challenge_description}
+                      </p>
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span>Progress</span>
+                          <span>{challenge.progress_percentage || 0}%</span>
+                        </div>
+                        <Progress value={challenge.progress_percentage || 0} className="h-2" />
+                      </div>
+                      {!challenge.is_completed && (
+                        <Button size="sm" className="w-full">
+                          <PlayCircle className="h-4 w-4 mr-1" />
+                          Continue
+                        </Button>
+                      )}
+                      {challenge.is_completed && (
+                        <Badge variant="outline" className="w-full justify-center text-green-600">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Completed!
+                        </Badge>
+                      )}
+                    </div>
+                  )) || (
+                    <div className="text-center py-6">
+                      <Trophy className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        No challenges yet. Check back tomorrow!
                       </p>
                     </div>
-                  </div>
-                )) || (
-                  <p className="text-sm text-muted-foreground">
-                    No achievements yet. Start studying to unlock them!
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* Daily Challenges */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Today's Challenges
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {dailyChallenges?.slice(0, 2).map((challenge, index) => (
-                  <div key={index} className="p-3 rounded-lg border">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-sm">{challenge.challenge_name}</h4>
-                      <Badge variant="outline" className="text-xs">
-                        {challenge.points_reward} pts
+            {/* Recent Achievements */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-t-lg">
+                <CardTitle className="flex items-center gap-2">
+                  <Award className="h-5 w-5" />
+                  🏆 Recent Achievements
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-3">
+                  {achievements?.slice(0, 3).map((achievement, index) => (
+                    <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 transition-colors">
+                      <div className="text-2xl">🏆</div>
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{achievement.achievement_title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {achievement.achievement_description}
+                        </p>
+                      </div>
+                      <Badge variant="outline" className="bg-white">
+                        {achievement.achievement_name}
                       </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      {challenge.challenge_description}
-                    </p>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full transition-all"
-                        style={{ width: `${challenge.progress_percentage || 0}%` }}
-                      ></div>
+                  )) || (
+                    <div className="text-center py-6">
+                      <Star className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        Start studying to unlock achievements!
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Study Tips */}
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-amber-50 to-orange-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-amber-700">
+                  <Lightbulb className="h-5 w-5" />
+                  💡 Study Tip of the Day
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-white p-4 rounded-lg shadow-sm">
+                  <p className="text-sm text-gray-700 italic">
+                    "Take regular breaks every 25-30 minutes to maintain focus and improve retention. The Pomodoro Technique can boost your productivity by up to 40%!"
+                  </p>
+                  <div className="flex items-center justify-between mt-3">
+                    <Badge variant="outline" className="text-xs">
+                      Study Method
+                    </Badge>
+                    <div className="flex gap-1">
+                      <Heart className="h-4 w-4 text-red-500" />
+                      <span className="text-xs text-gray-500">127 likes</span>
                     </div>
                   </div>
-                )) || (
-                  <p className="text-sm text-muted-foreground">
-                    Check back tomorrow for new challenges!
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Links */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <PenTool className="h-5 w-5" />
-                Quick Links
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Link href="/dashboard/notifications">
-                  <Button variant="ghost" className="w-full justify-start text-sm">
-                    <Bell className="h-4 w-4 mr-2" />
-                    Notifications
-                  </Button>
-                </Link>
-                <Link href="/dashboard/leaderboard">
-                  <Button variant="ghost" className="w-full justify-start text-sm">
-                    <TrendingUp className="h-4 w-4 mr-2" />
-                    Leaderboard
-                  </Button>
-                </Link>
-                <Link href="/dashboard/settings">
-                  <Button variant="ghost" className="w-full justify-start text-sm">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Settings
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-
-      {/* Gamification Dashboard */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Trophy className="h-5 w-5" />
-            Your Progress
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <GamificationDashboard />
-        </CardContent>
-      </Card>
     </div>
   );
 }
