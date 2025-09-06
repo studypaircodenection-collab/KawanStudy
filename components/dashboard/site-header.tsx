@@ -4,6 +4,7 @@ import { SidebarIcon, Trophy } from "lucide-react";
 import DashboardBreadcrumbs from "@/components/dashboard/dashboard-breadcrumbs";
 import { SearchForm } from "@/components/dashboard/search-form";
 import NotificationPopup from "./notification-popup";
+import { StoreButton } from "./store-button";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -74,14 +75,17 @@ export function SiteHeader() {
         <DashboardBreadcrumbs />
         <SearchForm />
         
-        {/* Points Display */}
+        {/* Points Display & Store */}
         {claims && (
-          <div className="flex items-center gap-2 px-3 py-1 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-full">
-            <Trophy className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-            <span className="text-sm font-medium text-amber-700 dark:text-amber-300">
-              {statsLoading ? "..." : userStats?.profile?.total_points?.toLocaleString() || "0"}
-            </span>
-          </div>
+          <>
+            <div className="flex items-center gap-2 px-3 py-1 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-full">
+              <Trophy className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              <span className="text-sm font-medium text-amber-700 dark:text-amber-300">
+                {statsLoading ? "..." : userStats?.profile?.total_points?.toLocaleString() || "0"}
+              </span>
+            </div>
+            <StoreButton />
+          </>
         )}
         
         <Button size={"icon"} variant={"ghost"} asChild>

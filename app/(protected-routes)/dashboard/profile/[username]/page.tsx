@@ -11,6 +11,7 @@ import {
 import AchievementBadge from "@/components/gamification/achievement-badge";
 import ConnectionButton from "@/components/profile/connection-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CustomizedAvatar } from "@/components/ui/customized-avatar";
 import {
   CalendarDays,
   MapPin,
@@ -340,17 +341,17 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             <div className="bg-secondary rounded-xl lg:aspect-5/1 aspect-3/1"></div>
             <div className="flex flex-col -translate-y-10  items-start gap-2">
               <div className="pl-4">
-                <Avatar className="h-20 w-20 border-background border bg-background">
-                  <AvatarImage
-                    src={profile.avatar_url || ""}
-                    alt={profile.full_name || ""}
-                  />
-                  <AvatarFallback className="text-2xl">
-                    {profile.full_name?.charAt(0) ||
-                      profile.username?.charAt(0) ||
-                      "U"}
-                  </AvatarFallback>
-                </Avatar>
+                <CustomizedAvatar
+                  userId={profile.id}
+                  src={profile.avatar_url || ""}
+                  fallback={profile.full_name?.charAt(0) ||
+                    profile.username?.charAt(0) ||
+                    "U"}
+                  size="xl"
+                  showBadges={true}
+                  showTitle={true}
+                  className="h-20 w-20 border-background border bg-background"
+                />
               </div>
               <div className="w-full flex justify-between items-start gap-2">
                 <div>
