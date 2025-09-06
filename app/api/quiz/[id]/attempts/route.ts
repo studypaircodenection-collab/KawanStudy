@@ -153,9 +153,146 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       console.warn("Failed to increment play count:", playCountError);
     }
 
+    // Get quiz details for gamification points calculation
+    let pointsToAward = 0;
+    let quizTitle = "Unknown Quiz";
+    
+    try {
+      console.log("Fetching quiz details for gamification...");
+      const { data: quiz, error: quizError } = await supabase
+        .from("quizzes")
+        .select("title, time_limit_minutes")
+        .eq("id", quizId)
+        .single();
+
+      console.log("Quiz data for gamification:", quiz, "Error:", quizError);
+
+      if (!quizError && quiz) {
+        quizTitle = quiz.title;
+        
+        // Calculate sophisticated points based on quiz length and score
+        const calculateQuizPoints = (
+          score: number,
+          totalQuestions: number,
+          percentage: number,
+          timeTaken: number,
+          timeLimit?: number
+        ): number => {
+          // Base points calculation:
+          // - Length bonus: 2 points per question (encourages taking longer quizzes)
+          // - Performance bonus: up to 10 points based on percentage score
+          // - Time bonus: up to 5 extra points for completing quickly (if time limit exists)
+          
+          const lengthBonus = totalQuestions * 2; // 2 points per question
+          const performanceBonus = Math.floor(percentage / 10); // 1 point per 10% score
+          
+          let timeBonus = 0;
+          if (timeLimit && timeLimit > 0) {
+            const timeLimitSeconds = timeLimit * 60;
+            const timeEfficiency = Math.max(0, (timeLimitSeconds - timeTaken) / timeLimitSeconds);
+            timeBonus = Math.floor(timeEfficiency * 5); // Up to 5 bonus points for speed
+          }
+          
+          // Minimum guaranteed points (even for 0% score)
+          const minimumPoints = Math.max(5, Math.floor(totalQuestions / 2));
+          
+          const totalPoints = lengthBonus + performanceBonus + timeBonus;
+          
+          return Math.max(minimumPoints, totalPoints);
+        };
+
+        // Award points for quiz completion with enhanced scoring
+        pointsToAward = calculateQuizPoints(
+          score,
+          totalQuestions,
+          percentage,
+          timeTaken,
+          quiz.time_limit_minutes
+        );
+        
+        console.log("Calculated points to award:", pointsToAward);
+
+        // Add points to user account
+        console.log("Adding points to user account...");
+        const addPointsResult = await supabase.rpc("add_points_to_user", {
+          p_user_id: user.id,
+          p_points: pointsToAward,
+          p_source: "quiz_completion",
+          p_source_id: attemptData.id,
+          p_description: `Completed quiz: ${quiz.title} (${percentage}%) - ${totalQuestions} questions`,
+        });
+        
+        console.log("Add points result:", addPointsResult);
+        
+        // Log activity for gamification tracking (without awarding points again)
+        console.log("Logging activity for gamification...");
+        const logActivityResult = await supabase.rpc("log_user_activity", {
+          p_user_id: user.id,
+          p_activity_type: "quiz",
+          p_activity_data: {
+            quiz_id: quizId,
+            quiz_title: quiz.title,
+            score: score,
+            total_questions: totalQuestions,
+            percentage: percentage,
+            time_taken: timeTaken,
+            points_earned: pointsToAward
+          },
+          p_points_earned: 0  // Set to 0 to avoid double-awarding points
+        });
+
+        console.log("Log activity result:", logActivityResult);
+
+        // Check for achievement progress
+        console.log("Checking for achievement progress...");
+        const { data: userAttempts } = await supabase
+          .from("quiz_attempts")
+          .select("id")
+          .eq("user_id", user.id);
+
+        console.log("User attempts for achievements:", userAttempts);
+
+        if (userAttempts) {
+          const totalQuizzes = userAttempts.length;
+          console.log("Total quizzes completed:", totalQuizzes);
+
+          // Check achievements based on quiz completion milestones
+          if (totalQuizzes === 1) {
+            console.log("Awarding first quiz completion achievement...");
+            await supabase.rpc("complete_achievement", {
+              p_user_id: user.id,
+              p_achievement_key: "complete_quiz",
+            });
+          } else if (totalQuizzes === 3) {
+            console.log("Awarding quiz streak achievement...");
+            await supabase.rpc("complete_achievement", {
+              p_user_id: user.id,
+              p_achievement_key: "quiz_streak",
+            });
+          } else if (totalQuizzes === 5) {
+            console.log("Awarding quiz champion achievement...");
+            await supabase.rpc("complete_achievement", {
+              p_user_id: user.id,
+              p_achievement_key: "quiz_champion",
+            });
+          }
+        }
+        
+        console.log("Gamification logic completed successfully!");
+      } else {
+        console.log("Failed to fetch quiz details for gamification:", quizError);
+      }
+    } catch (pointsError) {
+      console.warn("Failed to award points for quiz completion:", pointsError);
+    }
+
     return NextResponse.json({
       success: true,
-      data: attemptData,
+      data: {
+        ...attemptData,
+        pointsAwarded: pointsToAward,
+        quizTitle: quizTitle
+      },
       message: "Quiz attempt submitted successfully",
     });
   } catch (error) {

@@ -253,6 +253,14 @@ export function useGamification(userId?: string): UseGamificationReturn {
         if (response.ok) {
           // Refresh relevant data
           await Promise.all([refreshStats(), refreshPointHistory()]);
+          
+          // Dispatch custom event for real-time UI updates
+          window.dispatchEvent(
+            new CustomEvent("points-updated", {
+              detail: { points, source, sourceId, description },
+            })
+          );
+          
           return true;
         }
         return false;

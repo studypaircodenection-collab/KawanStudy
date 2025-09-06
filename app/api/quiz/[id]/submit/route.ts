@@ -34,10 +34,10 @@ export async function POST(
       );
     }
 
-    // Verify quiz exists
+    // Verify quiz exists and get quiz details for scoring
     const { data: quiz, error: quizError } = await supabase
       .from("quizzes")
-      .select("id, title")
+      .select("id, title, time_limit_minutes")
       .eq("id", quizId)
       .single();
 
@@ -94,52 +94,56 @@ export async function POST(
       console.warn("Failed to increment play count:", playCountError);
     }
 
-    // Award points for quiz completion
-    const pointsToAward = Math.max(10, Math.floor(scoreResult.percentage / 10));
-    try {
-      await supabase.rpc("add_points_to_user", {
-        p_user_id: user.id,
-        p_points: pointsToAward,
-        p_source: "quiz_completion",
-        p_source_id: attempt.id,
-        p_description: `Completed quiz: ${quiz.title} (${scoreResult.percentage}%)`,
-      });
-    } catch (pointsError) {
-      console.warn("Failed to award points for quiz completion:", pointsError);
-    }
-
-    // Check for achievement progress
-    try {
-      // Check for quiz completion achievements
-      const { data: userAttempts } = await supabase
-        .from("quiz_attempts")
-        .select("id")
-        .eq("user_id", user.id);
-
-      if (userAttempts) {
-        const totalQuizzes = userAttempts.length;
-
-        // Check achievements
-        if (totalQuizzes === 1) {
-          await supabase.rpc("complete_achievement", {
-            p_user_id: user.id,
-            p_achievement_key: "complete_quiz",
-          });
-        } else if (totalQuizzes === 3) {
-          await supabase.rpc("complete_achievement", {
-            p_user_id: user.id,
-            p_achievement_key: "quiz_streak",
-          });
-        } else if (totalQuizzes === 5) {
-          await supabase.rpc("complete_achievement", {
-            p_user_id: user.id,
-            p_achievement_key: "quiz_champion",
-          });
-        }
+    // Calculate sophisticated points based on quiz length and score
+    const calculateQuizPoints = (
+      score: number,
+      totalQuestions: number,
+      percentage: number,
+      timeTaken: number,
+      timeLimit?: number
+    ): number => {
+      // Base points calculation:
+      // - Length bonus: 2 points per question (encourages taking longer quizzes)
+      // - Performance bonus: up to 10 points based on percentage score
+      // - Time bonus: up to 5 extra points for completing quickly (if time limit exists)
+      
+      const lengthBonus = totalQuestions * 2; // 2 points per question
+      const performanceBonus = Math.floor(percentage / 10); // 1 point per 10% score
+      
+      let timeBonus = 0;
+      if (timeLimit && timeLimit > 0) {
+        const timeLimitSeconds = timeLimit * 60;
+        const timeEfficiency = Math.max(0, (timeLimitSeconds - timeTaken) / timeLimitSeconds);
+        timeBonus = Math.floor(timeEfficiency * 5); // Up to 5 bonus points for speed
       }
-    } catch (achievementError) {
-      console.warn("Failed to update achievement progress:", achievementError);
-    }
+      
+      // Minimum guaranteed points (even for 0% score)
+      const minimumPoints = Math.max(5, Math.floor(totalQuestions / 2));
+      
+      const totalPoints = lengthBonus + performanceBonus + timeBonus;
+      
+      return Math.max(minimumPoints, totalPoints);
+    };
+
+    // Award points for quiz completion with enhanced scoring
+    const pointsToAward = calculateQuizPoints(
+      scoreResult.score,
+      scoreResult.total,
+      scoreResult.percentage,
+      timeTaken,
+      quiz.time_limit_minutes
+    );
+    
+    // Note: Points are awarded in the /attempts endpoint, not here
+    // This endpoint is for calculating scores and getting results only
+    console.log("Quiz submit - Points calculation:", {
+      pointsToAward,
+      percentage: scoreResult.percentage,
+      note: "Points will be awarded via /attempts endpoint"
+    });
+
+    // Note: Achievement checking is handled in the /attempts endpoint
+    console.log("Quiz submit - Achievement checking will be handled via /attempts endpoint");
 
     return NextResponse.json({
       success: true,

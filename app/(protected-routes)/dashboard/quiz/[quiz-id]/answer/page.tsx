@@ -32,6 +32,7 @@ import {
   MultipleChoiceQuestion,
 } from "@/types/quiz";
 import { toast } from "sonner";
+import { dispatchPointsUpdate } from "@/lib/utils/points-events";
 
 interface QuizAnswerProps {
   params: Promise<{
@@ -206,7 +207,27 @@ const QuizAnswerPage: React.FC<QuizAnswerProps> = ({ params }) => {
       const result = await response.json();
       console.log("Quiz attempt submitted successfully:", result);
 
-      toast.success(`Quiz completed! You scored ${percentage}%`);
+      // Dispatch custom event to update points in real-time
+      if (result.data?.pointsAwarded) {
+        dispatchPointsUpdate({
+          pointsAwarded: result.data.pointsAwarded,
+          newTotal: result.data.newTotal,
+          source: 'quiz'
+        });
+      }
+
+      // Show success toast with points information
+      if (result.data?.pointsAwarded) {
+        toast.success(
+          `🎉 Quiz completed! You scored ${percentage}% and earned ${result.data.pointsAwarded} points!`,
+          {
+            duration: 4000,
+            description: `Great job! Points have been added to your account.`,
+          }
+        );
+      } else {
+        toast.success(`Quiz completed! You scored ${percentage}%`);
+      }
 
       // Navigate to results page
       router.push(`/dashboard/quiz/${quizId}/result`);
