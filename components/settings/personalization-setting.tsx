@@ -33,6 +33,11 @@ const PersonalizationSetting = () => {
 
   // Predefined theme colors
   const themeColors = [
+    {
+      name: "Primary",
+      value: "Primary",
+      color: "bg-[#d1ff00]",
+    },
     { name: "Blue", value: "blue", color: "bg-blue-500" },
     { name: "Green", value: "green", color: "bg-green-500" },
     { name: "Purple", value: "purple", color: "bg-purple-500" },
@@ -126,11 +131,13 @@ const PersonalizationSetting = () => {
           <div className="space-y-3">
             <Label className="text-base font-medium">Accent Color</Label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {themeColors.map((color) => (
+              {themeColors.map((color, index) => (
                 <button
                   key={color.value}
                   onClick={() => updateSetting("accentColor", color.value)}
                   className={`p-3 border rounded-lg flex flex-col items-center gap-2 transition-colors ${
+                    index === 0 && "col-span-4"
+                  } ${
                     settings.accentColor === color.value
                       ? "border-primary bg-primary/10"
                       : "border"

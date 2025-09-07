@@ -282,7 +282,6 @@ const NotificationPopup = () => {
     markAllAsRead,
     deleteNotification,
     clearAllNotifications,
-    simulateNewNotification,
     isLoading,
     error,
     isActionLoading,
@@ -372,25 +371,6 @@ const NotificationPopup = () => {
           </DropdownMenuLabel>
 
           <div className="flex items-center gap-1">
-            {/* Demo button - remove in production */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={simulateNewNotification}
-                    className="h-7 w-7 p-0 text-primary"
-                  >
-                    +
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Add test notification</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-7 w-7 p-0">

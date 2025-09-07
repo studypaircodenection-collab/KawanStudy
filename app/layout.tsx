@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Carlito } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/lib/context/theme-provder";
 import { StructuredData } from "@/components/seo/structured-data";
 import { WebVitals } from "@/components/seo/web-vitals";
 import AuthProvider from "@/lib/context/auth-provider";
 import { Toaster } from "@/components/ui/sonner";
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+
+const carlito = Carlito({
   subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-carlito",
 });
 
 export const metadata: Metadata = {
@@ -23,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={geistSans.className} suppressHydrationWarning>
+    <html lang="en" className={carlito.className} suppressHydrationWarning>
       <head>
         <StructuredData />
         <link rel="icon" href="/favicon.ico" sizes="any" />

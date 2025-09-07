@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Search, ChevronDown, X } from "lucide-react";
+import { Loader2, Search, ChevronDown, X, Upload } from "lucide-react";
 import { PaperCard } from "./paper-card";
 import { PaperUploadForm } from "./paper-upload-form";
 import {
@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
+import Link from "next/link";
 
 interface Paper {
   id: string;
@@ -202,11 +203,20 @@ export function PaperBrowser({ showUploadButton = true }: PaperBrowserProps) {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Paper Library</h1>
-          <p className="text-muted-foreground">
-            Browse and download academic papers shared by the community
-          </p>
+        <div className="w-full flex justify-between items-center gap-2 flex-wrap">
+          <div>
+            <h1 className="text-3xl font-bold">Paper Library</h1>
+            <p className="text-muted-foreground">
+              Browse and download academic papers shared by the community
+            </p>
+          </div>
+
+          <Button className="flex items-center gap-2" asChild>
+            <Link href="/dashboard/past-year/upload">
+              <Upload className="h-4 w-4" />
+              Upload Paper
+            </Link>
+          </Button>
         </div>
 
         {showUploadButton && (

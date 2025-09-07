@@ -9,6 +9,7 @@ import {
   UsersIcon,
 } from "lucide-react";
 import { useAuth } from "@/lib/context/auth-provider";
+import { CustomizedAvatar } from "../ui/customized-avatar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,

@@ -1,17 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, Suspense, lazy } from "react";
+import React, { useState, useEffect, lazy } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Upload,
   BookOpen,
   Users,
   TrendingUp,
-  Star,
   Clock,
   Download,
   Plus,
@@ -372,17 +370,12 @@ export default function NotesPage() {
           <div className="flex items-center gap-3">
             <TrendingUp className="h-6 w-6 text-orange-500" />
             <h2 className="text-2xl font-bold">Trending Notes</h2>
-            <Badge
-              variant="secondary"
-              className="bg-orange-100 text-orange-700 animate-pulse"
-            >
-              <Star className="h-3 w-3 mr-1" />
-              Hot
-            </Badge>
           </div>
-          <Button variant="outline" asChild>
-            <Link href={"/dashboard/notes/browse"}>View All</Link>
-          </Button>
+          {trendingNotes.length > 0 && (
+            <Button variant="outline" asChild>
+              <Link href={"/dashboard/notes/browse"}>View All</Link>
+            </Button>
+          )}
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -399,12 +392,6 @@ export default function NotesPage() {
               <p className="text-muted-foreground mb-4">
                 Be the first to upload a note and get it trending!
               </p>
-              <Link href="/dashboard/notes/upload">
-                <Button>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Note
-                </Button>
-              </Link>
             </div>
           )}
         </div>
@@ -414,62 +401,62 @@ export default function NotesPage() {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Recent Uploads */}
         <div className="lg:col-span-2">
-          <div className="flex items-center gap-3 mb-6">
-            <Clock className="h-6 w-6 text-green-500" />
-            <h2 className="text-2xl font-bold">Recent Uploads</h2>
-            <Badge variant="secondary" className="bg-green-100 text-green-700">
-              Fresh
-            </Badge>
-          </div>
-
           <div className="space-y-4">
             {recentUploads.length > 0 ? (
-              recentUploads.map((upload) => (
-                <Link
-                  key={upload.id}
-                  href={`/dashboard/notes/${upload.id}`}
-                  className="my-4 block"
-                >
-                  <Card className=" transition-all duration-300 cursor-pointer">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center text-white relative overflow-hidden">
-                            <FileText className="h-6 w-6 z-10" />
-                            <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+              <>
+                {" "}
+                <div className="flex items-center gap-3 mb-6">
+                  <Clock className="h-6 w-6 text-green-500" />
+                  <h2 className="text-2xl font-bold">Recent Uploads</h2>
+                  <Badge
+                    variant="secondary"
+                    className="bg-green-100 text-green-700"
+                  >
+                    Fresh
+                  </Badge>
+                </div>
+                {recentUploads.map((upload) => (
+                  <Link
+                    key={upload.id}
+                    href={`/dashboard/notes/${upload.id}`}
+                    className="my-4 block"
+                  >
+                    <Card className=" transition-all duration-300 cursor-pointer">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center text-white relative overflow-hidden">
+                              <FileText className="h-6 w-6 z-10" />
+                              <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="font-semibold flex items-center gap-2">
+                                {upload.title}
+                                <Badge className="bg-green-500 text-xs animate-pulse">
+                                  NEW
+                                </Badge>
+                              </h3>
+                              <p className="text-sm text-muted-foreground">
+                                by{" "}
+                                <span className="font-medium text-primary">
+                                  {upload.userProfile?.fullName ||
+                                    upload.userProfile?.username ||
+                                    "Unknown"}
+                                </span>{" "}
+                                • {upload.subject}
+                              </p>
+                            </div>
                           </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold flex items-center gap-2">
-                              {upload.title}
-                              <Badge className="bg-green-500 text-xs animate-pulse">
-                                NEW
-                              </Badge>
-                            </h3>
-                            <p className="text-sm text-muted-foreground">
-                              by{" "}
-                              <span className="font-medium text-primary">
-                                {upload.userProfile?.fullName ||
-                                  upload.userProfile?.username ||
-                                  "Unknown"}
-                              </span>{" "}
-                              • {upload.subject}
-                            </p>
+                          <div className="text-sm text-muted-foreground">
+                            {formatTimeAgo(upload.createdAt)}
                           </div>
                         </div>
-                        <div className="text-sm text-muted-foreground">
-                          {formatTimeAgo(upload.createdAt)}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))
-            ) : (
-              <div className="text-center py-8">
-                <Clock className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-muted-foreground">No recent uploads</p>
-              </div>
-            )}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </>
+            ) : null}
 
             <Card className="border-dashed border-2 transition-all cursor-pointer group">
               <CardContent className="p-8 text-center">
@@ -579,21 +566,11 @@ export default function NotesPage() {
                     Total Notes
                   </div>
                 </div>
-                <div className="text-center p-3 bg-secondary/5 rounded-lg">
-                  <div className="text-2xl font-bold text-secondary">
+                <div className="text-center p-3 bg-primary/5 rounded-lg">
+                  <div className="text-2xl font-bold text-primary ">
                     {stats ? formatNumber(stats.total_downloads) : "---"}
                   </div>
                   <div className="text-xs text-muted-foreground">Downloads</div>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Most Active Subject</span>
-                  <span className="font-medium">Mathematics</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Growth This Week</span>
-                  <span className="font-medium text-green-600">+12%</span>
                 </div>
               </div>
             </CardContent>
@@ -638,7 +615,7 @@ export default function NotesPage() {
         </div>
       </div>
       {/* Study Tip */}
-      <Card className="w-full bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
+      {/* <Card className="w-full bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="h-4 w-4 text-primary" />
@@ -649,7 +626,7 @@ export default function NotesPage() {
             explain concepts without looking at your notes!&rdquo;
           </p>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 }

@@ -1,6 +1,11 @@
 import { PaperBrowser } from "@/components/papers/paper-browser";
-const page = () => {
-  return <PaperBrowser />;
+
+const BrowsePage = () => {
+  return (
+    <div className="container mx-auto py-6">
+      <PaperBrowser showUploadButton={false} />
+    </div>
+  );
 };
 
-export default page;
+export default BrowsePage;

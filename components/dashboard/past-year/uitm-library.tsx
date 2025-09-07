@@ -331,19 +331,21 @@ const UiTMLibrary = () => {
         <Card>
           <CardContent className="text-center py-12">
             <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg">No exam papers found.</p>
-            <p className="text-gray-400 text-sm mt-2">
+            <Text as="p" styleVariant="muted" className="text-lg">
+              No exam papers found.
+            </Text>
+            <Text as="p" styleVariant="muted" className="text-sm mt-2">
               Try adjusting your search criteria or clear filters to see more
               results.
-            </p>
+            </Text>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <p className="text-sm text-gray-600">
+            <Text as="p" styleVariant="muted">
               Showing {papers.length} exam papers
-            </p>
+            </Text>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-4">

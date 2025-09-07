@@ -14,53 +14,27 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   ShoppingBag,
-  Coins,
   BookOpen,
   Users,
   MessageSquare,
   Trophy,
-  Calendar,
   Bell,
   Target,
   Star,
-  TrendingUp,
   Clock,
-  FileText,
   Video,
-  Settings,
-  Gift,
   Zap,
   Brain,
-  PenTool,
   Award,
-  Activity,
-  BarChart3,
   CheckCircle,
   Flame,
   PlayCircle,
-  Plus,
-  ArrowUp,
-  ArrowRight,
-  Heart,
-  Share2,
-  Download,
-  Upload,
-  Eye,
-  Timer,
-  Sparkles,
   ChevronRight,
-  BookmarkPlus,
-  GraduationCap,
   Lightbulb,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { DailyClaimButton } from "@/components/dashboard/daily-claim-button";
-import { GamificationDashboard } from "@/components/gamification/gamification-dashboard";
-
 export default function ProtectedPage() {
   const { claims } = useAuth();
   const { userStats, achievements, dailyChallenges } = useGamification();
@@ -234,7 +208,7 @@ export default function ProtectedPage() {
         {/* Hero Header */}
         <div className="relative overflow-hidden rounded-lg bg-primary p-8 text-primary-foreground">
           <div className="relative z-10">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col-reverse  md:flex-row items-center justify-between">
               <div>
                 <h1 className="text-4xl font-bold mb-2">
                   {greeting},{" "}
@@ -252,7 +226,7 @@ export default function ProtectedPage() {
                   })}
                 </p>
               </div>
-              <div className="text-right">
+              <div className="text-right w-full md:w-1/4">
                 <Badge
                   variant="secondary"
                   className="bg-primary/20 text-primary-foreground border-primary/30 mb-2"
@@ -264,7 +238,7 @@ export default function ProtectedPage() {
                   })}
                 </Badge>
                 {claims && (
-                  <div className="mt-4">
+                  <div className="w-full">
                     <UserProfileCard
                       userId={claims.sub}
                       username={claims.username || "User"}
@@ -326,7 +300,7 @@ export default function ProtectedPage() {
           {/* Left Column - Notices & Quick Actions */}
           <div className="lg:col-span-2 space-y-6">
             {/* Notice Board */}
-            <Card className="border-0 shadow-lg">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Bell className="h-5 w-5" />
@@ -381,7 +355,7 @@ export default function ProtectedPage() {
             </Card>
 
             {/* Quick Actions Grid */}
-            <Card className="border-0 shadow-lg">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Zap className="h-5 w-5 text-primary" />
@@ -395,7 +369,7 @@ export default function ProtectedPage() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {quickActions.map((action, index) => (
                     <Link key={index} href={action.href}>
-                      <Card className="cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg border-0 group">
+                      <Card className="cursor-pointer transition-all duration-300 group">
                         <CardContent className="p-4">
                           <div className="flex flex-col items-center text-center space-y-3">
                             <div className="p-4 rounded-2xl bg-primary text-primary-foreground group-hover:scale-110 transition-transform">
@@ -422,7 +396,7 @@ export default function ProtectedPage() {
           {/* Right Column - Activity Feed & Challenges */}
           <div className="space-y-6">
             {/* Today's Challenges */}
-            <Card className="border-0 shadow-lg">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Target className="h-5 w-5" />
@@ -489,8 +463,8 @@ export default function ProtectedPage() {
             </Card>
 
             {/* Recent Achievements */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
+            <Card>
+              <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Award className="h-5 w-5" />
                   🏆 Recent Achievements
@@ -498,25 +472,27 @@ export default function ProtectedPage() {
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-3">
-                  {achievements?.slice(0, 3).map((achievement, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
-                    >
-                      <div className="text-2xl">🏆</div>
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">
-                          {achievement.achievement_title}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {achievement.achievement_description}
-                        </p>
+                  {achievements.length > 0 ? (
+                    achievements?.slice(0, 3).map((achievement, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-3 p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
+                      >
+                        <div className="text-2xl">🏆</div>
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">
+                            {achievement.achievement_title}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {achievement.achievement_description}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className="bg-card">
+                          {achievement.achievement_name}
+                        </Badge>
                       </div>
-                      <Badge variant="outline" className="bg-card">
-                        {achievement.achievement_name}
-                      </Badge>
-                    </div>
-                  )) || (
+                    ))
+                  ) : (
                     <div className="text-center py-6">
                       <Star className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
                       <p className="text-sm text-muted-foreground">
@@ -529,7 +505,7 @@ export default function ProtectedPage() {
             </Card>
 
             {/* Study Tips */}
-            <Card className="border-0 shadow-lg bg-secondary">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-foreground">
                   <Lightbulb className="h-5 w-5" />
@@ -547,12 +523,6 @@ export default function ProtectedPage() {
                     <Badge variant="outline" className="text-xs">
                       Study Method
                     </Badge>
-                    <div className="flex gap-1">
-                      <Heart className="h-4 w-4 text-primary" />
-                      <span className="text-xs text-muted-foreground">
-                        127 likes
-                      </span>
-                    </div>
                   </div>
                 </div>
               </CardContent>

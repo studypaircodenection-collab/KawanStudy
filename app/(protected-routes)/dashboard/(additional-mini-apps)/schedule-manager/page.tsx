@@ -4,12 +4,32 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useSchedule } from "@/hooks/use-schedule";
 import { ScheduleForm } from "@/components/schedule/schedule-form";
 import { ScheduleTable } from "@/components/schedule/schedule-table";
 import { ScheduleGrid } from "@/components/schedule/schedule-grid";
 import { ScheduleStats } from "@/components/schedule/schedule-stats";
 import { Text } from "@/components/ui/typography";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Plus,
   Calendar,
@@ -24,7 +44,7 @@ import {
 } from "lucide-react";
 import { ScheduleEntry } from "@/types/schedule";
 import { toast } from "sonner";
-
+import { Alert } from "@/components/ui/alert";
 export default function ScheduleGeneratorPage() {
   const {
     entries,
@@ -132,17 +152,11 @@ export default function ScheduleGeneratorPage() {
   };
 
   const handleClearAll = () => {
-    if (
-      confirm(
-        "Are you sure you want to delete all schedule entries? This action cannot be undone."
-      )
-    ) {
-      try {
-        clearAllEntries();
-        toast.success("All schedule entries cleared successfully!");
-      } catch (error) {
-        toast.error("Failed to clear schedule entries");
-      }
+    try {
+      clearAllEntries();
+      toast.success("All schedule entries cleared successfully!");
+    } catch (error) {
+      toast.error("Failed to clear schedule entries");
     }
   };
 
@@ -184,7 +198,7 @@ export default function ScheduleGeneratorPage() {
 
       {/* Quick Stats */}
       {allEntries.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -222,25 +236,6 @@ export default function ScheduleGeneratorPage() {
               <Text as="p" className="text-2xl">
                 {stats.averagePerDay} hours
               </Text>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5 text-orange-600" />
-                <Text as="h3">Export Data</Text>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExport}
-                className="w-full text-xs"
-              >
-                <Download className="h-3 w-3 mr-1" />
-                Export
-              </Button>
             </CardContent>
           </Card>
         </div>
@@ -303,35 +298,46 @@ export default function ScheduleGeneratorPage() {
                   <h3 className="text-lg font-medium">Display Options</h3>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium">Time Format</label>
-                      <select
+                      <Label
+                        htmlFor="time-format"
+                        className="text-sm font-medium"
+                      >
+                        Time Format
+                      </Label>
+                      <Select
                         value={settings.timeFormat}
-                        onChange={(e) =>
+                        onValueChange={(value: "12h" | "24h") =>
                           setSettings({
                             ...settings,
-                            timeFormat: e.target.value as "12h" | "24h",
+                            timeFormat: value,
                           })
                         }
-                        className="px-3 py-1 border rounded-md text-sm"
                       >
-                        <option value="12h">12 Hour</option>
-                        <option value="24h">24 Hour</option>
-                      </select>
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="12h">12 Hour</SelectItem>
+                          <SelectItem value="24h">24 Hour</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium">
+                      <Label
+                        htmlFor="show-weekends"
+                        className="text-sm font-medium"
+                      >
                         Show Weekends
-                      </label>
-                      <input
-                        type="checkbox"
+                      </Label>
+                      <Checkbox
+                        id="show-weekends"
                         checked={settings.showWeekends}
-                        onChange={(e) =>
+                        onCheckedChange={(checked) =>
                           setSettings({
                             ...settings,
-                            showWeekends: e.target.checked,
+                            showWeekends: checked === true,
                           })
                         }
-                        className="rounded"
                       />
                     </div>
                   </div>
@@ -373,27 +379,47 @@ export default function ScheduleGeneratorPage() {
                         </label>
                       </Button>
                     </div>
-                    <Button
-                      variant="destructive"
-                      onClick={handleClearAll}
-                      className="w-full justify-start"
-                      disabled={allEntries.length === 0}
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Clear All Entries
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          className="w-full justify-start"
+                          disabled={allEntries.length === 0}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Clear All Entries
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Confirm Clear All Entries?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action will permanently delete all schedule
+                            entries. This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleClearAll}>
+                            Confirm
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+              <div className="mt-6 p-4 bg-primary/20 rounded-lg">
                 <div className="flex items-start gap-3">
-                  <Info className="h-5 w-5 text-blue-600 mt-0.5" />
+                  <Info className="h-5 w-5 text-primary mt-0.5" />
                   <div className="text-sm">
-                    <h4 className="font-medium text-blue-900 mb-1">
+                    <h4 className="font-medium text-primary mb-1">
                       Tips for better scheduling:
                     </h4>
-                    <ul className="text-blue-800 space-y-1">
+                    <ul className="text-primary space-y-1">
                       <li>
                         • Use different colors for different types of activities
                       </li>

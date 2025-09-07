@@ -34,6 +34,14 @@ export function SearchForm() {
   const { isMobile } = useSidebar();
   const router = useRouter();
 
+  // Detect if user is on Mac or Windows/Linux
+  const isMac = React.useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+  }, []);
+
+  const commandKey = isMac ? "⌘" : "Ctrl";
+
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "p" && (e.metaKey || e.ctrlKey)) {
@@ -62,20 +70,21 @@ export function SearchForm() {
   }, []);
 
   return (
-    <div className="w-full sm:ml-auto sm:w-auto">
-      <div className="flex gap-2 items-center">
-        {!isMobile ? (
-          <p className="text-muted-foreground text-sm">
-            <kbd className="bg-muted text-muted-foreground pointer-events-none inline-flex h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-100 select-none">
-              <span className="text-xs">⌘</span>J
-            </kbd>
-          </p>
-        ) : null}
+    <div className="sm:w-full w-auto max-w-sm">
+      <div className="relative w-full ">
         <Input
           placeholder="Search"
           onClick={() => setOpen(true)}
-          className="cursor-pointer"
+          className="cursor-pointer pr-16 w-full "
+          readOnly
         />
+        {!isMobile && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+            <kbd className="bg-muted text-muted-foreground inline-flex h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-70 select-none">
+              <span className="text-xs">{commandKey}</span>+ J
+            </kbd>
+          </div>
+        )}
       </div>
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder="Search for your friend or Notes..." />
@@ -160,21 +169,21 @@ export function SearchForm() {
                 >
                   <User />
                   <span>My Profile</span>
-                  <CommandShortcut>⌘P</CommandShortcut>
+                  <CommandShortcut>{commandKey} + P</CommandShortcut>
                 </Link>
               </CommandItem>
               <CommandItem asChild>
                 <Link href={`/dashboard/peer`} onClick={() => setOpen(false)}>
                   <UsersIcon />
                   <span>Peers</span>
-                  <CommandShortcut>⌘P</CommandShortcut>
+                  <CommandShortcut>{commandKey} + F</CommandShortcut>
                 </Link>
               </CommandItem>
               <CommandItem asChild>
                 <Link href="/dashboard/settings" onClick={() => setOpen(false)}>
                   <Settings />
                   <span>Settings</span>
-                  <CommandShortcut>⌘S</CommandShortcut>
+                  <CommandShortcut>{commandKey} + S</CommandShortcut>
                 </Link>
               </CommandItem>
             </CommandGroup>

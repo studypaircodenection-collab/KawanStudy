@@ -123,7 +123,7 @@ export function ThumbnailUpload({
         <Card className="overflow-hidden">
           <CardContent className="p-0">
             <div className="relative">
-              <div className="aspect-video w-full overflow-hidden bg-gray-100">
+              <div className="aspect-video w-full overflow-hidden bg-background">
                 <Image
                   src={imagePreview}
                   alt="Thumbnail preview"
@@ -143,7 +143,7 @@ export function ThumbnailUpload({
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            <div className="p-3 bg-gray-50">
+            <div className="p-3">
               <p className="text-sm font-medium">{selectedImage?.name}</p>
               <p className="text-xs text-muted-foreground">
                 {selectedImage && (selectedImage.size / 1024).toFixed(1)} KB
@@ -166,8 +166,8 @@ export function ThumbnailUpload({
           onDrop={handleDrop}
         >
           <CardContent className="flex flex-col items-center justify-center p-8 text-center">
-            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-              <ImageIcon className="h-8 w-8 text-gray-400" />
+            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-background mb-4">
+              <ImageIcon className="h-8 w-8 text-muted-foreground" />
             </div>
 
             <h3 className="text-lg font-medium mb-2">Upload Thumbnail</h3>

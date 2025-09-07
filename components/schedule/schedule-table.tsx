@@ -332,7 +332,10 @@ export function ScheduleTable({
               sortedEntries.map((entry) => {
                 const typeInfo = getTypeInfo(entry.type);
                 return (
-                  <TableRow key={entry.id} className="hover:bg-gray-50">
+                  <TableRow
+                    key={entry.id}
+                    className="hover:bg-muted-foreground"
+                  >
                     <TableCell>
                       <div className="space-y-1">
                         <div className="font-medium">{entry.subject}</div>
@@ -371,19 +374,19 @@ export function ScheduleTable({
                     <TableCell>
                       <div className="space-y-1 text-sm">
                         {entry.location && (
-                          <div className="flex items-center gap-1 text-gray-600">
+                          <div className="flex items-center gap-1 text-muted-foreground">
                             <MapPin className="h-3 w-3" />
                             {entry.location}
                           </div>
                         )}
                         {entry.instructor && (
-                          <div className="flex items-center gap-1 text-gray-600">
+                          <div className="flex items-center gap-1 text-muted-foreground">
                             <User className="h-3 w-3" />
                             {entry.instructor}
                           </div>
                         )}
                         {entry.credits && entry.credits > 0 && (
-                          <div className="text-gray-600">
+                          <div className="text-muted-foreground">
                             {entry.credits}{" "}
                             {entry.credits === 1 ? "credit" : "credits"}
                           </div>

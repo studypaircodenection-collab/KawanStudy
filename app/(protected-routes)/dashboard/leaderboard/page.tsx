@@ -63,8 +63,8 @@ async function LeaderboardContent() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
+      <Card className="bg-transparent border-0 p-0">
+        <CardHeader className="p-0">
           <CardTitle className="flex items-center gap-2">
             <Trophy className="h-5 w-5" />
             Full Leaderboard
@@ -76,7 +76,7 @@ async function LeaderboardContent() {
             </p>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <Leaderboard entries={entries} showTop={50} />
         </CardContent>
       </Card>

@@ -1,10 +1,9 @@
 "use client";
 
-import { SidebarIcon, Trophy } from "lucide-react";
+import { CirclePlusIcon, ShoppingBag, SidebarIcon, Trophy } from "lucide-react";
 import DashboardBreadcrumbs from "@/components/dashboard/dashboard-breadcrumbs";
 import { SearchForm } from "@/components/dashboard/search-form";
 import NotificationPopup from "./notification-popup";
-import { StoreButton } from "./store-button";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -13,6 +12,15 @@ import { useAuth } from "@/lib/context/auth-provider";
 import Link from "next/link";
 import { MessageCircleIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+} from "../ui/dropdown-menu";
 
 export function SiteHeader() {
   const { toggleSidebar } = useSidebar();
@@ -45,18 +53,18 @@ export function SiteHeader() {
     };
 
     // Add event listeners
-    window.addEventListener('points-updated', handlePointsUpdate);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', handlePointsUpdate);
+    window.addEventListener("points-updated", handlePointsUpdate);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handlePointsUpdate);
 
     // Cleanup function
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
-      window.removeEventListener('points-updated', handlePointsUpdate);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', handlePointsUpdate);
+      window.removeEventListener("points-updated", handlePointsUpdate);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handlePointsUpdate);
     };
   }, [claims, refreshStats]);
 
@@ -72,22 +80,60 @@ export function SiteHeader() {
           <SidebarIcon />
         </Button>
         <Separator orientation="vertical" className="mr-2 h-4" />
-        <DashboardBreadcrumbs />
-        <SearchForm />
-        
+        <div className="flex gap-2 w-full">
+          <SearchForm />
+          <DashboardBreadcrumbs />
+        </div>
         {/* Points Display & Store */}
         {claims && (
           <>
             <div className="flex items-center gap-2 px-3 py-1 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-full">
               <Trophy className="h-4 w-4 text-amber-600 dark:text-amber-400" />
               <span className="text-sm font-medium text-amber-700 dark:text-amber-300">
-                {statsLoading ? "..." : userStats?.profile?.total_points?.toLocaleString() || "0"}
+                {statsLoading
+                  ? "..."
+                  : userStats?.profile?.total_points?.toLocaleString()}
               </span>
             </div>
-            <StoreButton />
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              className="relative hover:bg-accent transition-colors"
+            >
+              <Link href="/dashboard/store">
+                <ShoppingBag className="h-5 w-5" />
+                <span className="sr-only">Points Store</span>
+              </Link>
+            </Button>
           </>
         )}
-        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              size={"icon"}
+              variant={"ghost"}
+              className="relative hover:bg-accent transition-colors"
+            >
+              <CirclePlusIcon className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>Create or Upload</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
+                <Link href={"/dashboard/quiz/create"}>New Quiz</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link href={"/dashboard/notes/upload"}>New Notes</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link href={"/dashboard/past-year/"}>New Past Year Paper</Link>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Button size={"icon"} variant={"ghost"} asChild>
           <Link href="/dashboard/chat">
             <MessageCircleIcon />
