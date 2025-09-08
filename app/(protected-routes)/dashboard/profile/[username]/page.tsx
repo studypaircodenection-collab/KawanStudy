@@ -63,9 +63,9 @@ interface ProfileNotesResponse {
   hasMore: boolean;
 }
 interface ProfilePageProps {
-  params: {
+  params: Promise<{
     username: string;
-  };
+  }>;
 }
 
 async function getUserProfile(username: string): Promise<UserProfile | null> {
@@ -287,7 +287,8 @@ async function getUserNotes(userId: string): Promise<ProfileNotesResponse> {
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
-  const profile = await getUserProfile(params.username);
+  const { username } = await params;
+  const profile = await getUserProfile(username);
 
   if (!profile) {
     notFound();
@@ -295,7 +296,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   // Get current user info to determine if this is their own profile
   const currentUser = await getCurrentUser();
-  const isOwnProfile = currentUser.username === params.username;
+  const isOwnProfile = currentUser.username === username;
 
   const [achievements, pointHistory, connectionsCount, notesData] =
     await Promise.all([
@@ -344,9 +345,11 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 <CustomizedAvatar
                   userId={profile.id}
                   src={profile.avatar_url || ""}
-                  fallback={profile.full_name?.charAt(0) ||
+                  fallback={
+                    profile.full_name?.charAt(0) ||
                     profile.username?.charAt(0) ||
-                    "U"}
+                    "U"
+                  }
                   size="xl"
                   showBadges={true}
                   showTitle={true}
@@ -388,7 +391,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     <div className="flex gap-2">
                       <ConnectionButton
                         targetUserId={profile.id}
-                        targetUsername={params.username}
+                        targetUsername={username}
                         targetFullName={profile.full_name}
                       />
                     </div>

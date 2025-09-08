@@ -21,9 +21,9 @@ import {
 import Link from "next/link";
 
 interface ChatPageProps {
-  params: {
+  params: Promise<{
     username: string;
-  };
+  }>;
 }
 
 async function getCurrentUser(): Promise<{
@@ -99,21 +99,22 @@ function ChatSkeleton() {
 }
 
 async function ChatContent({ params }: ChatPageProps) {
+  const resolvedParams = await params;
   const currentUser = await getCurrentUser();
 
   if (!currentUser.username) {
     redirect("/auth/login");
   }
 
-  const targetProfile = await getUserProfile(params.username);
+  const targetProfile = await getUserProfile(resolvedParams.username);
 
   if (!targetProfile) {
     notFound();
   }
 
   // Don't allow chatting with yourself
-  if (currentUser.username === params.username) {
-    redirect(`/dashboard/profile/${params.username}`);
+  if (currentUser.username === resolvedParams.username) {
+    redirect(`/dashboard/profile/${resolvedParams.username}`);
   }
 
   return (
@@ -163,7 +164,7 @@ async function ChatContent({ params }: ChatPageProps) {
 
         <CardContent className="flex-1 p-0 overflow-hidden">
           <PersistentChat
-            targetUsername={params.username}
+            targetUsername={resolvedParams.username}
             currentUsername={currentUser.username}
           />
         </CardContent>

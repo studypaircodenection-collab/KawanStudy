@@ -3,11 +3,11 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const noteId = params.id;
+    const { id: noteId } = await params;
     const { action } = await request.json();
 
     // Check authentication for certain actions

@@ -19,9 +19,9 @@ import {
 import { UserProfile } from "@/lib/types";
 
 interface AchievementPageProps {
-  params: {
+  params: Promise<{
     username: string;
-  };
+  }>;
 }
 
 interface Achievement {

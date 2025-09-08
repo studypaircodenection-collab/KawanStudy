@@ -4,12 +4,11 @@ import { createClient } from "@/lib/supabase/server";
 // PATCH /api/notes/[id]/comments/[commentId] - Update a comment
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string; commentId: string } }
+  { params }: { params: Promise<{ id: string; commentId: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const noteId = params.id;
-    const commentId = params.commentId;
+    const { id: noteId, commentId } = await params;
 
     // Get current user
     const {
@@ -106,12 +105,11 @@ export async function PATCH(
 // DELETE /api/notes/[id]/comments/[commentId] - Delete a comment
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; commentId: string } }
+  { params }: { params: Promise<{ id: string; commentId: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const noteId = params.id;
-    const commentId = params.commentId;
+    const { id: noteId, commentId } = await params;
 
     // Get current user
     const {

@@ -4,11 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 // POST /api/quiz/[id]/submit - Submit quiz answers and get results
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const { id: quizId } = params;
+    const { id: quizId } = await params;
 
     // Get current user
     const {

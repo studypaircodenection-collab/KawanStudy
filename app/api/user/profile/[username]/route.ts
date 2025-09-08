@@ -3,11 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { username: string } }
+  { params }: { params: Promise<{ username: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const { username } = params;
+    const { username } = await params;
 
     if (!username) {
       return NextResponse.json(
