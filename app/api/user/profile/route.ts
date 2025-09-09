@@ -31,12 +31,18 @@ export async function GET() {
         year_of_study,
         major,
         avatar_url,
+        header_image_url,
         total_points,
         current_streak,
         longest_streak,
         level,
         experience_points,
         last_activity_date,
+        linkedin_url,
+        github_url,
+        instagram_url,
+        tiktok_url,
+        website_url,
         created_at,
         updated_at
       `
@@ -95,6 +101,12 @@ export async function PUT(request: NextRequest) {
       year_of_study,
       major,
       avatar_url,
+      header_image_url,
+      linkedin_url,
+      github_url,
+      instagram_url,
+      tiktok_url,
+      website_url,
     } = body;
 
     // Validate required fields
@@ -150,6 +162,12 @@ export async function PUT(request: NextRequest) {
         year_of_study: year_of_study || null,
         major: major || null,
         avatar_url: avatar_url || "/api/placeholder/100/100",
+        header_image_url: header_image_url || null,
+        linkedin_url: linkedin_url || null,
+        github_url: github_url || null,
+        instagram_url: instagram_url || null,
+        tiktok_url: tiktok_url || null,
+        website_url: website_url || null,
         updated_at: new Date().toISOString(),
       })
       .select()

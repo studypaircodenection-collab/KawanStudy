@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-interface Claims {
+export interface Claims {
   sub: string;
   email: string;
   full_name?: string | "N/A";
@@ -11,6 +11,12 @@ interface Claims {
   bio?: string | "N/A";
   location?: string | "N/A";
   avatar_url?: string | "N/A";
+  header_image_url?: string | "N/A";
+  linkedin_url?: string | "N/A";
+  github_url?: string | "N/A";
+  instagram_url?: string | "N/A";
+  tiktok_url?: string | "N/A";
+  website_url?: string | "N/A";
   academic?: {
     university?: string | "N/A";
     major?: string | "N/A";

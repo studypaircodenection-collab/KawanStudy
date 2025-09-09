@@ -20,6 +20,14 @@ export interface UserProfile {
   year_of_study: string | null;
   major: string | null;
   avatar_url: string | null;
+  header_image_url: string | null;
+
+  // Social media links
+  linkedin_url: string | null;
+  github_url: string | null;
+  instagram_url: string | null;
+  tiktok_url: string | null;
+  website_url: string | null;
 
   // Gamification fields
   total_points: number;

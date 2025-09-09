@@ -83,6 +83,12 @@ export interface ProfileSeedData {
   year_of_study: string;
   major: string;
   avatar_url?: string;
+  header_image_url?: string;
+  linkedin_url?: string;
+  github_url?: string;
+  instagram_url?: string;
+  tiktok_url?: string;
+  website_url?: string;
   total_points: number;
   level: number;
   experience_points: number;
@@ -129,6 +135,36 @@ export function generateProfileSeedData(
       avatar_url: faker.helpers.maybe(() => faker.image.avatar(), {
         probability: 0.6,
       }),
+      header_image_url: faker.helpers.maybe(
+        () =>
+          faker.image.urlLoremFlickr({
+            width: 1200,
+            height: 300,
+            category: "nature,city,abstract",
+          }),
+        { probability: 0.4 }
+      ),
+      // Social media links (optional, with realistic probability)
+      linkedin_url: faker.helpers.maybe(
+        () => `https://linkedin.com/in/${username.toLowerCase()}`,
+        { probability: 0.4 }
+      ),
+      github_url: faker.helpers.maybe(
+        () => `https://github.com/${username.toLowerCase()}`,
+        { probability: 0.3 }
+      ),
+      instagram_url: faker.helpers.maybe(
+        () => `https://instagram.com/${username.toLowerCase()}`,
+        { probability: 0.5 }
+      ),
+      tiktok_url: faker.helpers.maybe(
+        () => `https://tiktok.com/@${username.toLowerCase()}`,
+        { probability: 0.2 }
+      ),
+      website_url: faker.helpers.maybe(
+        () => `https://${username.toLowerCase()}.dev`,
+        { probability: 0.15 }
+      ),
       total_points: totalPoints,
       level,
       experience_points: experiencePoints,
@@ -161,6 +197,12 @@ export function generateProfileInsertSQL(profiles: ProfileSeedData[]): string {
       '${profile.year_of_study}',
       '${profile.major}',
       ${profile.avatar_url ? `'${profile.avatar_url}'` : "NULL"},
+      ${profile.header_image_url ? `'${profile.header_image_url}'` : "NULL"},
+      ${profile.linkedin_url ? `'${profile.linkedin_url}'` : "NULL"},
+      ${profile.github_url ? `'${profile.github_url}'` : "NULL"},
+      ${profile.instagram_url ? `'${profile.instagram_url}'` : "NULL"},
+      ${profile.tiktok_url ? `'${profile.tiktok_url}'` : "NULL"},
+      ${profile.website_url ? `'${profile.website_url}'` : "NULL"},
       ${profile.total_points},
       ${profile.level},
       ${profile.experience_points},
@@ -174,7 +216,8 @@ export function generateProfileInsertSQL(profiles: ProfileSeedData[]): string {
 -- Insert sample profiles
 INSERT INTO public.profiles (
   id, full_name, username, email, phone, bio, location, university, 
-  year_of_study, major, avatar_url, total_points, level, experience_points,
+  year_of_study, major, avatar_url, header_image_url, linkedin_url, github_url, instagram_url,
+  tiktok_url, website_url, total_points, level, experience_points,
   created_at, updated_at
 ) VALUES
     ${values};

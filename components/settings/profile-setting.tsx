@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, type ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,6 +12,11 @@ import {
   GraduationCap,
   Trash2,
   RefreshCw,
+  Linkedin,
+  Github,
+  Instagram,
+  Globe,
+  ImageIcon,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,34 +45,42 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useAuth } from "@/lib/context/auth-provider";
+import type { Claims } from "@/lib/context/auth-provider";
 import { toast } from "sonner";
 import { profileSchema, ProfileFormData } from "@/lib/validations/profile";
 import { Text } from "@/components/ui/typography";
-
-// Import Claims type from auth provider
-type Claims = {
-  sub: string;
-  email: string;
-  full_name?: string | "N/A";
-  username?: string | "N/A";
-  phone?: string | "N/A";
-  bio?: string | "N/A";
-  location?: string | "N/A";
-  avatar_url?: string | "N/A";
-  academic?: {
-    university?: string | "N/A";
-    major?: string | "N/A";
-    year_of_study?: string | "N/A";
-  };
-  role: string | "N/A";
-  created_at?: string | "N/A";
-  updated_at?: string | "N/A";
-};
+import {
+  ImageCrop,
+  ImageCropApply,
+  ImageCropContent,
+  ImageCropReset,
+} from "@/components/ui/shadcn-io/image-crop";
 
 const ProfileSetting = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const headerImageInputRef = useRef<HTMLInputElement>(null);
   const { claims, setClaims } = useAuth();
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingHeaderImage, setUploadingHeaderImage] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [croppedImage, setCroppedImage] = useState<string | null>(null);
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setCroppedImage(null);
+    }
+  };
+
+  const handleResetImage = () => {
+    setSelectedFile(null);
+    setCroppedImage(null);
+  };
+
+  // NOTE: we no longer early-return when no file is selected; the file input is
+  // triggered via the "Change Photo" button and the cropper is shown when a
+  // file is chosen.
 
   // Initialize form with default values from auth claims
   const form = useForm<ProfileFormData>({
@@ -84,7 +97,16 @@ const ProfileSetting = () => {
         (claims?.academic?.year_of_study as ProfileFormData["yearOfStudy"]) ||
         "",
       major: claims?.academic?.major || "",
-      avatar: claims?.avatar_url || "/api/placeholder/100/100",
+      avatar: claims?.avatar_url || "",
+      headerImage: claims?.header_image_url || "",
+      linkedinUrl:
+        (claims?.linkedin_url !== "N/A" ? claims?.linkedin_url : "") || "",
+      githubUrl: (claims?.github_url !== "N/A" ? claims?.github_url : "") || "",
+      instagramUrl:
+        (claims?.instagram_url !== "N/A" ? claims?.instagram_url : "") || "",
+      tiktokUrl: (claims?.tiktok_url !== "N/A" ? claims?.tiktok_url : "") || "",
+      websiteUrl:
+        (claims?.website_url !== "N/A" ? claims?.website_url : "") || "",
     },
   });
 
@@ -106,6 +128,12 @@ const ProfileSetting = () => {
         year_of_study: data.yearOfStudy || "",
         major: data.major || "",
         avatar_url: data.avatar || "/api/placeholder/100/100",
+        header_image_url: data.headerImage || "",
+        linkedin_url: data.linkedinUrl || "",
+        github_url: data.githubUrl || "",
+        instagram_url: data.instagramUrl || "",
+        tiktok_url: data.tiktokUrl || "",
+        website_url: data.websiteUrl || "",
       };
 
       const response = await fetch("/api/user/profile", {
@@ -131,6 +159,12 @@ const ProfileSetting = () => {
         bio: data.bio,
         location: data.location,
         avatar_url: data.avatar,
+        header_image_url: data.headerImage,
+        linkedin_url: data.linkedinUrl,
+        github_url: data.githubUrl,
+        instagram_url: data.instagramUrl,
+        tiktok_url: data.tiktokUrl,
+        website_url: data.websiteUrl,
         academic: {
           university: data.university,
           major: data.major,
@@ -220,8 +254,77 @@ const ProfileSetting = () => {
     }
   };
 
+  const handleHeaderImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file");
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size must be less than 5MB");
+      return;
+    }
+
+    setUploadingHeaderImage(true);
+
+    try {
+      // Create a FileReader to read the file
+      const reader = new FileReader();
+
+      const imageDataUrl = await new Promise<string>((resolve, reject) => {
+        reader.onload = (e) => {
+          const result = e.target?.result as string;
+          resolve(result);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      // Simulate upload to server
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      form.setValue("headerImage", imageDataUrl, { shouldDirty: true });
+      toast.success("Header image updated successfully!");
+    } catch (error) {
+      console.error("Failed to upload header image:", error);
+      toast.error("Failed to upload image. Please try again.");
+    } finally {
+      setUploadingHeaderImage(false);
+    }
+  };
+
+  const handleRemoveHeaderImage = async () => {
+    setUploadingHeaderImage(true);
+
+    try {
+      // Simulate API call to remove header image
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      form.setValue("headerImage", "", {
+        shouldDirty: true,
+      });
+      toast.success("Header image removed successfully!");
+    } catch (error) {
+      console.error("Failed to remove header image:", error);
+      toast.error("Failed to remove header image. Please try again.");
+    } finally {
+      setUploadingHeaderImage(false);
+    }
+  };
+
   const triggerFileUpload = () => {
     fileInputRef.current?.click();
+  };
+
+  const triggerHeaderImageUpload = () => {
+    headerImageInputRef.current?.click();
   };
 
   const resetForm = () => {
@@ -309,7 +412,178 @@ const ProfileSetting = () => {
               ref={fileInputRef}
               type="file"
               accept="image/*"
-              onChange={handleAvatarUpload}
+              onChange={handleFileChange}
+              className="hidden"
+            />
+
+            {/* Image crop UI - shown when a file is selected */}
+            {selectedFile && !croppedImage && (
+              <div className="w-full mt-4">
+                <ImageCrop
+                  aspect={1}
+                  file={selectedFile}
+                  maxImageSize={5 * 1024 * 1024}
+                  onChange={() => {}}
+                  onComplete={() => {}}
+                  onCrop={(dataUrl: string) => setCroppedImage(dataUrl)}
+                >
+                  <ImageCropContent className="max-w-md" />
+                  <div className="flex items-center gap-2 mt-2">
+                    <ImageCropApply />
+                    <ImageCropReset />
+                    <Button
+                      onClick={async () => {
+                        if (!croppedImage) {
+                          toast.error("Please make a crop before applying.");
+                          return;
+                        }
+                        setUploadingAvatar(true);
+                        try {
+                          // simulate upload latency
+                          await new Promise((r) => setTimeout(r, 800));
+                          form.setValue("avatar", croppedImage, {
+                            shouldDirty: true,
+                          });
+                          toast.success(
+                            "Profile picture updated successfully!"
+                          );
+                          // close cropper
+                          setSelectedFile(null);
+                        } catch (err) {
+                          console.error(err);
+                          toast.error("Failed to apply cropped image");
+                        } finally {
+                          setUploadingAvatar(false);
+                        }
+                      }}
+                      size="sm"
+                      type="button"
+                    >
+                      Apply Crop
+                    </Button>
+                    <Button
+                      onClick={handleResetImage}
+                      size="icon"
+                      type="button"
+                      variant="ghost"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </ImageCrop>
+              </div>
+            )}
+
+            {/* Preview of cropped image */}
+            {croppedImage && (
+              <div className="mt-4 flex items-center gap-4">
+                <img
+                  src={croppedImage}
+                  alt="Cropped preview"
+                  width={100}
+                  height={100}
+                  className="rounded"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => {
+                      // commit preview to form
+                      form.setValue("avatar", croppedImage, {
+                        shouldDirty: true,
+                      });
+                      setSelectedFile(null);
+                      setCroppedImage(null);
+                      toast.success("Profile picture updated successfully!");
+                    }}
+                    size="sm"
+                    type="button"
+                  >
+                    Use Image
+                  </Button>
+                  <Button
+                    onClick={handleResetImage}
+                    size="icon"
+                    type="button"
+                    variant="ghost"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Header Image Section */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium">Profile Header Image</h3>
+                <p className="text-sm text-muted-foreground">
+                  Upload a header image for your profile
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {/* Header Image Preview */}
+                <div className="w-full h-32 rounded-lg border-2 border-dashed border-muted-foreground/25 overflow-hidden relative">
+                  {watchedValues.headerImage ? (
+                    <img
+                      src={watchedValues.headerImage}
+                      alt="Header"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                      <div className="text-center text-muted-foreground">
+                        <ImageIcon className="h-8 w-8 mx-auto mb-2" />
+                        <p className="text-sm">No header image</p>
+                      </div>
+                    </div>
+                  )}
+                  {uploadingHeaderImage && (
+                    <div className="absolute inset-0 bg-background bg-opacity-50 flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Header Image Actions */}
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={triggerHeaderImageUpload}
+                    disabled={uploadingHeaderImage}
+                  >
+                    <Camera className="h-4 w-4 mr-2" />
+                    {watchedValues.headerImage
+                      ? "Change Header"
+                      : "Upload Header"}
+                  </Button>
+                  {watchedValues.headerImage && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={handleRemoveHeaderImage}
+                      disabled={uploadingHeaderImage}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Remove
+                    </Button>
+                  )}
+                </div>
+                <Text as="p" styleVariant="muted">
+                  JPG, PNG, GIF up to 5MB. Recommended size: 1200x300px
+                </Text>
+              </div>
+            </div>
+
+            {/* Hidden header image file input */}
+            <input
+              ref={headerImageInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleHeaderImageUpload}
               className="hidden"
             />
 
@@ -509,6 +783,123 @@ const ProfileSetting = () => {
                         <SelectItem value="PhD">PhD</SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Social Media Links</CardTitle>
+            <CardDescription>
+              Add links to your social media profiles and personal website
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="linkedinUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>LinkedIn Profile</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Linkedin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input
+                          placeholder="https://linkedin.com/in/your-profile"
+                          className="pl-10"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="githubUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>GitHub Profile</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Github className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input
+                          placeholder="https://github.com/your-username"
+                          className="pl-10"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="instagramUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Instagram</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Instagram className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input
+                          placeholder="https://instagram.com/your-username"
+                          className="pl-10"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="tiktokUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>TikTok</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input
+                          placeholder="https://tiktok.com/@your-username"
+                          className="pl-10"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="websiteUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Personal Website</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input
+                          placeholder="https://your-website.com"
+                          className="pl-10"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Gift, Loader2 } from "lucide-react";
 import { useDailyClaim } from "@/hooks/use-daily-claim";
 
@@ -8,7 +14,7 @@ export function DailyClaimButton() {
 
   if (isLoading) {
     return (
-      <Card className="w-full max-w-md">
+      <Card className="w-full">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Gift className="h-5 w-5" />
@@ -26,17 +32,16 @@ export function DailyClaimButton() {
   }
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Gift className="h-5 w-5" />
           Daily Bonus
         </CardTitle>
         <CardDescription>
-          {canClaim 
-            ? "Claim your free 50 points for today!" 
-            : "Come back tomorrow for more points!"
-          }
+          {canClaim
+            ? "Claim your free 50 points for today!"
+            : "Come back tomorrow for more points!"}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -60,7 +65,7 @@ export function DailyClaimButton() {
             "Already Claimed Today"
           )}
         </Button>
-        
+
         {!canClaim && (
           <p className="text-sm text-muted-foreground text-center mt-2">
             Next claim available tomorrow

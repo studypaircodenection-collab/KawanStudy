@@ -82,6 +82,77 @@ export const profileSchema = z.object({
     ),
 
   avatar: z.string().optional(),
+
+  headerImage: z.string().optional(),
+
+  // Social media links
+  linkedinUrl: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val.trim() === "") return true;
+        return /^https?:\/\/(www\.)?(linkedin\.com\/in\/|linkedin\.com\/company\/).*/.test(
+          val
+        );
+      },
+      {
+        message: "Please enter a valid LinkedIn URL",
+      }
+    ),
+
+  githubUrl: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val.trim() === "") return true;
+        return /^https?:\/\/(www\.)?github\.com\/.*/.test(val);
+      },
+      {
+        message: "Please enter a valid GitHub URL",
+      }
+    ),
+
+  instagramUrl: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val.trim() === "") return true;
+        return /^https?:\/\/(www\.)?instagram\.com\/.*/.test(val);
+      },
+      {
+        message: "Please enter a valid Instagram URL",
+      }
+    ),
+
+  tiktokUrl: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val.trim() === "") return true;
+        return /^https?:\/\/(www\.)?tiktok\.com\/@.*/.test(val);
+      },
+      {
+        message: "Please enter a valid TikTok URL",
+      }
+    ),
+
+  websiteUrl: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val.trim() === "") return true;
+        return /^https?:\/\/.*/.test(val);
+      },
+      {
+        message:
+          "Please enter a valid website URL (must start with http:// or https://)",
+      }
+    ),
 });
 
 export type ProfileFormData = z.infer<typeof profileSchema>;
@@ -98,6 +169,12 @@ export const profileApiSchema = z.object({
   year_of_study: z.string().optional(),
   major: z.string().optional(),
   avatar_url: z.string().optional(),
+  header_image_url: z.string().optional(),
+  linkedin_url: z.string().optional(),
+  github_url: z.string().optional(),
+  instagram_url: z.string().optional(),
+  tiktok_url: z.string().optional(),
+  website_url: z.string().optional(),
 });
 
 export type ProfileApiData = z.infer<typeof profileApiSchema>;

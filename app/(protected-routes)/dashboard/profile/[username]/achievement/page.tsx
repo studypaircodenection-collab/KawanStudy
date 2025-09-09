@@ -131,9 +131,7 @@ const AchievementCard = ({ achievement }: { achievement: Achievement }) => {
   return (
     <Card
       className={`relative ${
-        isEarned
-          ? "bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200"
-          : "opacity-75"
+        isEarned ? " dark:bg-gray-900 bg-gray-100" : "opacity-75"
       }`}
     >
       <CardHeader className="pb-3">

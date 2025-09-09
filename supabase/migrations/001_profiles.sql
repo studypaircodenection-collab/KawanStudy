@@ -20,6 +20,14 @@ create table public.profiles (
   year_of_study text,
   major text,
   avatar_url text,
+  header_image_url text,
+  
+  -- Social media links
+  linkedin_url text,
+  github_url text,
+  instagram_url text,
+  tiktok_url text,
+  website_url text,
   
   -- Gamification fields
   total_points integer default 0,
@@ -36,7 +44,14 @@ create table public.profiles (
   constraint year_of_study_values check (year_of_study in ('1st Year', '2nd Year', '3rd Year', '4th Year', 'Graduate', 'PhD')),
   constraint total_points_positive check (total_points >= 0),
   constraint level_positive check (level >= 1),
-  constraint experience_points_positive check (experience_points >= 0)
+  constraint experience_points_positive check (experience_points >= 0),
+  
+  -- Social media URL constraints
+  constraint linkedin_url_format check (linkedin_url is null or linkedin_url ~ '^https?://(www\.)?(linkedin\.com/in/|linkedin\.com/company/).*'),
+  constraint github_url_format check (github_url is null or github_url ~ '^https?://(www\.)?github\.com/.*'),
+  constraint instagram_url_format check (instagram_url is null or instagram_url ~ '^https?://(www\.)?instagram\.com/.*'),
+  constraint tiktok_url_format check (tiktok_url is null or tiktok_url ~ '^https?://(www\.)?tiktok\.com/@.*'),
+  constraint website_url_format check (website_url is null or website_url ~ '^https?://.*')
 );
 
 -- Create indexes for profiles
@@ -210,6 +225,12 @@ returns table(
   year_of_study text,
   major text,
   avatar_url text,
+  header_image_url text,
+  linkedin_url text,
+  github_url text,
+  instagram_url text,
+  tiktok_url text,
+  website_url text,
   total_points integer,
   level integer,
   experience_points integer,
@@ -227,6 +248,12 @@ begin
     p.year_of_study,
     p.major,
     p.avatar_url,
+    p.header_image_url,
+    p.linkedin_url,
+    p.github_url,
+    p.instagram_url,
+    p.tiktok_url,
+    p.website_url,
     p.total_points,
     p.level,
     p.experience_points,

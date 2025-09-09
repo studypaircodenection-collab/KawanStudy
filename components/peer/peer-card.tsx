@@ -159,11 +159,6 @@ export const PeerCard: React.FC<PeerCardProps> = ({
                     Block User
                   </DropdownMenuItem>
                 )}
-                {onReport && (
-                  <DropdownMenuItem onClick={() => onReport(peer.id)}>
-                    Report User
-                  </DropdownMenuItem>
-                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

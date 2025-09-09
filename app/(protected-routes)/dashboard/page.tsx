@@ -35,6 +35,7 @@ import {
   Lightbulb,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { DailyClaimButton } from "@/components/dashboard/daily-claim-button";
 export default function ProtectedPage() {
   const { claims } = useAuth();
   const { userStats, achievements, dailyChallenges } = useGamification();
@@ -461,7 +462,7 @@ export default function ProtectedPage() {
                 </div>
               </CardContent>
             </Card>
-
+            <DailyClaimButton />
             {/* Recent Achievements */}
             <Card>
               <CardHeader>

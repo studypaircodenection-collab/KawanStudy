@@ -9,9 +9,8 @@ import {
   BookOpen,
   MessageCircle,
   Calendar,
-  Star,
   ArrowRight,
-  Play,
+
   Target,
   Brain,
   Zap,
@@ -20,7 +19,6 @@ import {
 import Header from "@/components/website/header";
 import Footer from "@/components/website/footer";
 import { Text } from "@/components/ui/typography";
-import async from "./(protected-routes)/dashboard/notes/browse/[username]/page";
 
 const Home = () => {
   return (
