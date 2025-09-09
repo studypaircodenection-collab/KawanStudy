@@ -13,7 +13,7 @@ import { Comment } from "@/lib/services/comments";
 import { Text } from "../ui/typography";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
-
+import { CustomizedAvatar } from "@/components/ui/customized-avatar";
 interface CommentCardProps {
   comment: Comment;
   onReply?: (
@@ -116,21 +116,17 @@ const CommentCard: React.FC<CommentCardProps> = ({
       }`}
     >
       <div className="flex items-start gap-2 w-full">
-        <Avatar className="border size-10 flex-shrink-0">
-          {comment.status === "deleted" ? (
+        {comment.status === "deleted" ? (
+          <Avatar className="border size-10 flex-shrink-0">
             <AvatarFallback className="bg-gray-200">?</AvatarFallback>
-          ) : (
-            <>
-              <AvatarImage src={comment.profiles.avatar_url} />
-              <AvatarFallback>
-                {comment.profiles.full_name?.charAt(0) ||
-                  comment.profiles.username?.charAt(0) ||
-                  "U"}
-              </AvatarFallback>
-            </>
-          )}
-        </Avatar>
-
+          </Avatar>
+        ) : (
+          <CustomizedAvatar
+            src={comment.profiles.avatar_url}
+            userId={comment.profiles.id}
+            size="md"
+          />
+        )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">

@@ -106,22 +106,25 @@ export async function POST(
       // - Length bonus: 2 points per question (encourages taking longer quizzes)
       // - Performance bonus: up to 10 points based on percentage score
       // - Time bonus: up to 5 extra points for completing quickly (if time limit exists)
-      
+
       const lengthBonus = totalQuestions * 2; // 2 points per question
       const performanceBonus = Math.floor(percentage / 10); // 1 point per 10% score
-      
+
       let timeBonus = 0;
       if (timeLimit && timeLimit > 0) {
         const timeLimitSeconds = timeLimit * 60;
-        const timeEfficiency = Math.max(0, (timeLimitSeconds - timeTaken) / timeLimitSeconds);
+        const timeEfficiency = Math.max(
+          0,
+          (timeLimitSeconds - timeTaken) / timeLimitSeconds
+        );
         timeBonus = Math.floor(timeEfficiency * 5); // Up to 5 bonus points for speed
       }
-      
+
       // Minimum guaranteed points (even for 0% score)
       const minimumPoints = Math.max(5, Math.floor(totalQuestions / 2));
-      
+
       const totalPoints = lengthBonus + performanceBonus + timeBonus;
-      
+
       return Math.max(minimumPoints, totalPoints);
     };
 
@@ -133,17 +136,19 @@ export async function POST(
       timeTaken,
       quiz.time_limit_minutes
     );
-    
+
     // Note: Points are awarded in the /attempts endpoint, not here
     // This endpoint is for calculating scores and getting results only
     console.log("Quiz submit - Points calculation:", {
       pointsToAward,
       percentage: scoreResult.percentage,
-      note: "Points will be awarded via /attempts endpoint"
+      note: "Points will be awarded via /attempts endpoint",
     });
 
     // Note: Achievement checking is handled in the /attempts endpoint
-    console.log("Quiz submit - Achievement checking will be handled via /attempts endpoint");
+    console.log(
+      "Quiz submit - Achievement checking will be handled via /attempts endpoint"
+    );
 
     return NextResponse.json({
       success: true,

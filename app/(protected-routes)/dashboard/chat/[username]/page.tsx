@@ -8,8 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CustomizedAvatar } from "@/components/ui/customized-avatar";
 import { PersistentChat } from "@/components/chat/persistent-chat";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowLeft, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -137,17 +137,11 @@ async function ChatContent({ params }: ChatPageProps) {
               </Tooltip>
             </TooltipProvider>
 
-            <Avatar className="h-10 w-10">
-              <AvatarImage
-                src={targetProfile.avatar_url || ""}
-                alt={targetProfile.full_name || ""}
-              />
-              <AvatarFallback>
-                {targetProfile.full_name?.charAt(0) ||
-                  targetProfile.username?.charAt(0) ||
-                  "U"}
-              </AvatarFallback>
-            </Avatar>
+            <CustomizedAvatar
+              src={targetProfile.avatar_url || ""}
+              userId={targetProfile.id}
+              size="md"
+            />
 
             <div>
               <CardTitle className="text-lg flex items-center gap-2">

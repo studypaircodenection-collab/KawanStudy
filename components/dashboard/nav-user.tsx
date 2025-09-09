@@ -5,12 +5,10 @@ import {
   ChevronsUpDown,
   LogOut,
   SettingsIcon,
-  UserRoundIcon,
   UsersIcon,
 } from "lucide-react";
 import { useAuth } from "@/lib/context/auth-provider";
 import { CustomizedAvatar } from "../ui/customized-avatar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,7 +61,7 @@ export function NavUser({ user }: { user: DisplayUser }) {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-full">
+              {/* <Avatar className="h-8 w-8 rounded-full">
                 <AvatarImage
                   src={user.user_metadata?.avatar_url}
                   alt={user.user_metadata?.username}
@@ -71,7 +69,12 @@ export function NavUser({ user }: { user: DisplayUser }) {
                 <AvatarFallback className="rounded-lg">
                   <UserRoundIcon className="size-4" />
                 </AvatarFallback>
-              </Avatar>
+              </Avatar> */}
+              <CustomizedAvatar
+                src={user.user_metadata?.avatar_url}
+                userId={user.id || ""}
+                size="sm"
+              />
               <div className="grid flex-1 text-left text-sm leading-tight">
                 {user.user_metadata?.username ? (
                   <span className="truncate font-medium">
@@ -91,15 +94,11 @@ export function NavUser({ user }: { user: DisplayUser }) {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-full">
-                  <AvatarImage
-                    src={user.user_metadata?.avatar_url}
-                    alt={user.user_metadata?.username}
-                  />
-                  <AvatarFallback className="rounded-lg">
-                    <UserRoundIcon className="size-4" />
-                  </AvatarFallback>
-                </Avatar>
+                <CustomizedAvatar
+                  src={user.user_metadata?.avatar_url}
+                  userId={user.id || ""}
+                  size="sm"
+                />
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">
                     {user.user_metadata?.username}

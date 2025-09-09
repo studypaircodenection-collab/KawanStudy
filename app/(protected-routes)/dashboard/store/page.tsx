@@ -1,10 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { useStore, rarityColors, categoryNames, type StoreItem } from "@/hooks/use-store";
+import {
+  useStore,
+  rarityColors,
+  categoryNames,
+  type StoreItem,
+} from "@/hooks/use-store";
 import { useAuth } from "@/lib/context/auth-provider";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CustomizedAvatar } from "@/components/ui/customized-avatar";
@@ -12,7 +23,14 @@ import { Coins, ShoppingBag, Star, Crown, Gem, Sparkles } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function StorePage() {
-  const { storeData, loading, purchasing, purchaseItem, equipItem, unequipItem } = useStore();
+  const {
+    storeData,
+    loading,
+    purchasing,
+    purchaseItem,
+    equipItem,
+    unequipItem,
+  } = useStore();
   const { claims } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
@@ -31,16 +49,19 @@ export default function StorePage() {
     }
   };
 
-  const filteredItems = storeData?.items.filter(item => 
-    selectedCategory === "all" || item.category === selectedCategory
-  ) || [];
+  const filteredItems =
+    storeData?.items.filter(
+      (item) => selectedCategory === "all" || item.category === selectedCategory
+    ) || [];
 
   const StoreItemCard = ({ item }: { item: StoreItem }) => (
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">{item.name}</CardTitle>
-          <Badge className={`${rarityColors[item.rarity]} flex items-center gap-1`}>
+          <Badge
+            className={`${rarityColors[item.rarity]} flex items-center gap-1`}
+          >
             {getRarityIcon(item.rarity)}
             <span className="capitalize">{item.rarity}</span>
           </Badge>
@@ -51,39 +72,45 @@ export default function StorePage() {
       <CardContent className="flex-1 flex flex-col justify-between">
         <div className="mb-4">
           {/* Visual preview based on item type */}
-          <div className="h-20 flex items-center justify-center border-2 border-dashed border-gray-200 rounded-lg mb-3">
+          <div className="h-20 flex items-center justify-center border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg mb-3">
             {item.category === "profile_badge" ? (
               <div className="relative">
-                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-lg">
+                <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-lg">
                   👤
                 </div>
                 <div className="absolute -bottom-1 -right-1 z-10">
-                  <div className="text-xs bg-white rounded-full border-2 border-gray-200 w-6 h-6 flex items-center justify-center shadow-sm">
-                    {(item.item_data?.value) || item.image_url || "🏆"}
+                  <div className="text-xs bg-white dark:bg-gray-700 rounded-full border-2 border-gray-200 dark:border-gray-700 w-6 h-6 flex items-center justify-center shadow-sm">
+                    {item.item_data?.value || item.image_url || "🏆"}
                   </div>
                 </div>
               </div>
             ) : item.category === "profile_border" ? (
-              <div 
+              <div
                 className="w-12 h-12 rounded-full border-4"
                 style={{ borderColor: item.image_url }}
               />
             ) : item.category === "profile_theme" ? (
-              <div className={`w-12 h-12 rounded-lg ${getThemePreview(item.image_url)}`} />
+              <div
+                className={`w-12 h-12 rounded-lg ${getThemePreview(
+                  item.image_url
+                )}`}
+              />
             ) : item.category === "profile_title" ? (
               <div className="flex flex-col items-center gap-2">
-                <Badge 
-                  variant="secondary" 
+                <Badge
+                  variant="secondary"
                   className="text-xs px-2 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white border-none"
                 >
                   {item.name}
                 </Badge>
-                <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-xs">
+                <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-xs">
                   👤
                 </div>
               </div>
             ) : (
-              <div className="text-gray-400 text-sm">{item.category.replace("_", " ")}</div>
+              <div className="text-gray-400 text-sm">
+                {item.category.replace("_", " ")}
+              </div>
             )}
           </div>
 
@@ -109,10 +136,7 @@ export default function StorePage() {
                 Unequip
               </Button>
             ) : (
-              <Button
-                className="w-full"
-                onClick={() => equipItem(item.id)}
-              >
+              <Button className="w-full" onClick={() => equipItem(item.id)}>
                 Equip
               </Button>
             )
@@ -122,16 +146,14 @@ export default function StorePage() {
               disabled={!item.canAfford || purchasing === item.id}
               onClick={() => purchaseItem(item.id)}
             >
-              {purchasing === item.id ? (
-                "Purchasing..."
-              ) : !item.canAfford ? (
-                "Not enough points"
-              ) : (
-                "Purchase"
-              )}
+              {purchasing === item.id
+                ? "Purchasing..."
+                : !item.canAfford
+                ? "Not enough points"
+                : "Purchase"}
             </Button>
           )}
-          
+
           {item.owned && (
             <Badge variant="secondary" className="w-full justify-center">
               {item.equipped ? "Equipped" : "Owned"}
@@ -166,7 +188,7 @@ export default function StorePage() {
           <Skeleton className="h-8 w-48 mb-2" />
           <Skeleton className="h-4 w-96" />
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
             <Card key={i} className="h-80">
@@ -196,7 +218,7 @@ export default function StorePage() {
         <p className="text-gray-600 mb-4">
           Customize your profile with exclusive items using your points!
         </p>
-        
+
         {/* User Points Display */}
         {storeData && (
           <div className="inline-flex items-center gap-2 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -221,22 +243,24 @@ export default function StorePage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center">
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-8 rounded-lg">
-              <CustomizedAvatar
-                userId={claims.sub}
-                src={claims.avatar_url !== "N/A" ? claims.avatar_url : undefined}
-                fallback={claims.full_name?.[0] || claims.email?.[0] || "U"}
-                size="xl"
-                showBadges={true}
-                showTitle={true}
-              />
-            </div>
+            <CustomizedAvatar
+              userId={claims.sub}
+              src={claims.avatar_url !== "N/A" ? claims.avatar_url : undefined}
+              fallback={claims.full_name?.[0] || claims.email?.[0] || "U"}
+              size="xl"
+              showBadges={true}
+              showTitle={true}
+            />
           </CardContent>
         </Card>
       )}
 
       {/* Category Tabs */}
-      <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-8">
+      <Tabs
+        value={selectedCategory}
+        onValueChange={setSelectedCategory}
+        className="mb-8"
+      >
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="all">All Items</TabsTrigger>
           <TabsTrigger value="profile_border">Borders</TabsTrigger>
@@ -249,8 +273,12 @@ export default function StorePage() {
           {filteredItems.length === 0 ? (
             <div className="text-center py-12">
               <ShoppingBag className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-600 mb-2">No items found</h3>
-              <p className="text-gray-500">Try selecting a different category.</p>
+              <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                No items found
+              </h3>
+              <p className="text-gray-500">
+                Try selecting a different category.
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

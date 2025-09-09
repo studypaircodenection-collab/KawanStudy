@@ -1,11 +1,11 @@
 import React from "react";
 import { LeaderboardEntry } from "@/lib/types";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Crown, Trophy, Medal, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { CustomizedAvatar } from "../ui/customized-avatar";
 import {
   Tooltip,
   TooltipTrigger,
@@ -64,18 +64,6 @@ const Leaderboard = ({
     return "bg-gray-500";
   };
 
-  const getInitials = (fullName: string | null, username: string | null) => {
-    if (fullName) {
-      return fullName
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2);
-    }
-    return username?.slice(0, 2).toUpperCase() || "?";
-  };
-
   return (
     <div className={cn("space-y-2", className)}>
       {entries.slice(0, showTop).map((entry) => (
@@ -94,15 +82,11 @@ const Leaderboard = ({
               </div>
 
               {/* Avatar */}
-              <Avatar className="h-12 w-12 border-2 border-background shadow-sm">
-                <AvatarImage
-                  src={entry.avatar_url || undefined}
-                  alt={entry.full_name || entry.username || "User"}
-                />
-                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                  {getInitials(entry.full_name, entry.username)}
-                </AvatarFallback>
-              </Avatar>
+              <CustomizedAvatar
+                src={entry?.avatar_url || ""}
+                userId={entry.user_id}
+                size="md"
+              />
 
               {/* User Info */}
               <div className="flex-1 min-w-0">

@@ -2,7 +2,6 @@
 
 import React from "react";
 import { MoreVertical } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -13,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { PeerUser } from "@/lib/types";
 import Link from "next/link";
+import { CustomizedAvatar } from "../ui/customized-avatar";
 
 interface PeerCardProps {
   peer: PeerUser;
@@ -37,33 +37,17 @@ export const PeerCard: React.FC<PeerCardProps> = ({
   onReport,
   onRemoveConnection,
 }) => {
-  const getInitials = () => {
-    if (peer.full_name) {
-      return peer.full_name
-        .split(" ")
-        .map((name) => name.charAt(0))
-        .join("")
-        .toUpperCase()
-        .slice(0, 2);
-    }
-    return peer.username ? peer.username.charAt(0).toUpperCase() : "?";
-  };
-
   return (
     <Card className="hover:shadow-lg transition-all duration-200 hover:border-primary/20">
       <CardContent>
         <div className="flex items-start justify-between">
           <div className="flex items-start space-x-4 flex-1">
             <div className="relative">
-              <Avatar className="h-14 w-14">
-                <AvatarImage
-                  src={peer.avatar_url || "/default-avatar.png"}
-                  alt={peer.full_name || peer.username || " "}
-                />
-                <AvatarFallback className="text-lg">
-                  {getInitials()}
-                </AvatarFallback>
-              </Avatar>
+              <CustomizedAvatar
+                src={peer.avatar_url || ""}
+                userId={peer.id}
+                size="md"
+              />
               {peer.is_online && (
                 <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-green-500 border-2 border-white rounded-full" />
               )}

@@ -8,7 +8,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CustomizedAvatar } from "../ui/customized-avatar";
+
 import {
   BookOpen,
   Clock,
@@ -261,14 +262,11 @@ const NoteCard = ({ note }: { note: NoteCardData }) => {
         {/* Author Section */}
         {note.userProfile && (
           <div className="flex items-center gap-3 mb-4 p-3 bg-primary/10 rounded-lg">
-            <Avatar className="w-10 h-10 border-2 border-white shadow-sm">
-              <AvatarImage src={note.userProfile.avatarUrl} />
-              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                {note.userProfile.fullName?.charAt(0) ||
-                  note.userProfile.username?.charAt(0) ||
-                  "U"}
-              </AvatarFallback>
-            </Avatar>
+            <CustomizedAvatar
+              src={note.userProfile.avatarUrl}
+              userId={note.userProfile.id}
+              size="md"
+            />
             <div className="flex-1 min-w-0">
               <Text as="p" className="truncate">
                 {note.userProfile.fullName || note.userProfile.username}

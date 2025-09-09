@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { CustomizedAvatar } from "@/components/ui/customized-avatar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -573,14 +574,11 @@ export default function NoteDetailsPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-3 mb-4">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={note.profiles.avatar_url} />
-                  <AvatarFallback>
-                    {note.profiles.full_name?.charAt(0) ||
-                      note.profiles.username?.charAt(0) ||
-                      "U"}
-                  </AvatarFallback>
-                </Avatar>
+                <CustomizedAvatar
+                  src={note.profiles.avatar_url}
+                  userId={note.profiles.id}
+                  size="md"
+                />
                 <div>
                   <Link
                     href={`/dashboard/profile/${note.profiles.username}`}
