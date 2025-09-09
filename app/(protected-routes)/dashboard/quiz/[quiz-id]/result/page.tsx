@@ -15,6 +15,8 @@ import {
   BarChart3,
   Eye,
   Loader2,
+  SparkleIcon,
+  SparklesIcon,
 } from "lucide-react";
 import {
   Card,
@@ -27,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import AISummaryComponent from "@/components/quiz/ai-summary";
 
 interface QuizAttempt {
   id: string;
@@ -424,6 +427,9 @@ const QuizResultPage: React.FC<QuizResultProps> = ({ params }) => {
           )}
         </CardContent>
       </Card>
+
+      {/* AI SUMMARY */}
+      <AISummaryComponent quizId={quizId} attemptsCount={total_attempts} />
 
       {/* Actions */}
       <div className="flex justify-center space-x-4">

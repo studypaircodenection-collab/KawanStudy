@@ -57,14 +57,6 @@ const ErrorDisplay = ({
   </Alert>
 );
 
-// Types for real data
-interface NotesStats {
-  total_notes: number;
-  active_users: number;
-  total_downloads: number;
-  total_subjects: number;
-}
-
 interface TrendingNote {
   id: string;
   title: string;
@@ -112,27 +104,9 @@ export default function NotesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // Real data states
-  const [stats, setStats] = useState<NotesStats | null>(null);
   const [trendingNotes, setTrendingNotes] = useState<TrendingNote[]>([]);
   const [recentUploads, setRecentUploads] = useState<RecentUpload[]>([]);
   const [topContributors, setTopContributors] = useState<TopContributor[]>([]);
-
-  // Fetch dashboard stats
-  const fetchStats = async () => {
-    try {
-      const response = await fetch("/api/dashboard/notes-stats");
-      if (!response.ok) throw new Error("Failed to fetch stats");
-      return await response.json();
-    } catch (error) {
-      console.error("Error fetching stats:", error);
-      return {
-        total_notes: 0,
-        active_users: 0,
-        total_downloads: 0,
-        total_subjects: 0,
-      };
-    }
-  };
 
   // Fetch trending notes (most liked/viewed in last week)
   const fetchTrendingNotes = async () => {
@@ -195,14 +169,12 @@ export default function NotesPage() {
     setError(null);
 
     try {
-      const [statsData, trending, recent, contributors] = await Promise.all([
-        fetchStats(),
+      const [trending, recent, contributors] = await Promise.all([
         fetchTrendingNotes(),
         fetchRecentUploads(),
         fetchTopContributors(),
       ]);
 
-      setStats(statsData);
       setTrendingNotes(trending);
       setRecentUploads(recent);
       setTopContributors(contributors);
@@ -285,55 +257,6 @@ export default function NotesPage() {
           </div>
         </div>
       </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats &&
-          [
-            {
-              label: "Total Notes",
-              value: formatNumber(stats.total_notes),
-              icon: FileText,
-              color: "text-cyan-600",
-            },
-            {
-              label: "Active Users",
-              value: formatNumber(stats.active_users),
-              icon: Users,
-              color: "text-emerald-600",
-            },
-            {
-              label: "Downloads",
-              value: formatNumber(stats.total_downloads),
-              icon: Download,
-              color: "text-purple-600",
-            },
-            {
-              label: "Subjects",
-              value: formatNumber(stats.total_subjects),
-              icon: GraduationCap,
-              color: "text-orange-600",
-            },
-          ].map((stat, index) => {
-            const IconComponent = stat.icon;
-            return (
-              <Card key={index} className="relative overflow-hidden shadow-lg">
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        {stat.label}
-                      </p>
-                      <p className="text-3xl font-bold">{stat.value}</p>
-                    </div>
-                    <IconComponent className={`h-8 w-8 ${stat.color}`} />
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-      </div>
-
       {/* Featured Notes Section */}
       <div>
         <div className="flex items-center justify-between mb-6">
@@ -519,35 +442,6 @@ export default function NotesPage() {
               )}
             </CardContent>
           </Card>
-
-          {/* Dashboard Analytics Widget */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-primary" />
-                Quick Analytics
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 bg-primary/5 rounded-lg">
-                  <div className="text-2xl font-bold text-primary">
-                    {stats ? formatNumber(stats.total_notes) : "---"}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Total Notes
-                  </div>
-                </div>
-                <div className="text-center p-3 bg-primary/5 rounded-lg">
-                  <div className="text-2xl font-bold text-primary ">
-                    {stats ? formatNumber(stats.total_downloads) : "---"}
-                  </div>
-                  <div className="text-xs text-muted-foreground">Downloads</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Quick Actions */}
           <Card>
             <CardHeader>

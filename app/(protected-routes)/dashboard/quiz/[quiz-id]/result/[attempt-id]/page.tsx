@@ -167,13 +167,18 @@ const AttemptDetailPage: React.FC<AttemptDetailProps> = ({ params }) => {
   };
 
   const getQuestionBorderColor = (question: QuestionResult) => {
-    if (question.userAnswer === null) return "border-gray-200";
-    return question.isCorrect ? "border-green-200" : "border-red-200";
+    if (question.userAnswer === null)
+      return "border-gray-200 dark:border-gray-700";
+    return question.isCorrect
+      ? "border-green-200 dark:border-green-900"
+      : "border-red-200 dark:border-red-900";
   };
 
   const getQuestionBgColor = (question: QuestionResult) => {
-    if (question.userAnswer === null) return "bg-gray-50";
-    return question.isCorrect ? "bg-green-50" : "bg-red-50";
+    if (question.userAnswer === null) return "bg-gray-50 dark:bg-gray-900";
+    return question.isCorrect
+      ? "bg-green-50 dark:bg-green-900"
+      : "bg-red-50 dark:bg-red-900";
   };
 
   const toggleQuestionExpansion = (questionId: string) => {
@@ -212,19 +217,19 @@ const AttemptDetailPage: React.FC<AttemptDetailProps> = ({ params }) => {
       // Was answered - show user vs correct
       if (isUserAnswer && isCorrectAnswer) {
         // User selected correct answer
-        bgColor = "bg-green-100";
-        textColor = "text-green-800";
-        borderColor = "border-green-300";
+        bgColor = "bg-green-100 dark:bg-green-900";
+        textColor = "text-green-800 dark:text-green-400";
+        borderColor = "border-green-300 dark:border-green-700";
       } else if (isUserAnswer && !isCorrectAnswer) {
         // User selected wrong answer
-        bgColor = "bg-red-100";
-        textColor = "text-red-800";
-        borderColor = "border-red-300";
+        bgColor = "bg-red-100 dark:bg-red-900";
+        textColor = "text-red-800 dark:text-red-400";
+        borderColor = "border-red-300 dark:border-red-700";
       } else if (!isUserAnswer && isCorrectAnswer) {
         // User didn't select but it was correct
-        bgColor = "bg-green-50";
-        textColor = "text-green-700";
-        borderColor = "border-green-200";
+        bgColor = "bg-green-50 dark:bg-green-900";
+        textColor = "text-green-700 dark:text-green-400";
+        borderColor = "border-green-200 dark:border-green-700";
       }
     }
 
@@ -488,7 +493,7 @@ const AttemptDetailPage: React.FC<AttemptDetailProps> = ({ params }) => {
               onOpenChange={() => toggleQuestionExpansion(question.id)}
             >
               <CollapsibleTrigger asChild>
-                <CardHeader className="cursor-pointer hover:bg-white/50 transition-colors">
+                <CardHeader className="cursor-pointer transition-colors">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-3">
                       {getQuestionIcon(question)}
@@ -539,7 +544,7 @@ const AttemptDetailPage: React.FC<AttemptDetailProps> = ({ params }) => {
                   </div>
 
                   {showExplanations && question.explanation && (
-                    <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-md">
                       <div className="flex items-start space-x-2">
                         <Lightbulb className="h-5 w-5 text-blue-600 mt-0.5" />
                         <div>
