@@ -4,6 +4,7 @@ import * as React from "react";
 import {
   BookOpen,
   Bot,
+  Calendar1Icon,
   Command,
   FilesIcon,
   LifeBuoy,
@@ -106,6 +107,11 @@ const data = {
       title: "CarryMark Calculator",
       url: "/dashboard/carrymark-calculator",
       icon: LucideCalculator,
+    },
+    {
+      title: "UiTM ICRESS Schedule",
+      url: "/dashboard/uitm-schedule",
+      icon: Calendar1Icon,
     },
     {
       title: "Schedule Manager",
