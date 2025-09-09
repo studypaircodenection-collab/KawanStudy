@@ -1,6 +1,12 @@
 "use client";
 
-import { CirclePlusIcon, ShoppingBag, SidebarIcon, Trophy } from "lucide-react";
+import {
+  CirclePlusIcon,
+  MoreHorizontalIcon,
+  ShoppingBag,
+  SidebarIcon,
+  Trophy,
+} from "lucide-react";
 import DashboardBreadcrumbs from "@/components/dashboard/dashboard-breadcrumbs";
 import { SearchForm } from "@/components/dashboard/search-form";
 import NotificationPopup from "./notification-popup";
@@ -20,6 +26,9 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuLabel,
+  DropdownMenuSubTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
 } from "../ui/dropdown-menu";
 
 export function SiteHeader() {
@@ -85,61 +94,104 @@ export function SiteHeader() {
           <DashboardBreadcrumbs />
         </div>
         {/* Points Display & Store */}
-        {claims && (
-          <>
-            <div className="flex items-center gap-2 px-3 py-1 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-full">
-              <Trophy className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-              <span className="text-sm font-medium text-amber-700 dark:text-amber-300">
-                {statsLoading
-                  ? "..."
-                  : userStats?.profile?.total_points?.toLocaleString()}
-              </span>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              asChild
-              className="relative hover:bg-accent transition-colors"
-            >
-              <Link href="/dashboard/store">
-                <ShoppingBag className="h-5 w-5" />
-                <span className="sr-only">Points Store</span>
-              </Link>
-            </Button>
-          </>
-        )}
+        <div className="flex items-center gap-2 px-3 py-1 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-full">
+          <Trophy className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+          <span className="text-sm font-medium text-amber-700 dark:text-amber-300">
+            {statsLoading
+              ? "..."
+              : userStats?.profile?.total_points?.toLocaleString()}
+          </span>
+        </div>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              size={"icon"}
-              variant={"ghost"}
-              className="relative hover:bg-accent transition-colors"
-            >
-              <CirclePlusIcon className="h-5 w-5" />
+            <Button size={"icon"} variant={"ghost"} className="flex md:hidden">
+              <MoreHorizontalIcon className="h-5 w-5" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuLabel>Create or Upload</DropdownMenuLabel>
-            <DropdownMenuSeparator />
+          <DropdownMenuContent className="m-2">
+            <DropdownMenuLabel>All Actions</DropdownMenuLabel>
             <DropdownMenuGroup>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  Create or Upload
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className="m-2">
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem asChild>
+                      <Link href={"/dashboard/quiz/create"}>New Quiz</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href={"/dashboard/notes/upload"}>New Notes</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href={"/dashboard/past-year/"}>
+                        New Past Year Paper
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
               <DropdownMenuItem asChild>
-                <Link href={"/dashboard/quiz/create"}>New Quiz</Link>
+                <Link href={"/dashboard/store"}>Point Store</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href={"/dashboard/notes/upload"}>New Notes</Link>
+              <DropdownMenuItem asChild>
+                <Link href={"/dashboard/chat"}>Messages</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href={"/dashboard/past-year/"}>New Past Year Paper</Link>
+              <DropdownMenuItem asChild>
+                <Link href={"/dashboard/notifications"}>Notifications</Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
-        <Button size={"icon"} variant={"ghost"} asChild>
-          <Link href="/dashboard/chat">
-            <MessageCircleIcon />
-          </Link>
-        </Button>
-        <NotificationPopup />
+
+        <div className="hidden md:flex ml-auto items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            className="relative hover:bg-accent transition-colors"
+          >
+            <Link href="/dashboard/store">
+              <ShoppingBag className="h-5 w-5" />
+              <span className="sr-only">Points Store</span>
+            </Link>
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                size={"icon"}
+                variant={"ghost"}
+                className="relative hover:bg-accent transition-colors"
+              >
+                <CirclePlusIcon className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Create or Upload</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem asChild>
+                  <Link href={"/dashboard/quiz/create"}>New Quiz</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={"/dashboard/notes/upload"}>New Notes</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={"/dashboard/past-year/"}>
+                    New Past Year Paper
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button size={"icon"} variant={"ghost"} asChild>
+            <Link href="/dashboard/chat">
+              <MessageCircleIcon />
+            </Link>
+          </Button>
+          <NotificationPopup />
+        </div>
       </div>
     </header>
   );

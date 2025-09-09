@@ -18,6 +18,7 @@ import {
   Calendar,
   Building2,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import { Text } from "@/components/ui/typography";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -321,12 +322,9 @@ const UiTMLibrary = () => {
 
       {/* Results Section */}
       {loading ? (
-        <Card>
-          <CardContent className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-2">Loading exam papers...</span>
-          </CardContent>
-        </Card>
+        <div className="flex justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
       ) : papers.length === 0 ? (
         <Card>
           <CardContent className="text-center py-12">

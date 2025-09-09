@@ -9,7 +9,7 @@ import {
 } from "@/types/notes";
 import { notesService, NotesListResponse } from "@/lib/services/notes";
 import NoteCard from "@/components/notes/note-card";
-import { Search, BookOpen, ChevronDown, X } from "lucide-react";
+import { Search, BookOpen, ChevronDown, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -169,10 +169,6 @@ const KawanStudyNotes = () => {
   // Active filters count
   const activeFiltersCount =
     Object.values(filters).filter(Boolean).length + (searchTerm ? 1 : 0);
-
-  if (loading) {
-    return <Skeleton className="h-64 rounded"></Skeleton>;
-  }
 
   return (
     <div className="container mx-auto">
@@ -367,25 +363,33 @@ const KawanStudyNotes = () => {
       </div>
 
       {/* Results Header */}
-      <div className="mb-6 flex justify-between items-center">
-        <Text as="p" styleVariant="muted">
-          {notesData.total > 0
-            ? `Showing ${startItem}-${endItem} of ${notesData.total} notes`
-            : "No notes found"}
-        </Text>
-        {totalPages > 1 && (
-          <Text as="p" styleVariant="muted" className="text-sm">
-            Page {currentPage} of {totalPages}
+      {loading ? (
+        <div className="mb-6 flex justify-between items-center">
+          <Text as="p" styleVariant="muted">
+            {notesData.total > 0
+              ? `Showing ${startItem}-${endItem} of ${notesData.total} notes`
+              : "No notes found"}
           </Text>
-        )}
-      </div>
+          {totalPages > 1 && (
+            <Text as="p" styleVariant="muted" className="text-sm">
+              Page {currentPage} of {totalPages}
+            </Text>
+          )}
+        </div>
+      ) : null}
 
       {/* Notes Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-        {notesData.notes.map((note) => (
-          <NoteCard key={note.id} note={note} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+          {notesData.notes.map((note) => (
+            <NoteCard key={note.id} note={note} isOwnNote={false} />
+          ))}
+        </div>
+      )}
 
       {/* Pagination */}
       {totalPages > 1 && (
@@ -438,7 +442,7 @@ const KawanStudyNotes = () => {
       )}
 
       {/* Empty State */}
-      {notesData.notes.length === 0 && (
+      {!loading && notesData.notes.length === 0 && (
         <div className="text-center py-16">
           <BookOpen className="w-16 h-16 text-slate-300 mx-auto mb-4" />
           <Text as="h3">No notes found</Text>

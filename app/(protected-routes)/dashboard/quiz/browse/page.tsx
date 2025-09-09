@@ -88,13 +88,8 @@ const BrowseQuizzesPage = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-6 max-w-6xl">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
-            <p className="text-muted-foreground">Loading quizzes...</p>
-          </div>
-        </div>
+      <div className="flex justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -124,59 +119,53 @@ const BrowseQuizzesPage = () => {
       </div>
 
       {/* Search and Filters */}
-      <Card className="mb-6">
-        <CardContent>
-          <div className="flex flex-col gap-4 md:flex-row md:items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Search quizzes..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
 
-            <div className="flex gap-2">
-              <Select
-                value={selectedSubject}
-                onValueChange={setSelectedSubject}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Subject" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Subjects</SelectItem>
-                  {subjects.map((subject) => (
-                    <SelectItem key={subject} value={subject}>
-                      {subject}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+      <div className="my-4 flex flex-col gap-4 md:flex-row md:items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <Input
+            placeholder="Search quizzes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
 
-              <Select
-                value={selectedGradeLevel}
-                onValueChange={setSelectedGradeLevel}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Academic Level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Levels</SelectItem>
-                  {gradeLevels.map((grade) => (
-                    <SelectItem key={grade} value={grade!}>
-                      {grade
-                        ?.replace("-", " ")
-                        .replace(/\b\w/g, (l) => l.toUpperCase())}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        <div className="flex gap-2">
+          <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Subject" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Subjects</SelectItem>
+              {subjects.map((subject) => (
+                <SelectItem key={subject} value={subject}>
+                  {subject}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={selectedGradeLevel}
+            onValueChange={setSelectedGradeLevel}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Academic Level" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Levels</SelectItem>
+              {gradeLevels.map((grade) => (
+                <SelectItem key={grade} value={grade!}>
+                  {grade
+                    ?.replace("-", " ")
+                    .replace(/\b\w/g, (l) => l.toUpperCase())}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
       {/* Results */}
       {filteredQuizzes.length === 0 ? (

@@ -583,7 +583,11 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       {notesData.notes.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {notesData.notes.map((note) => (
-            <NoteCard key={note.id} note={note} />
+            <NoteCard
+              isOwnNote={note.userProfile?.id === (profile.id || "") || false}
+              key={note.id}
+              note={note}
+            />
           ))}
         </div>
       ) : (

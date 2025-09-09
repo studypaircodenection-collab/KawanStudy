@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -13,16 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Search,
-  BookOpen,
-  Eye,
-  Heart,
-  Download,
-  Edit,
-  Trash2,
-  Plus,
-} from "lucide-react";
+import { Search, BookOpen, Eye, Heart, Download, Plus } from "lucide-react";
 import Link from "next/link";
 import NoteCard from "@/components/notes/note-card";
 import { useRouter } from "next/navigation";
@@ -98,7 +89,7 @@ const MyNotesPage = () => {
       }
 
       // Get user profile
-      const { data: profile, error: profileError } = await supabase
+      const { error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", currentUser.id)
@@ -357,109 +348,65 @@ const MyNotesPage = () => {
       )}
 
       {/* Filters */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Search notes..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <Select value={filterSubject} onValueChange={setFilterSubject}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Subject" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Subjects</SelectItem>
-                  {getUniqueSubjects().map((subject) => (
-                    <SelectItem key={subject} value={subject}>
-                      {subject}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="published">Published</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="under_review">Under Review</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select
-                value={filterVisibility}
-                onValueChange={setFilterVisibility}
-              >
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Visibility" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="public">Public</SelectItem>
-                  <SelectItem value="private">Private</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <div className="flex flex-col lg:flex-row gap-4">
+        <div className="flex-1">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Search notes..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        <div className="flex gap-2">
+          <Select value={filterSubject} onValueChange={setFilterSubject}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Subject" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Subjects</SelectItem>
+              {getUniqueSubjects().map((subject) => (
+                <SelectItem key={subject} value={subject}>
+                  {subject}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="published">Published</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="under_review">Under Review</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={filterVisibility} onValueChange={setFilterVisibility}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Visibility" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="public">Public</SelectItem>
+              <SelectItem value="private">Private</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
       {/* Notes Grid */}
       {filteredNotes.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filteredNotes.map((note) => (
             <div key={note.id} className="relative group">
-              <NoteCard note={note} />
-
-              {/* Action buttons overlay */}
-              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-2">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="h-8 w-8 p-0"
-                  asChild
-                >
-                  <Link href={`/dashboard/notes/${note.id}/edit`}>
-                    <Edit className="h-4 w-4" />
-                  </Link>
-                </Button>
-
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600"
-                  onClick={() => {
-                    // TODO: Implement delete functionality
-                    console.log("Delete note:", note.id);
-                  }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-
-              {/* Status badge */}
-              <div className="absolute top-4 left-4">
-                <Badge
-                  variant={
-                    note.status === "published" ? "default" : "secondary"
-                  }
-                >
-                  {note.status}
-                </Badge>
-              </div>
+              <NoteCard note={note} isOwnNote={true} />
             </div>
           ))}
         </div>

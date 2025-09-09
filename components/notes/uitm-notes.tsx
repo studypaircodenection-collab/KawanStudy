@@ -2,7 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import { UiTMEbook, EbookSearchQuery } from "@/lib/types";
-import { Search, BookOpen, AlertTriangle, User, Calendar } from "lucide-react";
+import {
+  Search,
+  BookOpen,
+  AlertTriangle,
+  User,
+  Calendar,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -288,12 +295,9 @@ const UiTMNotes = () => {
 
       {/* Results Section */}
       {loading ? (
-        <Card>
-          <CardContent className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-2">Loading e-books...</span>
-          </CardContent>
-        </Card>
+        <div className="flex justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
       ) : ebooks.length === 0 ? (
         <Card>
           <CardContent className="text-center py-12">

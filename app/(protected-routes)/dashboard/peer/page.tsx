@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Users } from "lucide-react";
+import { Loader2, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PeerCard } from "@/components/peer/peer-card";
@@ -165,9 +165,8 @@ const PeersPage = () => {
 
         <TabsContent value="discover" className="space-y-4">
           {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-              <p className="mt-2 text-muted-foreground">Loading peers...</p>
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin" />
             </div>
           ) : (
             <>
@@ -197,11 +196,8 @@ const PeersPage = () => {
 
         <TabsContent value="connections" className="space-y-4">
           {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-              <p className="mt-2 text-muted-foreground">
-                Loading connections...
-              </p>
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin" />
             </div>
           ) : (
             <>
@@ -226,9 +222,8 @@ const PeersPage = () => {
 
         <TabsContent value="requests" className="space-y-4">
           {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-              <p className="mt-2 text-muted-foreground">Loading requests...</p>
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin" />
             </div>
           ) : (
             <>
@@ -253,11 +248,8 @@ const PeersPage = () => {
 
         <TabsContent value="sent" className="space-y-4">
           {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-              <p className="mt-2 text-muted-foreground">
-                Loading sent requests...
-              </p>
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin" />
             </div>
           ) : (
             <>
@@ -275,11 +267,8 @@ const PeersPage = () => {
 
         <TabsContent value="blocked" className="space-y-4">
           {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-              <p className="mt-2 text-muted-foreground">
-                Loading blocked users...
-              </p>
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin" />
             </div>
           ) : (
             <>

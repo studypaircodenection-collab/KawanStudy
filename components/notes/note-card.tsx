@@ -9,7 +9,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CustomizedAvatar } from "../ui/customized-avatar";
-
+import { useNoteUpload } from "@/hooks/use-notes";
+import { useToast } from "@/hooks/use-toast";
 import {
   BookOpen,
   Clock,
@@ -18,10 +19,15 @@ import {
   Heart,
   Download,
   Globe,
+  Edit,
+  Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Text } from "@/components/ui/typography";
+import { Button } from "../ui/button";
+import Link from "next/link";
+import { useState } from "react";
 interface NoteCardData {
   id: string;
   title: string;
@@ -102,11 +108,51 @@ const formatLanguage = (language?: string) => {
   }
 };
 
-const NoteCard = ({ note }: { note: NoteCardData }) => {
+const NoteCard = ({
+  note,
+  isOwnNote = false,
+}: {
+  note: NoteCardData;
+  isOwnNote: boolean;
+}) => {
   const router = useRouter();
+  const { deleteNote } = useNoteUpload();
+  const { toast } = useToast();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleClick = () => {
     router.push(`/dashboard/notes/${note.id}`);
+  };
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click
+    if (
+      !confirm(
+        "Are you sure you want to delete this note? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await deleteNote(note.id);
+      toast({
+        title: "Note deleted",
+        description: "Your note has been successfully deleted.",
+      });
+      // Refresh the page or trigger a parent component update
+      window.location.reload();
+    } catch (error) {
+      console.error("Failed to delete note:", error);
+      toast({
+        title: "Delete failed",
+        description: "Failed to delete the note. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -163,7 +209,26 @@ const NoteCard = ({ note }: { note: NoteCardData }) => {
               </Badge>
             )}
           </div>
+          {isOwnNote ? (
+            <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-2">
+              <Button size="sm" variant="outline" asChild>
+                <Link href={`/dashboard/notes/${note.id}/edit`}>
+                  <Edit className="h-4 w-4" />
+                </Link>
+              </Button>
 
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="cursor-pointer"
+              >
+                <Trash2 className="h-4 w-4" />
+                {isDeleting && <span className="ml-1">...</span>}
+              </Button>
+            </div>
+          ) : null}
           <div className="absolute top-3 right-3">
             <div className="flex items-center gap-1 bg-white/90 dark:bg-black/70 px-2 py-1 rounded-full text-xs">
               <Clock className="w-3 h-3" />

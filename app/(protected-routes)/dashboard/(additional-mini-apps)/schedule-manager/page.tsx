@@ -41,10 +41,10 @@ import {
   Upload,
   Trash2,
   Info,
+  Loader2,
 } from "lucide-react";
 import { ScheduleEntry } from "@/types/schedule";
 import { toast } from "sonner";
-import { Alert } from "@/components/ui/alert";
 export default function ScheduleGeneratorPage() {
   const {
     entries,
@@ -164,11 +164,8 @@ export default function ScheduleGeneratorPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading your schedule...</p>
-        </div>
+      <div className="flex justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }

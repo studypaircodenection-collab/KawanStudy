@@ -132,13 +132,6 @@ export default function CarryMarkCalculator() {
     return "text-red-600";
   };
 
-  const getProgressColor = (percentage: number) => {
-    if (percentage >= 80) return "bg-emerald-500";
-    if (percentage >= 70) return "bg-blue-500";
-    if (percentage >= 60) return "bg-amber-500";
-    return "bg-red-500";
-  };
-
   return (
     <div className="min-h-screen">
       <div className="max-w-6xl mx-auto space-y-6">

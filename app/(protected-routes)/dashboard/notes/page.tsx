@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, lazy } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,12 +14,10 @@ import {
   Download,
   Plus,
   Sparkles,
-  Library,
   Loader2,
   BarChart3,
   Activity,
   AlertCircle,
-  Heart,
   Award,
   GraduationCap,
   FileText,
@@ -27,12 +25,6 @@ import {
 import Link from "next/link";
 import { notesService } from "@/lib/services/notes";
 import NoteCard from "@/components/notes/note-card";
-
-// Lazy load components for better performance
-const KawanStudyNotes = lazy(
-  () => import("@/components/notes/kawanstudy-note")
-);
-const UiTMNotes = lazy(() => import("@/components/notes/uitm-notes"));
 
 // Loading component
 const LoadingSpinner = ({ message }: { message: string }) => (
@@ -117,10 +109,8 @@ interface TopContributor {
 }
 
 export default function NotesPage() {
-  const [activeView, setActiveView] = useState("overview");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   // Real data states
   const [stats, setStats] = useState<NotesStats | null>(null);
   const [trendingNotes, setTrendingNotes] = useState<TrendingNote[]>([]);
@@ -280,26 +270,6 @@ export default function NotesPage() {
             Discover, share, and access thousands of study notes from top
             students and educators worldwide.
           </p>
-          <div className="flex gap-4">
-            <Link href="/dashboard/notes/upload">
-              <Button
-                size="lg"
-                className="bg-background text-primary hover:bg-background/90"
-              >
-                <Upload className="h-5 w-5 mr-2" />
-                Upload Your Notes
-              </Button>
-            </Link>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
-              onClick={() => setActiveView("browse")}
-            >
-              <BookOpen className="h-5 w-5 mr-2" />
-              Browse Notes
-            </Button>
-          </div>
         </div>
 
         {/* Decorative Elements */}
@@ -382,7 +352,9 @@ export default function NotesPage() {
           {trendingNotes.length > 0 ? (
             trendingNotes
               .slice(0, 6)
-              .map((note) => <NoteCard key={note.id} note={note} />)
+              .map((note) => (
+                <NoteCard isOwnNote={false} key={note.id} note={note} />
+              ))
           ) : (
             <div className="col-span-full text-center py-12">
               <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -588,22 +560,6 @@ export default function NotesPage() {
                   Upload New Notes
                 </Button>
               </Link>
-              <Button
-                className="w-full justify-start"
-                variant="outline"
-                onClick={() => setActiveView("browse")}
-              >
-                <BookOpen className="h-4 w-4 mr-2" />
-                Browse All Notes
-              </Button>
-              <Button
-                className="w-full justify-start"
-                variant="outline"
-                onClick={() => setActiveView("uitm")}
-              >
-                <Library className="h-4 w-4 mr-2" />
-                UiTM Resources
-              </Button>
               <Link href="/dashboard/notes/my-notes" className="block">
                 <Button className="w-full justify-start" variant="outline">
                   <Activity className="h-4 w-4 mr-2" />
@@ -614,19 +570,6 @@ export default function NotesPage() {
           </Card>
         </div>
       </div>
-      {/* Study Tip */}
-      {/* <Card className="w-full bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
-        <CardContent className="p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="font-medium text-primary">Study Tip</span>
-          </div>
-          <p className="text-sm text-foreground/80">
-            &ldquo;Active recall is more effective than passive reading. Try to
-            explain concepts without looking at your notes!&rdquo;
-          </p>
-        </CardContent>
-      </Card> */}
     </div>
   );
 }

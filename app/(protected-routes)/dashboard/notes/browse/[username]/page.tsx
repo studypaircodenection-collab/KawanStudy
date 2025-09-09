@@ -1,7 +1,6 @@
 import React from "react";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -16,7 +15,6 @@ import {
   FileText,
   TrendingUp,
 } from "lucide-react";
-import Link from "next/link";
 import NoteCard from "@/components/notes/note-card";
 import { notFound } from "next/navigation";
 
@@ -506,7 +504,13 @@ export default async function UserNotesPage({
         {notes.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {notes.map((note) => (
-              <NoteCard key={note.id} note={note} />
+              <NoteCard
+                isOwnNote={
+                  (note.userProfile?.id || " ") === userProfile.id || false
+                }
+                key={note.id}
+                note={note}
+              />
             ))}
           </div>
         ) : (
