@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/meet-app/server/node_modules
 /.pnp
 .pnp.*
 .yarn/*

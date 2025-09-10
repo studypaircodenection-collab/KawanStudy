@@ -3,6 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { SiteHeader } from "@/components/dashboard/site-header";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import {
   Card,
   CardContent,
@@ -32,7 +33,9 @@ export default function GlobalError({
 
   return (
     <div className="min-h-screen w-full bg-background text-foreground">
-      <SiteHeader />
+      <SidebarProvider>
+        <SiteHeader />
+      </SidebarProvider>
       <main className="flex min-h-[calc(100vh-56px)] items-center justify-center p-4">
         <Card className="w-full max-w-2xl">
           <CardHeader>

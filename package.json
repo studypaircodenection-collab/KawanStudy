@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+  "dev": "next dev --turbopack",
+  "dev:all": "concurrently -n web,signal -c green,cyan \"next dev --turbopack\" \"node meet-app/server/index.js\"",
     "build": "next build --no-lint",
     "start": "next start",
     "lint": "next lint",
@@ -68,6 +69,7 @@
     "react-image-crop": "^11.0.10",
     "recharts": "^2.15.4",
     "sonner": "^2.0.7",
+  "socket.io-client": "^4.7.2",
     "tailwind-merge": "^3.3.1",
     "zod": "^4.0.17"
   },
@@ -79,6 +81,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+  "concurrently": "^8.2.2",
     "audit-ci": "^7.1.0",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
