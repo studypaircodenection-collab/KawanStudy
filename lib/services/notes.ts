@@ -168,6 +168,10 @@ export class NotesService {
         viewCount: note.view_count || 0,
         downloadCount: note.download_count || 0,
         likeCount: note.like_count || 0,
+        academicLevel: note.academic_level || undefined,
+        language: note.language || undefined,
+        difficultyLevel: note.difficulty || undefined,
+        institution: note.institution || undefined,
         thumbnailUrl: note.thumbnail_url,
         userProfile: note.user_profile
           ? {

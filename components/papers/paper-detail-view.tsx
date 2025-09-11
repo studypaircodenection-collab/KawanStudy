@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PDFViewer from "@/components/pdf-viewer";
+
 import {
   Download,
   Heart,
@@ -27,6 +28,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { formatDate } from "@/lib/constant";
 
 interface Paper {
   id: string;
@@ -252,10 +254,6 @@ export function PaperDetailView({ paper }: PaperDetailViewProps) {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-  };
-
   const formatAcademicLevel = (level: string) => {
     return level.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
   };
@@ -388,29 +386,40 @@ export function PaperDetailView({ paper }: PaperDetailViewProps) {
       </Card>
 
       {/* Paper Preview */}
-      {(paper.questionFileUrl || (paper.hasSolution && paper.solutionFileUrl)) && (
+      {(paper.questionFileUrl ||
+        (paper.hasSolution && paper.solutionFileUrl)) && (
         <Card className="mb-6">
           <CardHeader>
             <CardTitle>Paper Preview</CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs 
-              defaultValue={paper.questionFileUrl ? "question" : "solution"} 
+            <Tabs
+              defaultValue={paper.questionFileUrl ? "question" : "solution"}
               className="w-full"
             >
-              <TabsList className={`grid w-full ${
-                paper.questionFileUrl && paper.hasSolution && paper.solutionFileUrl 
-                  ? "grid-cols-2" 
-                  : "grid-cols-1"
-              }`}>
+              <TabsList
+                className={`grid w-full ${
+                  paper.questionFileUrl &&
+                  paper.hasSolution &&
+                  paper.solutionFileUrl
+                    ? "grid-cols-2"
+                    : "grid-cols-1"
+                }`}
+              >
                 {paper.questionFileUrl && (
-                  <TabsTrigger value="question" className="flex items-center gap-2">
+                  <TabsTrigger
+                    value="question"
+                    className="flex items-center gap-2"
+                  >
                     <FileText className="h-4 w-4" />
                     Question Paper
                   </TabsTrigger>
                 )}
                 {paper.hasSolution && paper.solutionFileUrl && (
-                  <TabsTrigger value="solution" className="flex items-center gap-2">
+                  <TabsTrigger
+                    value="solution"
+                    className="flex items-center gap-2"
+                  >
                     <BookOpen className="h-4 w-4" />
                     Solution
                   </TabsTrigger>

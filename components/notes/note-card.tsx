@@ -25,9 +25,9 @@ import {
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Text } from "@/components/ui/typography";
-import { Button } from "../ui/button";
-import Link from "next/link";
+import { formatDate } from "@/lib/constant";
 import { useState } from "react";
+
 interface NoteCardData {
   id: string;
   title: string;
@@ -52,13 +52,6 @@ interface NoteCardData {
     avatarUrl: string;
   };
 }
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-};
 
 const formatCount = (count?: number) => {
   if (!count) return "0";
@@ -75,13 +68,13 @@ const getDifficultyColor = (difficulty?: string) => {
   switch (difficulty.toLowerCase()) {
     case "beginner":
     case "easy":
-      return "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-700";
+      return "bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 border-green-200 dark:border-green-700";
     case "intermediate":
     case "medium":
-      return "bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-700";
+      return "bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-700";
     case "advanced":
     case "hard":
-      return "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-200 dark:border-red-700";
+      return "bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300 border-red-200 dark:border-red-700";
     default:
       return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-600";
   }
@@ -108,13 +101,8 @@ const formatLanguage = (language?: string) => {
   }
 };
 
-const NoteCard = ({
-  note,
-  isOwnNote = false,
-}: {
-  note: NoteCardData;
-  isOwnNote: boolean;
-}) => {
+const NoteCard = ({ note }: { note: NoteCardData }) => {
+  console.log("NoteCard Rendered:", note.id);
   const router = useRouter();
   const { deleteNote } = useNoteUpload();
   const { toast } = useToast();
@@ -170,7 +158,7 @@ const NoteCard = ({
               alt={note.title}
               width={400}
               height={225}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="w-full h-full object-cover"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
                 e.currentTarget.nextElementSibling?.classList.remove("hidden");
@@ -200,7 +188,7 @@ const NoteCard = ({
             </Badge>
             {note.difficultyLevel && (
               <Badge
-                className={`text-xs font-medium ${getDifficultyColor(
+                className={`text-xs font-medium backdrop-blur-lg ${getDifficultyColor(
                   note.difficultyLevel
                 )}`}
               >
@@ -209,53 +197,90 @@ const NoteCard = ({
               </Badge>
             )}
           </div>
-          {isOwnNote ? (
-            <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-2">
-              <Button size="sm" variant="outline" asChild>
-                <Link href={`/dashboard/notes/${note.id}/edit`}>
-                  <Edit className="h-4 w-4" />
-                </Link>
-              </Button>
-
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="cursor-pointer"
-              >
-                <Trash2 className="h-4 w-4" />
-                {isDeleting && <span className="ml-1">...</span>}
-              </Button>
-            </div>
-          ) : null}
           <div className="absolute top-3 right-3">
-            <div className="flex items-center gap-1 bg-white/90 dark:bg-black/70 px-2 py-1 rounded-full text-xs">
+            <div className="flex items-center gap-1 backdrop-blur-md bg-white/90 dark:bg-card/50 px-2 py-1 rounded-full text-xs">
               <Clock className="w-3 h-3" />
-              <Text as="p" styleVariant="muted" className="text-xs">
+              <Text as="p" className="text-xs">
                 {note.estimatedReadTime}m
               </Text>
             </div>
           </div>
         </div>
+        {/* STATISTIC */}
+        <div className="flex items-center justify-between absolute bottom-1 px-2 w-full py-2">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 bg-card/50 rounded-full pr-2 backdrop-blur-xl">
+              <div className="w-6 h-6  rounded-full flex items-center justify-center">
+                <Eye className="w-3 h-3 text-cyan-500" />
+              </div>
+              <Text as="p" className="text-xs">
+                {formatCount(note.viewCount)}
+              </Text>
+            </div>
+
+            <div className="flex items-center gap-1 bg-card/50 rounded-full pr-2 backdrop-blur-xl">
+              <div className="w-6 h-6 rounded-full flex items-center justify-center">
+                <Heart className="w-3 h-3 text-red-500" />
+              </div>
+              <Text as="p" className="text-xs">
+                {formatCount(note.likeCount)}
+              </Text>
+            </div>
+
+            <div className="flex items-center gap-1 bg-card/50  rounded-full pr-2 backdrop-blur-xl">
+              <div className="w-6 h-6  rounded-full flex items-center justify-center">
+                <Download className="w-3 h-3 text-primary" />
+              </div>
+              <Text as="p" className="text-xs">
+                {formatCount(note.downloadCount)}
+              </Text>
+            </div>
+          </div>
+
+          <Text
+            as="p"
+            className="flex items-center gap-1 text-xs bg-card/50 rounded-md px-2 py-1 backdrop-blur-xl"
+          >
+            <Calendar className="w-3 h-3" />
+            {formatDate(note.createdAt)}
+          </Text>
+        </div>
       </CardHeader>
 
       <CardContent>
         {/* Title and Description */}
-        <div className="mb-4">
-          <CardTitle className="text-xl font-bold line-clamp-2 mb-2 group-hover:text-primary transition-colors leading-tight">
-            {note.title}
-          </CardTitle>
+        <div className="flex items-start justify-between mb-2 gap-2">
+          <div>
+            <CardTitle className="text-xl font-bold line-clamp-2 group-hover:text-primary transition-colors leading-tight">
+              {note.title}
+            </CardTitle>
 
-          {note.description && (
             <CardDescription className="line-clamp-2 leading-relaxed">
-              {note.description}
+              {note.description ? note.description : "test"}
             </CardDescription>
-          )}
+          </div>
+          {note.tags.length > 0 ? (
+            <div className="flex flex-wrap  justify-end gap-2">
+              {note.tags.slice(0, 2).map((tag: string, index: number) => (
+                <Badge
+                  key={index}
+                  variant="outline"
+                  className="text-xs px-2 py-1 transition-colors"
+                >
+                  #{tag}
+                </Badge>
+              ))}
+              {note.tags.length > 3 && (
+                <Badge variant="outline" className="text-xs px-2 py-1">
+                  +{note.tags.length - 2} more
+                </Badge>
+              )}
+            </div>
+          ) : null}
         </div>
 
         {/* Academic Info Row */}
-        <div className="flex items-center justify-between mb-4 pb-4 border-b border-background">
+        <div className="flex items-center justify-between my-4">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
               <BookOpen className="w-4 h-4 text-primary" />
@@ -276,7 +301,11 @@ const NoteCard = ({
           </div>
 
           {note.language && (
-            <Text as="p" styleVariant="muted" className="text-xs">
+            <Text
+              as="p"
+              styleVariant="muted"
+              className="text-xs flex items-center gap-1"
+            >
               <Globe className="w-3 h-3" />
               <span>{formatLanguage(note.language)}</span>
             </Text>
@@ -284,49 +313,10 @@ const NoteCard = ({
         </div>
 
         {/* Stats Row */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 ">
-              <div className="w-6 h-6 bg-cyan-50 dark:bg-cyan-950 rounded-full flex items-center justify-center">
-                <Eye className="w-3 h-3 text-cyan-500" />
-              </div>
-              <Text as="p" styleVariant="muted" className="text-xs">
-                {formatCount(note.viewCount)}
-              </Text>
-            </div>
-
-            <div className="flex items-center gap-1 ">
-              <div className="w-6 h-6 bg-red-50 dark:bg-red-900/30 rounded-full flex items-center justify-center">
-                <Heart className="w-3 h-3 text-red-500" />
-              </div>
-              <Text as="p" styleVariant="muted" className="text-xs">
-                {formatCount(note.likeCount)}
-              </Text>
-            </div>
-
-            <div className="flex items-center gap-1 ">
-              <div className="w-6 h-6 bg-green-50 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                <Download className="w-3 h-3 text-green-600" />
-              </div>
-              <Text as="p" styleVariant="muted" className="text-xs">
-                {formatCount(note.downloadCount)}
-              </Text>
-            </div>
-          </div>
-
-          <Text
-            as="p"
-            styleVariant="muted"
-            className="flex items-center gap-1 text-xs "
-          >
-            <Calendar className="w-3 h-3" />
-            {formatDate(note.createdAt)}
-          </Text>
-        </div>
 
         {/* Author Section */}
         {note.userProfile && (
-          <div className="flex items-center gap-3 mb-4 p-3 bg-primary/10 rounded-lg">
+          <div className="flex items-center gap-3 p-2 bg-primary/10 rounded-lg">
             <CustomizedAvatar
               src={note.userProfile.avatarUrl}
               userId={note.userProfile.id}
@@ -340,26 +330,6 @@ const NoteCard = ({
                 @{note.userProfile.username}
               </Text>
             </div>
-          </div>
-        )}
-
-        {/* Tags */}
-        {note.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {note.tags.slice(0, 3).map((tag: string, index: number) => (
-              <Badge
-                key={index}
-                variant="outline"
-                className="text-xs px-2 py-1 transition-colors"
-              >
-                #{tag}
-              </Badge>
-            ))}
-            {note.tags.length > 3 && (
-              <Badge variant="outline" className="text-xs px-2 py-1">
-                +{note.tags.length - 3} more
-              </Badge>
-            )}
           </div>
         )}
       </CardContent>

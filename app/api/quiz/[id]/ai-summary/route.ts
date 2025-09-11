@@ -7,9 +7,9 @@ import {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { quizId: string } }
 ) {
-  console.log("AI Summary API called for quiz:", params.id);
+  console.log("AI Summary API called for quiz:", params.quizId);
 
   try {
     // Check if DEEPSEEK_API_KEY is configured
@@ -34,18 +34,15 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const quizId = params.id;
+    const quizId = params.quizId;
     console.log("Processing AI summary for user:", user.id, "quiz:", quizId);
-    console.log("Quiz ID type:", typeof quizId, "Length:", quizId.length);
 
     // Get quiz information
     const { data: quiz, error: quizError } = await supabase
       .from("quizzes")
       .select("title, description, subject, academic_level, total_questions")
-      .eq("id", quizId)
+      .eq("quiz_id", quizId)
       .single();
-
-    console.log("Quiz query result:", { quiz, error: quizError });
 
     if (quizError || !quiz) {
       console.error("Quiz not found:", quizError);
@@ -235,7 +232,7 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { quizId: string } }
 ) {
   try {
     const supabase = await createClient();
@@ -247,7 +244,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const quizId = params.id;
+    const quizId = params.quizId;
 
     // Get existing summary
     const { data: summary, error } = await supabase

@@ -320,7 +320,34 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
-      notes: notes || [],
+      notes: (notes || []).map((note: any) => ({
+        id: note.id,
+        title: note.title || "Untitled Note",
+        description: note.description || "",
+        subject: note.subject || "General",
+        noteType:
+          note.note_type
+            ?.replace(/-/g, " ")
+            .replace(/\b\w/g, (l: string) => l.toUpperCase()) || "Note",
+        tags: Array.isArray(note.tags) ? note.tags : [],
+        createdAt: note.created_at,
+        estimatedReadTime: note.estimated_read_time || 5,
+        viewCount: note.view_count || 0,
+        downloadCount: note.download_count || 0,
+        likeCount: note.like_count || 0,
+        academicLevel: note.academic_level,
+        language: note.language,
+        difficultyLevel: note.difficulty_level,
+        thumbnailUrl: note.thumbnail_url || undefined,
+        userProfile: note.user_profile
+          ? {
+              id: note.user_profile.id,
+              username: note.user_profile.username,
+              fullName: note.user_profile.full_name,
+              avatarUrl: note.user_profile.avatar_url || "",
+            }
+          : undefined,
+      })),
       total: count || 0,
       page,
       limit,

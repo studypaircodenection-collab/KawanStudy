@@ -11,19 +11,16 @@ import {
   Users,
   TrendingUp,
   Clock,
-  Download,
   Plus,
   Sparkles,
   Loader2,
-  BarChart3,
   Activity,
   AlertCircle,
   Award,
-  GraduationCap,
   FileText,
 } from "lucide-react";
 import Link from "next/link";
-import { notesService } from "@/lib/services/notes";
+import { useNotes } from "@/hooks/use-notes";
 import NoteCard from "@/components/notes/note-card";
 
 // Loading component
@@ -70,6 +67,10 @@ interface TrendingNote {
   downloadCount?: number;
   likeCount?: number;
   thumbnailUrl?: string;
+  academicLevel?: string;
+  language?: string;
+  difficultyLevel?: string;
+  institution?: string;
   userProfile?: {
     id: string;
     username: string;
@@ -101,94 +102,65 @@ interface TopContributor {
 }
 
 export default function NotesPage() {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  // Real data states
-  const [trendingNotes, setTrendingNotes] = useState<TrendingNote[]>([]);
-  const [recentUploads, setRecentUploads] = useState<RecentUpload[]>([]);
   const [topContributors, setTopContributors] = useState<TopContributor[]>([]);
+  const [contributorsLoading, setContributorsLoading] = useState(true);
 
-  // Fetch trending notes (most liked/viewed in last week)
-  const fetchTrendingNotes = async () => {
-    try {
-      const result = await notesService.searchNotes(
-        "",
-        {},
-        "view_count",
-        "desc",
-        1,
-        6
-      );
-      return result.notes;
-    } catch (error) {
-      console.error("Error fetching trending notes:", error);
-      return [];
-    }
-  };
+  // Use the unified hook for trending notes (sorted by view count)
+  const {
+    data: trendingData,
+    loading: trendingLoading,
+    error: trendingError,
+  } = useNotes({
+    initialFilters: { sortBy: "view_count", sortDirection: "desc" },
+    autoLoad: true,
+  });
 
-  // Fetch recent uploads
-  const fetchRecentUploads = async () => {
-    try {
-      const result = await notesService.searchNotes(
-        "",
-        {},
-        "created_at",
-        "desc",
-        1,
-        5
-      );
-      return result.notes.map((note) => ({
-        id: note.id,
-        title: note.title,
-        description: note.description,
-        subject: note.subject,
-        createdAt: note.createdAt,
-        userProfile: note.userProfile,
-      }));
-    } catch (error) {
-      console.error("Error fetching recent uploads:", error);
-      return [];
-    }
-  };
+  // Use the unified hook for recent uploads (sorted by creation date)
+  const {
+    data: recentData,
+    loading: recentLoading,
+    error: recentError,
+  } = useNotes({
+    initialFilters: { sortBy: "created_at", sortDirection: "desc" },
+    autoLoad: true,
+  });
+
+  const trendingNotes = trendingData?.notes.slice(0, 6) || [];
+  const recentUploads = recentData?.notes.slice(0, 5).map((note) => ({
+    id: note.id,
+    title: note.title,
+    description: note.description,
+    subject: note.subject,
+    createdAt: note.createdAt,
+    userProfile: note.userProfile,
+  })) || [];
+
+  const loading = trendingLoading || recentLoading || contributorsLoading;
+  const error = trendingError || recentError;
 
   // Fetch top contributors
   const fetchTopContributors = async () => {
     try {
+      setContributorsLoading(true);
       const response = await fetch("/api/dashboard/top-contributors?limit=5");
       if (!response.ok) throw new Error("Failed to fetch contributors");
-      return await response.json();
+      const contributors = await response.json();
+      setTopContributors(contributors);
     } catch (error) {
       console.error("Error fetching top contributors:", error);
-      return [];
-    }
-  };
-
-  // Load all dashboard data
-  const loadDashboardData = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const [trending, recent, contributors] = await Promise.all([
-        fetchTrendingNotes(),
-        fetchRecentUploads(),
-        fetchTopContributors(),
-      ]);
-
-      setTrendingNotes(trending);
-      setRecentUploads(recent);
-      setTopContributors(contributors);
-    } catch (err) {
-      console.error("Dashboard load error:", err);
-      setError("Failed to load dashboard data");
+      setTopContributors([]);
     } finally {
-      setLoading(false);
+      setContributorsLoading(false);
     }
   };
 
   useEffect(() => {
-    loadDashboardData();
+    fetchTopContributors();
   }, []);
+
+  const retryLoadData = () => {
+    fetchTopContributors();
+  };
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
@@ -220,7 +192,7 @@ export default function NotesPage() {
   if (error) {
     return (
       <div className="container mx-auto space-y-8">
-        <ErrorDisplay message={error} retry={loadDashboardData} />
+        <ErrorDisplay message={error} retry={retryLoadData} />
       </div>
     );
   }
@@ -274,10 +246,8 @@ export default function NotesPage() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {trendingNotes.length > 0 ? (
             trendingNotes
-              .slice(0, 6)
-              .map((note) => (
-                <NoteCard isOwnNote={false} key={note.id} note={note} />
-              ))
+              .slice(0, trendingNotes.length > 6 ? 6 : 3)
+              .map((note) => <NoteCard key={note.id} note={note} />)
           ) : (
             <div className="col-span-full text-center py-12">
               <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -448,18 +418,27 @@ export default function NotesPage() {
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Link href="/dashboard/notes/upload" className="block">
-                <Button className="w-full justify-start" variant="outline">
+              <Button
+                className="w-full justify-start"
+                variant="outline"
+                asChild
+              >
+                <Link href="/dashboard/notes/upload">
                   <Upload className="h-4 w-4 mr-2" />
                   Upload New Notes
-                </Button>
-              </Link>
-              <Link href="/dashboard/notes/my-notes" className="block">
-                <Button className="w-full justify-start" variant="outline">
+                </Link>
+              </Button>
+
+              <Button
+                className="w-full justify-start"
+                variant="outline"
+                asChild
+              >
+                <Link href="/dashboard/notes/my-notes">
                   <Activity className="h-4 w-4 mr-2" />
                   My Notes
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         </div>

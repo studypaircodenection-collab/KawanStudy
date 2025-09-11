@@ -1,6 +1,7 @@
+"use client";
+
 import React from "react";
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import {
   Card,
   CardContent,
@@ -29,294 +30,48 @@ import {
   Globe,
   ExternalLink,
 } from "lucide-react";
-import { UserProfile, UserAchievement, PointTransaction } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import NoteCard from "@/components/notes/note-card";
+import { useProfile } from "@/hooks/use-profile";
+import { formatDate } from "@/lib/constant";
 
-// Custom interface for profile notes
-interface ProfileNotesResponse {
-  notes: Array<{
-    id: string;
-    title: string;
-    description: string;
-    subject: string;
-    noteType: string;
-    tags: string[];
-    createdAt: string;
-    estimatedReadTime: number;
-    viewCount?: number;
-    downloadCount?: number;
-    likeCount?: number;
-    thumbnailUrl?: string;
-    academicLevel?: string;
-    language?: string;
-    difficultyLevel?: string;
-    institution?: string;
-    userProfile?: {
-      id: string;
-      username: string;
-      fullName: string;
-      avatarUrl: string;
-    };
-  }>;
-  total: number;
-  page: number;
-  limit: number;
-  hasMore: boolean;
-}
 interface ProfilePageProps {
   params: Promise<{
     username: string;
   }>;
 }
 
-async function getUserProfile(username: string): Promise<UserProfile | null> {
-  const supabase = await createClient();
+function ProfilePageContent({ username }: { username: string }) {
+  const { data, loading, error } = useProfile(username);
 
-  const { data, error } = await supabase.rpc("get_profile_by_username", {
-    username_param: username,
-  });
-
-  if (error || !data || data.length === 0) {
-    return null;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading profile...</p>
+        </div>
+      </div>
+    );
   }
 
-  return data[0];
-}
-
-async function getCurrentUser(): Promise<{
-  username: string | null;
-  userId: string | null;
-}> {
-  const supabase = await createClient();
-
-  try {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-
-    if (error || !user) {
-      return { username: null, userId: null };
-    }
-
-    // Get the user's profile to get their username
-    const { data: profiles, error: profileError } = await supabase
-      .from("profiles")
-      .select("username")
-      .eq("id", user.id)
-      .single();
-
-    if (profileError || !profiles) {
-      return { username: null, userId: user.id };
-    }
-
-    return { username: profiles.username, userId: user.id };
-  } catch (error) {
-    console.error("Error getting current user:", error);
-    return { username: null, userId: null };
-  }
-}
-
-async function getUserAchievements(userId: string): Promise<UserAchievement[]> {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase.rpc("get_user_achievements", {
-    p_user_id: userId,
-  });
-
-  if (error) {
-    console.error("Error fetching achievements:", error);
-    return [];
-  }
-
-  return data || [];
-}
-
-async function getUserConnections(userId: string): Promise<number> {
-  try {
-    const supabase = await createClient();
-
-    const { count, error } = await supabase
-      .from("peer_connections")
-      .select("*", { count: "exact", head: true })
-      .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
-      .eq("status", "accepted");
-
-    if (error) {
-      console.error("Error fetching connections count:", error);
-      return 0;
-    }
-
-    return count || 0;
-  } catch (error) {
-    console.error("Error fetching connections count:", error);
-    return 0;
-  }
-}
-
-async function getRecentPointHistory(
-  userId: string
-): Promise<PointTransaction[]> {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase.rpc("get_user_point_history", {
-    p_user_id: userId,
-    p_limit: 5,
-  });
-
-  if (error) {
-    console.error("Error fetching point history:", error);
-    return [];
-  }
-
-  return data || [];
-}
-
-async function getUserNotes(userId: string): Promise<ProfileNotesResponse> {
-  const supabase = await createClient();
-
-  try {
-    const { data: notes, error } = await supabase
-      .from("notes")
-      .select(
-        `
-        id,
-        title,
-        description,
-        subject,
-        note_type,
-        tags,
-        created_at,
-        estimated_read_time,
-        view_count,
-        download_count,
-        like_count,
-        academic_level,
-        language,
-        difficulty_level,
-        institution,
-        file_url,
-        user_id,
-        profiles!notes_user_id_fkey (
-          id,
-          username,
-          full_name,
-          avatar_url
-        )
-      `
-      )
-      .eq("user_id", userId)
-      .eq("status", "published")
-      .eq("visibility", "public")
-      .order("created_at", { ascending: false })
-      .limit(3);
-
-    if (error) {
-      console.error("Error fetching user notes:", error);
-      return {
-        notes: [],
-        total: 0,
-        page: 1,
-        limit: 3,
-        hasMore: false,
-      };
-    }
-
-    if (!notes || notes.length === 0) {
-      return {
-        notes: [],
-        total: 0,
-        page: 1,
-        limit: 3,
-        hasMore: false,
-      };
-    }
-
-    // Transform the data to match our interface with proper type safety
-    const transformedNotes = (notes || []).map((note: any) => {
-      const noteCard = {
-        id: note.id,
-        title: note.title || "Untitled Note",
-        description: note.description || "",
-        subject: note.subject || "General",
-        noteType:
-          note.note_type
-            ?.replace(/-/g, " ")
-            .replace(/\b\w/g, (l: string) => l.toUpperCase()) || "Note",
-        tags: Array.isArray(note.tags) ? note.tags : [],
-        createdAt: note.created_at,
-        estimatedReadTime: note.estimated_read_time || 5,
-        viewCount: note.view_count || 0,
-        downloadCount: note.download_count || 0,
-        likeCount: note.like_count || 0,
-        academicLevel: note.academic_level,
-        language: note.language,
-        difficultyLevel: note.difficulty_level,
-        institution: note.institution,
-        thumbnailUrl: note.file_url
-          ? `${note.file_url}?thumbnail=true`
-          : undefined,
-        userProfile: note.profiles
-          ? {
-              id: note.profiles.id,
-              username: note.profiles.username,
-              fullName: note.profiles.full_name,
-              avatarUrl: note.profiles.avatar_url || "",
-            }
-          : undefined,
-      };
-      return noteCard;
-    });
-
-    return {
-      notes: transformedNotes,
-      total: transformedNotes.length,
-      page: 1,
-      limit: 3,
-      hasMore: transformedNotes.length === 3, // If we got 3 notes, there might be more
-    };
-  } catch (error) {
-    console.error("Error fetching user notes:", error);
-    return {
-      notes: [],
-      total: 0,
-      page: 1,
-      limit: 3,
-      hasMore: false,
-    };
-  }
-}
-
-export default async function ProfilePage({ params }: ProfilePageProps) {
-  const { username } = await params;
-  const profile = await getUserProfile(username);
-
-  if (!profile) {
+  if (error || !data) {
     notFound();
   }
 
-  // Get current user info to determine if this is their own profile
-  const currentUser = await getCurrentUser();
+  const {
+    profile,
+    currentUser,
+    achievements,
+    connectionsCount,
+    pointHistory,
+    notes,
+  } = data;
   const isOwnProfile = currentUser.username === username;
 
-  const [achievements, pointHistory, connectionsCount, notesData] =
-    await Promise.all([
-      getUserAchievements(profile.id),
-      getRecentPointHistory(profile.id),
-      getUserConnections(profile.id),
-      getUserNotes(profile.id),
-    ]);
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+ 
 
   const getActivityIcon = (source: string) => {
     switch (source) {
@@ -336,6 +91,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         return "⭐";
     }
   };
+
   return (
     <div className="container mx-auto space-y-6">
       {/* Header Section */}
@@ -343,20 +99,21 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         {/* Profile Info */}
         <div className={`w-full  ${isOwnProfile ? "lg:w-full" : "lg:w-full"}`}>
           <div className="relative">
-            <div 
-              className="rounded-xl aspect-4/1 bg-cover bg-center bg-no-repeat"
+            <div
+              className={`rounded-xl aspect-4/1 bg-cover bg-center bg-no-repeat ${
+                profile.header_image_url ? " " : "bg-card"
+              }`}
               style={{
-                backgroundImage: profile.header_image_url 
-                  ? `url(${profile.header_image_url})` 
+                backgroundImage: profile.header_image_url
+                  ? `url(${profile.header_image_url})`
                   : undefined,
-                backgroundColor: profile.header_image_url ? undefined : '#6b7280'
               }}
             >
               {!profile.header_image_url && (
                 <div className="w-full h-full flex items-center justify-center text-white">
                   <div className="text-center">
                     <Globe className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm opacity-75">No header image</p>
+                    <p className="text-sm opacity-75">no header yet....</p>
                   </div>
                 </div>
               )}
@@ -403,8 +160,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                         </Badge>
                       </div>
                     </div>
-
-                    {/* Action Buttons - only show if not viewing own profile */}
                   </div>
                 </div>
                 <div className="flex justify-end items-start gap-2 mt-2 text-sm text-muted-foreground flex-wrap">
@@ -442,7 +197,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     title="LinkedIn Profile"
                   >
                     <Linkedin className="h-5 w-5" />
-
                     <span className="text-sm">{profile.linkedin_url}</span>
                     <ExternalLink className="h-3 w-3" />
                   </Link>
@@ -456,7 +210,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     title="GitHub Profile"
                   >
                     <Github className="h-5 w-5" />
-
                     <span className="text-sm">{profile.github_url}</span>
                     <ExternalLink className="h-3 w-3" />
                   </Link>
@@ -470,7 +223,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     title="Instagram Profile"
                   >
                     <Instagram className="h-5 w-5" />
-
                     <span className="text-sm">{profile.instagram_url}</span>
                     <ExternalLink className="h-3 w-3" />
                   </Link>
@@ -497,7 +249,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     title="Personal Website"
                   >
                     <Globe className="h-5 w-5" />
-
                     <span className="text-sm">{profile.website_url}</span>
                     <ExternalLink className="h-3 w-3" />
                   </Link>
@@ -557,7 +308,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               {achievements.map((achievement) => (
                 <AchievementBadge
                   key={achievement.achievement_id}
-                  achievement={achievement}
+                  achievement={achievement as any}
                 />
               ))}
             </div>
@@ -576,7 +327,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       ) : null}
 
       {/* Notes */}
-
       <div className="flex items-center justify-between">
         <div className="flex justify-between items-center gap-2 w-full">
           <div>
@@ -585,7 +335,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               {isOwnProfile ? "you" : profile.username || profile.full_name}
             </CardTitle>
             <CardDescription>
-              {notesData.notes.length === 0
+              {notes.notes.length === 0
                 ? isOwnProfile
                   ? "You haven't uploaded any notes yet."
                   : `${
@@ -599,7 +349,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             </CardDescription>
           </div>
           <div>
-            {notesData.hasMore && (
+            {notes.hasMore && (
               <Button variant="outline" asChild>
                 <Link href={`/dashboard/notes/browse/${profile.username}`}>
                   View All Notes
@@ -611,11 +361,10 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         </div>
       </div>
 
-      {notesData.notes.length > 0 ? (
+      {notes.notes.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {notesData.notes.map((note) => (
+          {notes.notes.map((note) => (
             <NoteCard
-              isOwnNote={note.userProfile?.id === (profile.id || "") || false}
               key={note.id}
               note={note}
             />
@@ -703,4 +452,10 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       )}
     </div>
   );
+}
+
+export default async function ProfilePage({ params }: ProfilePageProps) {
+  const { username } = await params;
+
+  return <ProfilePageContent username={username} />;
 }

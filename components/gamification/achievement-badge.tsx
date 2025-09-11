@@ -1,6 +1,7 @@
 import React from "react";
 import { UserAchievement } from "@/lib/types";
-import { Badge } from "../ui/badge";
+import { Badge } from "@/components/ui/badge";
+import { formatDate } from "@/lib/constant";
 
 const getRarityColor = (rarity: string) => {
   switch (rarity) {
@@ -17,13 +18,6 @@ const getRarityColor = (rarity: string) => {
   }
 };
 
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
 
 const AchievementBadge = ({
   achievement,

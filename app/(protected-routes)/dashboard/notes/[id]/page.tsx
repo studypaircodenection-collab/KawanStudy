@@ -180,40 +180,6 @@ export default function NoteDetailsPage() {
     );
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const getDifficultyColor = (difficulty: string | undefined) => {
-    if (!difficulty) return "bg-gray-100 text-gray-800";
-
-    switch (difficulty.toLowerCase()) {
-      case "easy":
-        return "bg-green-100 text-green-800";
-      case "medium":
-        return "bg-yellow-100 text-yellow-800";
-      case "advanced":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getFormatIcon = (format: string) => {
-    switch (format.toLowerCase()) {
-      case "pdf":
-        return <FileText className="h-4 w-4" />;
-      default:
-        return <BookOpen className="h-4 w-4" />;
-    }
-  };
-
   // Share functionality
   const copyToClipboard = async () => {
     try {

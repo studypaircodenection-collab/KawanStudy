@@ -8,10 +8,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Download,
   Heart,
-  MessageCircle,
   Eye,
   Calendar,
-  User,
   Building,
   ExternalLink,
   BookOpen,
@@ -19,7 +17,7 @@ import {
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
-
+import { formatDate } from "@/lib/constant";
 interface Paper {
   id: string;
   title: string;
@@ -131,10 +129,6 @@ export function PaperCard({ paper }: PaperCardProps) {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-  };
-
   const formatAcademicLevel = (level: string) => {
     return level.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
   };
@@ -199,12 +193,6 @@ export function PaperCard({ paper }: PaperCardProps) {
               <span>{paper.institution}</span>
             </div>
           )}
-          {paper.professor && (
-            <div className="flex items-center gap-1">
-              <User className="h-3 w-3" />
-              <span>Prof. {paper.professor}</span>
-            </div>
-          )}
           <div className="flex items-center gap-1">
             <Calendar className="h-3 w-3" />
             <span>{paper.year}</span>
@@ -244,10 +232,6 @@ export function PaperCard({ paper }: PaperCardProps) {
             <div className="flex items-center gap-1">
               <Heart className="h-4 w-4" />
               <span>{likeCount}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <MessageCircle className="h-4 w-4" />
-              <span>{paper.commentCount}</span>
             </div>
           </div>
         </div>

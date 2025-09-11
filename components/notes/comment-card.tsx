@@ -51,7 +51,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
     });
   }, []);
 
-  const formatDate = (dateString: string) => {
+  const CommentformatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = Math.floor(
@@ -136,7 +136,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                     [Anonymous]
                   </Text>
                   <Text as="p" styleVariant="muted">
-                    {formatDate(comment.created_at)}
+                    {CommentformatDate(comment.created_at)}
                   </Text>
                 </>
               ) : (
@@ -151,7 +151,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
                     @{comment.profiles.username}
                   </Text>
                   <Text as="p" styleVariant="muted" className="text-xs">
-                    {formatDate(comment.created_at)}
+                    {CommentformatDate(comment.created_at)}
                   </Text>
                 </>
               )}

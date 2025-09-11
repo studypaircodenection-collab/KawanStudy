@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
-  NoteSearchFilters,
   SUBJECTS,
   ACADEMIC_LEVELS,
   NOTE_TYPES,
   LANGUAGES,
   DIFFICULTY_LEVELS,
 } from "@/types/notes";
-import { notesService, NotesListResponse } from "@/lib/services/notes";
+import { useNotes, NotesFilters } from "@/hooks/use-notes";
 import NoteCard from "@/components/notes/note-card";
 import { Search, BookOpen, ChevronDown, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,8 +23,6 @@ import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
 import { Text } from "../ui/typography";
 import { Label } from "../ui/label";
-import { Skeleton } from "../ui/skeleton";
-import { debounce } from "lodash";
 import {
   Pagination,
   PaginationContent,
@@ -38,76 +35,36 @@ import {
 const KawanStudyNotes = () => {
   // State management
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<NoteSearchFilters>({});
-  const [sortBy, setSortBy] = useState<string>("created_at");
-  const [sortDirection] = useState<"asc" | "desc">("desc");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(12); // Fixed items per page
-  const [notesData, setNotesData] = useState<NotesListResponse>({
+
+  const {
+    data,
+    loading,
+    filters,
+    currentPage,
+    updateFilters,
+    clearFilters,
+    goToPage,
+  } = useNotes({
+    initialFilters: { sortBy: "created_at", sortDirection: "desc" },
+    autoLoad: true,
+  });
+
+  // Default empty data
+  const notesData = data || {
     notes: [],
     total: 0,
     page: 1,
     limit: 12,
     hasMore: false,
-  });
-
-  // Load notes data
-  const loadNotes = async (pageNumber: number = currentPage) => {
-    setLoading(true);
-    try {
-      const result = await notesService.searchNotes(
-        searchTerm,
-        filters,
-        sortBy,
-        sortDirection,
-        pageNumber,
-        itemsPerPage
-      );
-
-      setNotesData(result);
-      setCurrentPage(pageNumber);
-    } catch (error) {
-      console.error("Error loading notes:", error);
-    } finally {
-      setLoading(false);
-    }
   };
 
-  // Load notes on component mount and when filters change
-  useEffect(() => {
-    loadNotes(1); // Always start from page 1 when filters change
-  }, [filters, sortBy, sortDirection]);
-
-  // Debounced search effect
-  useEffect(() => {
-    const debouncedSearch = debounce(() => {
-      if (searchTerm !== undefined) {
-        loadNotes(1); // Always start from page 1 when search changes
-      }
-    }, 500); // 500ms delay
-
-    debouncedSearch();
-
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, [searchTerm]);
-
-  // Handle page change
-  const handlePageChange = (pageNumber: number) => {
-    if (pageNumber !== currentPage && pageNumber > 0) {
-      loadNotes(pageNumber);
-      // Scroll to top of results
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
+  console.log("Notes Data:", notesData);
 
   // Calculate pagination info
-  const totalPages = Math.ceil(notesData.total / itemsPerPage);
-  const startItem = (currentPage - 1) * itemsPerPage + 1;
-  const endItem = Math.min(currentPage * itemsPerPage, notesData.total);
+  const totalPages = Math.ceil(notesData.total / notesData.limit);
+  const startItem = (currentPage - 1) * notesData.limit + 1;
+  const endItem = Math.min(currentPage * notesData.limit, notesData.total);
 
   // Generate page numbers for pagination
   const getPageNumbers = () => {
@@ -146,24 +103,21 @@ const KawanStudyNotes = () => {
 
   // Handle filter changes
   const handleFilterChange = (
-    key: keyof NoteSearchFilters,
+    key: keyof NotesFilters,
     value: string | undefined
   ) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: value === "all" ? undefined : value,
-    }));
-  };
-
-  // Clear all filters
-  const clearFilters = () => {
-    setFilters({});
-    setSearchTerm("");
+    updateFilters({ [key]: value === "all" ? undefined : value });
   };
 
   // Handle search term change with debounce
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
+    // Simple debounce using setTimeout
+    const timeoutId = setTimeout(() => {
+      updateFilters({ search: value || undefined });
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
   };
 
   // Active filters count
@@ -215,7 +169,10 @@ const KawanStudyNotes = () => {
               />
             </Button>
 
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select
+              value={filters.sortBy}
+              onValueChange={(value) => updateFilters({ sortBy: value })}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
@@ -352,7 +309,14 @@ const KawanStudyNotes = () => {
 
             {activeFiltersCount > 0 && (
               <div className="mt-4">
-                <Button variant="outline" size="sm" onClick={clearFilters}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    clearFilters();
+                    setSearchTerm("");
+                  }}
+                >
                   <X className="w-4 h-4 mr-2" />
                   Clear all filters
                 </Button>
@@ -384,9 +348,9 @@ const KawanStudyNotes = () => {
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
           {notesData.notes.map((note) => (
-            <NoteCard key={note.id} note={note} isOwnNote={false} />
+            <NoteCard key={note.id} note={note} />
           ))}
         </div>
       )}
@@ -400,7 +364,7 @@ const KawanStudyNotes = () => {
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  handlePageChange(currentPage - 1);
+                  goToPage(currentPage - 1);
                 }}
                 className={
                   currentPage === 1 ? "pointer-events-none opacity-50" : ""
@@ -414,7 +378,7 @@ const KawanStudyNotes = () => {
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
-                    handlePageChange(pageNum);
+                    goToPage(pageNum);
                   }}
                   isActive={pageNum === currentPage}
                 >
@@ -428,7 +392,7 @@ const KawanStudyNotes = () => {
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  handlePageChange(currentPage + 1);
+                  goToPage(currentPage + 1);
                 }}
                 className={
                   currentPage === totalPages
@@ -449,7 +413,14 @@ const KawanStudyNotes = () => {
           <Text as="p" styleVariant="muted">
             Try adjusting your search terms or filters
           </Text>
-          <Button onClick={clearFilters}>Clear all filters</Button>
+          <Button
+            onClick={() => {
+              clearFilters();
+              setSearchTerm("");
+            }}
+          >
+            Clear all filters
+          </Button>
         </div>
       )}
     </div>

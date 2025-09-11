@@ -43,6 +43,7 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import PDFViewer from "@/components/pdf-viewer";
+import { formatDate } from "@/lib/constant";
 
 interface PaperData {
   id: string;
@@ -125,7 +126,6 @@ export default function PaperPage() {
         setLoading(false);
       }
     };
-
 
     if (paperId) {
       fetchPaper();
@@ -275,16 +275,6 @@ export default function PaperPage() {
       </div>
     );
   }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const getDifficultyColor = (difficulty: string | undefined) => {
     if (!difficulty) return "bg-gray-100 text-gray-800";

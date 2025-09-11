@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -13,52 +12,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, BookOpen, Eye, Heart, Download, Plus } from "lucide-react";
+import {
+  Search,
+  BookOpen,
+  Eye,
+  Heart,
+  Download,
+  Plus,
+} from "lucide-react";
 import Link from "next/link";
 import NoteCard from "@/components/notes/note-card";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
-interface MyNote {
-  id: string;
-  title: string;
-  description: string;
-  subject: string;
-  noteType: string;
-  tags: string[];
-  createdAt: string;
-  estimatedReadTime: number;
-  viewCount: number;
-  downloadCount: number;
-  likeCount: number;
-  academicLevel: string;
-  language: string;
-  difficultyLevel: string;
-  institution: string;
-  status: string;
-  visibility: string;
-  thumbnailUrl?: string;
-  userProfile?: {
-    id: string;
-    username: string;
-    fullName: string;
-    avatarUrl: string;
-  };
-}
-
-interface NotesStats {
-  totalNotes: number;
-  totalViews: number;
-  totalLikes: number;
-  totalDownloads: number;
-  publicNotes: number;
-  privateNotes: number;
-}
+import { useNotes } from "@/hooks/use-notes";
 
 const MyNotesPage = () => {
-  const [notes, setNotes] = useState<MyNote[]>([]);
-  const [filteredNotes, setFilteredNotes] = useState<MyNote[]>([]);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<NotesStats | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSubject, setFilterSubject] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -66,148 +36,63 @@ const MyNotesPage = () => {
   const supabase = createClient();
   const router = useRouter();
 
+  // Use the unified notes hook for current user's notes
+  const {
+    data: notesData,
+    loading: notesLoading,
+    error: notesError,
+    filters,
+    updateFilters,
+    refetch,
+  } = useNotes({
+    myNotes: true, // Fetch current user's notes including private ones
+    initialFilters: { sortBy: "created_at", sortDirection: "desc" },
+    autoLoad: !!currentUser, // Only auto-load when we have authenticated user
+  });
+
   useEffect(() => {
-    fetchUserAndNotes();
+    fetchCurrentUser();
   }, []);
 
-  useEffect(() => {
-    applyFilters();
-  }, [notes, searchTerm, filterSubject, filterStatus, filterVisibility]);
-
-  const fetchUserAndNotes = async () => {
+  const fetchCurrentUser = async () => {
     try {
       setLoading(true);
-
-      // Get current user
       const {
         data: { user: currentUser },
         error: authError,
       } = await supabase.auth.getUser();
+
       if (authError || !currentUser) {
         router.push("/auth/login");
         return;
       }
 
-      // Get user profile
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", currentUser.id)
-        .single();
-
-      if (profileError) {
-        console.error("Error fetching profile:", profileError);
-        return;
-      }
-
-      // Fetch user's notes
-      const { data: notesData, error: notesError } = await supabase
-        .from("notes")
-        .select(
-          `
-          id,
-          title,
-          description,
-          subject,
-          note_type,
-          tags,
-          created_at,
-          estimated_read_time,
-          view_count,
-          download_count,
-          like_count,
-          academic_level,
-          language,
-          difficulty_level,
-          institution,
-          status,
-          visibility,
-          file_url,
-          profiles!notes_user_id_fkey (
-            id,
-            username,
-            full_name,
-            avatar_url
-          )
-        `
-        )
-        .eq("user_id", currentUser.id)
-        .order("created_at", { ascending: false });
-
-      if (notesError) {
-        console.error("Error fetching notes:", notesError);
-        return;
-      }
-
-      // Transform notes data
-      const transformedNotes = (notesData || []).map((note: any) => ({
-        id: note.id,
-        title: note.title || "Untitled Note",
-        description: note.description || "",
-        subject: note.subject || "General",
-        noteType:
-          note.note_type
-            ?.replace(/-/g, " ")
-            .replace(/\b\w/g, (l: string) => l.toUpperCase()) || "Note",
-        tags: Array.isArray(note.tags) ? note.tags : [],
-        createdAt: note.created_at,
-        estimatedReadTime: note.estimated_read_time || 5,
-        viewCount: note.view_count || 0,
-        downloadCount: note.download_count || 0,
-        likeCount: note.like_count || 0,
-        academicLevel: note.academic_level,
-        language: note.language,
-        difficultyLevel: note.difficulty_level,
-        institution: note.institution,
-        status: note.status,
-        visibility: note.visibility,
-        thumbnailUrl: note.file_url
-          ? `${note.file_url}?thumbnail=true`
-          : undefined,
-        userProfile: note.profiles
-          ? {
-              id: note.profiles.id,
-              username: note.profiles.username,
-              fullName: note.profiles.full_name,
-              avatarUrl: note.profiles.avatar_url || "",
-            }
-          : undefined,
-      }));
-
-      setNotes(transformedNotes);
-
-      // Calculate stats
-      const notesStats: NotesStats = {
-        totalNotes: transformedNotes.length,
-        totalViews: transformedNotes.reduce(
-          (sum, note) => sum + note.viewCount,
-          0
-        ),
-        totalLikes: transformedNotes.reduce(
-          (sum, note) => sum + note.likeCount,
-          0
-        ),
-        totalDownloads: transformedNotes.reduce(
-          (sum, note) => sum + note.downloadCount,
-          0
-        ),
-        publicNotes: transformedNotes.filter(
-          (note) => note.visibility === "public"
-        ).length,
-        privateNotes: transformedNotes.filter(
-          (note) => note.visibility === "private"
-        ).length,
-      };
-
-      setStats(notesStats);
+      setCurrentUser(currentUser);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching user:", error);
+      router.push("/auth/login");
     } finally {
       setLoading(false);
     }
   };
 
-  const applyFilters = () => {
+  // Get notes and stats from the unified API response
+  const notes = notesData?.notes || [];
+  const stats = notesData?.stats
+    ? {
+        totalNotes: notesData.stats.totalPublicNotes || 0,
+        totalViews: notesData.stats.totalViews || 0,
+        totalLikes: notesData.stats.totalLikes || 0,
+        totalDownloads: notesData.stats.totalDownloads || 0,
+        publicNotes: notes.filter((note) => note.visibility === "public")
+          .length,
+        privateNotes: notes.filter((note) => note.visibility === "private")
+          .length,
+      }
+    : null;
+
+  // Apply local filters to the fetched notes
+  const getFilteredNotes = () => {
     let filtered = notes;
 
     // Apply search filter
@@ -217,7 +102,7 @@ const MyNotesPage = () => {
           note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           note.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
           note.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          note.tags.some((tag) =>
+          note.tags.some((tag: string) =>
             tag.toLowerCase().includes(searchTerm.toLowerCase())
           )
       );
@@ -228,7 +113,7 @@ const MyNotesPage = () => {
       filtered = filtered.filter((note) => note.subject === filterSubject);
     }
 
-    // Apply status filter
+    // Apply status filter (note: API only returns published notes, but we can add this for future use)
     if (filterStatus !== "all") {
       filtered = filtered.filter((note) => note.status === filterStatus);
     }
@@ -240,19 +125,21 @@ const MyNotesPage = () => {
       );
     }
 
-    setFilteredNotes(filtered);
+    return filtered;
   };
 
-  const getUniqueSubjects = () => {
+  const filteredNotes = getFilteredNotes();
+
+  const getUniqueSubjects = (): string[] => {
     const subjects = [...new Set(notes.map((note) => note.subject))];
     return subjects.sort();
   };
 
-  if (loading) {
+  if (loading || notesLoading) {
     return (
       <div className="container mx-auto py-6">
         <div className="max-w-7xl mx-auto">
-          <Skeleton className="h-8  rounded mb-6"></Skeleton>
+          <Skeleton className="h-8 rounded mb-6"></Skeleton>
           <Skeleton className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-24 rounded"></div>
@@ -264,6 +151,24 @@ const MyNotesPage = () => {
             ))}
           </Skeleton>
         </div>
+      </div>
+    );
+  }
+
+  // Show error state if there's an error fetching notes
+  if (notesError) {
+    return (
+      <div className="container mx-auto py-6">
+        <Card>
+          <CardContent className="text-center py-12">
+            <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Error loading notes</h3>
+            <p className="text-muted-foreground mb-4">
+              There was an error loading your notes. Please try again.
+            </p>
+            <Button onClick={refetch}>Try Again</Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -403,10 +308,10 @@ const MyNotesPage = () => {
 
       {/* Notes Grid */}
       {filteredNotes.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {filteredNotes.map((note) => (
             <div key={note.id} className="relative group">
-              <NoteCard note={note} isOwnNote={true} />
+              <NoteCard note={note} />
             </div>
           ))}
         </div>
