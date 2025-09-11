@@ -418,7 +418,7 @@ const NotificationPopup = () => {
                 )}
 
                 <DropdownMenuItem asChild>
-                  <Link href="/dashboard/settings">
+                  <Link href="/dashboard/settings?tab=notifications">
                     <Settings className="h-4 w-4 mr-2" />
                     Notification settings
                   </Link>

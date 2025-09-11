@@ -996,6 +996,7 @@ const CreateQuizPage = () => {
                                   <Button
                                     type="button"
                                     variant={isSelected ? "default" : "outline"}
+                                    className="aspect-square w-10"
                                     size="sm"
                                     onClick={() =>
                                       toggleMultipleChoiceOption(
@@ -1021,6 +1022,7 @@ const CreateQuizPage = () => {
                                                 : "outline"
                                             }
                                             size="sm"
+                                            className="aspect-square w-10"
                                             onClick={() =>
                                               field.onChange(optionIndex)
                                             }

@@ -304,21 +304,6 @@ async function ChatContent() {
           Manage all your conversations with KawanStudy members
         </p>
       </div>
-
-      {/* Search and New Chat */}
-      <div className="flex gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search conversations..." className="pl-10" />
-        </div>
-        <Link href="/dashboard/peer">
-          <Button variant="outline" className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            New Chat
-          </Button>
-        </Link>
-      </div>
-
       {/* Stats */}
       <ConversationStats conversations={conversations} />
 
@@ -329,8 +314,9 @@ async function ChatContent() {
             <MessageCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="font-semibold text-xl mb-2">No conversations yet</h3>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              Start your first conversation by visiting someone&apos;s profile and
-              clicking the message button, or browse users on the leaderboard.
+              Start your first conversation by visiting someone&apos;s profile
+              and clicking the message button, or browse users on the
+              leaderboard.
             </p>
             <div className="flex gap-4 justify-center">
               <Link href="/dashboard/peer">

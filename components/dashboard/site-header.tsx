@@ -46,7 +46,7 @@ export function SiteHeader() {
     // Refresh stats immediately when component mounts
     refreshStats();
 
-    // Set up periodic refresh every 30 seconds
+    // not up periodic refresh every 30 seconds
     intervalRef.current = setInterval(() => {
       refreshStats();
     }, 30000);

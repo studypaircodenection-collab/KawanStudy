@@ -124,6 +124,8 @@ export function useNotifications() {
     const user = await supabase.auth.getUser();
     if (!user.data.user) return;
 
+    console.log("🔗 Setting up realtime subscription for user:", user.data.user.id);
+
     realtimeChannel.current = supabase
       .channel(`notifications:${user.data.user.id}`)
       .on(
@@ -135,6 +137,7 @@ export function useNotifications() {
           filter: `user_id=eq.${user.data.user.id}`,
         },
         (payload) => {
+          console.log("➕ New notification received:", payload.new);
           const newNotification = transformNotification(payload.new);
           setNotifications((prev) => [newNotification, ...prev]);
 
@@ -153,6 +156,7 @@ export function useNotifications() {
           filter: `user_id=eq.${user.data.user.id}`,
         },
         (payload) => {
+          console.log("📝 Notification updated:", payload.new);
           const updatedNotification = transformNotification(payload.new);
           setNotifications((prev) =>
             prev.map((n) =>
@@ -161,7 +165,23 @@ export function useNotifications() {
           );
         }
       )
-      .subscribe();
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${user.data.user.id}`,
+        },
+        (payload) => {
+          console.log("🗑️ Notification deleted via realtime:", payload.old);
+          const deletedId = payload.old.id;
+          setNotifications((prev) => prev.filter((n) => n.id !== deletedId));
+        }
+      )
+      .subscribe((status) => {
+        console.log("🔄 Realtime subscription status:", status);
+      });
   };
 
   const playNotificationSound = () => {
@@ -297,6 +317,8 @@ export function useNotifications() {
 
   const deleteNotification = useCallback(
     async (notificationId: string) => {
+      console.log("🗑️ Attempting to delete notification:", notificationId);
+      
       // Set loading state for this specific action
       setActionLoading((prev) => new Set(prev).add(`delete-${notificationId}`));
 
@@ -304,30 +326,67 @@ export function useNotifications() {
       const originalNotification = notifications.find(
         (n) => n.id === notificationId
       );
+      
+      if (!originalNotification) {
+        console.warn("⚠️ Notification not found in local state:", notificationId);
+        setActionLoading((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(`delete-${notificationId}`);
+          return newSet;
+        });
+        return;
+      }
 
       // Optimistic update - remove from UI immediately
       setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
 
-      // Then sync with backend
       try {
-        const { error } = await supabase
-          .from("notifications")
-          .delete()
-          .eq("id", notificationId);
-
-        if (error) throw error;
-      } catch (err) {
-        console.error("Error syncing delete to backend:", err);
-        // Revert optimistic update on failure
-        if (originalNotification) {
-          setNotifications((prev) =>
-            [...prev, originalNotification].sort(
-              (a, b) =>
-                new Date(b.timestamp).getTime() -
-                new Date(a.timestamp).getTime()
-            )
-          );
+        const user = await supabase.auth.getUser();
+        if (!user.data.user) {
+          throw new Error("User not authenticated");
         }
+
+        console.log("🔄 Calling delete RPC function...");
+        
+        // Use the RPC function that should exist after database reset
+        const { data, error } = await supabase.rpc("delete_user_notification", {
+          p_notification_id: notificationId,
+        });
+
+        console.log("📊 Delete RPC response:", { data, error });
+
+        if (error) {
+          console.error("❌ RPC delete error:", error);
+          throw error;
+        }
+
+        // Check if the deletion was successful
+        if (data === false || data === 0) {
+          throw new Error("Notification not found or access denied");
+        }
+
+        console.log("✅ Notification deleted successfully");
+        
+        // Clear any error state
+        setError(null);
+        
+      } catch (err) {
+        console.error("💥 Error deleting notification:", err);
+        
+        // Revert optimistic update on failure
+        setNotifications((prev) =>
+          [...prev, originalNotification].sort(
+            (a, b) =>
+              new Date(b.timestamp).getTime() -
+              new Date(a.timestamp).getTime()
+          )
+        );
+        
+        // Set error state for user feedback
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+        setError(`Failed to delete notification: ${errorMessage}`);
+        
+        // Re-throw for component-level error handling
         throw err;
       } finally {
         setActionLoading((prev) => {
@@ -341,30 +400,47 @@ export function useNotifications() {
   );
 
   const clearAllNotifications = useCallback(async () => {
+    console.log("🧹 Attempting to clear all notifications");
+    
     // Set loading state for clear all action
     setActionLoading((prev) => new Set(prev).add("clear-all"));
 
     // Store original notifications for potential rollback
     const originalNotifications = [...notifications];
+    const notificationCount = notifications.length;
 
     // Optimistic update - clear UI immediately
     setNotifications([]);
 
-    // Then sync with backend
     try {
-      const user = await supabase.auth.getUser();
-      if (!user.data.user) return;
+      console.log("🔄 Calling clear all RPC function...");
 
-      const { error } = await supabase
-        .from("notifications")
-        .delete()
-        .eq("user_id", user.data.user.id);
+      // Use the new RPC function for reliable deletion
+      const { data, error } = await supabase.rpc("clear_all_user_notifications");
 
-      if (error) throw error;
+      console.log("📊 Clear all RPC response:", { data, error, deletedCount: data });
+
+      if (error) {
+        console.error("❌ RPC clear all error:", error);
+        throw error;
+      }
+
+      console.log(`✅ Successfully cleared ${data || 0} notifications`);
+      
+      // Clear any error state
+      setError(null);
+      
     } catch (err) {
-      console.error("Error syncing clear all to backend:", err);
+      console.error("💥 Error clearing all notifications:", err);
+      
       // Revert optimistic update on failure
       setNotifications(originalNotifications);
+      
+      // Set error state for user feedback
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      setError(`Failed to clear notifications: ${errorMessage}`);
+      
+      // Re-throw for component-level error handling
       throw err;
     } finally {
       setActionLoading((prev) => {
@@ -448,6 +524,11 @@ export function useNotifications() {
     [supabase]
   );
 
+  // Clear error state
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
   // Helper functions
   const getUnreadCount = useCallback(() => {
     return notifications.filter((n) => !n.isRead).length;
@@ -503,6 +584,7 @@ export function useNotifications() {
     settings,
     isLoading,
     error,
+    clearError,
     actionLoading,
     unreadCount: getUnreadCount(),
     markAsRead,

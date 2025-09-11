@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   User,
@@ -17,7 +18,22 @@ import AccountSetting from "@/components/settings/account-setting";
 import PersonalizationSetting from "@/components/settings/personalization-setting";
 
 const SettingsPage = () => {
-  const [activeTab, setActiveTab] = useState("profile");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const stripQuotes = (value: string | null) =>
+    value ? value.replace(/^"|"$/g, "") : value;
+
+  const paramTab = stripQuotes(searchParams?.get("tab") || null) || "profile";
+  const [activeTab, setActiveTab] = useState<string>(paramTab);
+
+  // Keep state in sync when the user navigates with browser controls
+  useEffect(() => {
+    const raw = stripQuotes(searchParams?.get("tab") || null) || "profile";
+    if (raw !== activeTab) setActiveTab(raw);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams?.toString()]);
 
   const settingsTabs = [
     { id: "profile", label: "Profile", icon: User },
@@ -52,7 +68,18 @@ const SettingsPage = () => {
                 {settingsTabs.map(({ id, label, icon: Icon }) => (
                   <button
                     key={id}
-                    onClick={() => setActiveTab(id)}
+                    onClick={() => {
+                      // update state and push tab to URL without reloading
+                      setActiveTab(id);
+                      const params = new URLSearchParams(
+                        Array.from(searchParams?.entries() || [])
+                      );
+                      params.set("tab", id);
+                      const url = params.toString()
+                        ? `${pathname}?${params.toString()}`
+                        : pathname;
+                      router.replace(url);
+                    }}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
                       activeTab === id
                         ? "border-r-2 bg-primary/10  text-primary border-primary"
