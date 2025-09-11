@@ -14,6 +14,13 @@ import {
   Upload,
   X,
   Loader2,
+  CheckCircle,
+  AlertCircle,
+  SparklesIcon,
+  Clock,
+  Shuffle,
+  Target,
+  Lightbulb,
 } from "lucide-react";
 import { QuestionKind } from "@/types/quiz";
 import {
@@ -45,6 +52,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 
 // Form validation schema
@@ -290,6 +298,55 @@ const CreateQuizPage = () => {
 
   const openFileDialog = () => {
     fileInputRef.current?.click();
+  };
+
+  // AI Summary Qualification Checker
+  const getAISummaryQualification = () => {
+    const formValues = form.getValues();
+    const questionCount = formValues.questions.length;
+    const isRandomized = formValues.shuffle || false;
+    const timeLimit = formValues.timeLimitMinutes || 0;
+    const timePerQuestion = timeLimit > 0 ? timeLimit / questionCount : 0;
+
+    const requirements = [
+      {
+        met: questionCount >= 20,
+        text: `At least 20 questions (current: ${questionCount})`,
+        icon:
+          questionCount >= 20 ? (
+            <CheckCircle className="h-4 w-4 text-green-600" />
+          ) : (
+            <AlertCircle className="h-4 w-4 text-red-600" />
+          ),
+      },
+      {
+        met: isRandomized,
+        text: "Quiz must be randomized (shuffle enabled)",
+        icon: isRandomized ? (
+          <CheckCircle className="h-4 w-4 text-green-600" />
+        ) : (
+          <AlertCircle className="h-4 w-4 text-red-600" />
+        ),
+      },
+      {
+        met: timeLimit > 0 && timePerQuestion <= 2.5,
+        text: `Maximum 2.5 minutes per question ${
+          timeLimit > 0
+            ? `(current: ${timePerQuestion.toFixed(1)} min/question)`
+            : "(no time limit set)"
+        }`,
+        icon:
+          timeLimit > 0 && timePerQuestion <= 2.5 ? (
+            <CheckCircle className="h-4 w-4 text-green-600" />
+          ) : (
+            <AlertCircle className="h-4 w-4 text-red-600" />
+          ),
+      },
+    ];
+
+    const allMet = requirements.every((req) => req.met);
+
+    return { requirements, allMet };
   };
 
   const onSubmit = async (data: QuizFormData) => {
@@ -733,6 +790,84 @@ const CreateQuizPage = () => {
                   />
                 </div>
               </CardContent>
+
+              {/* AI Summary Qualification Checker */}
+              <CardContent className="space-y-4 pt-4 border-t">
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <SparklesIcon className="h-5 w-5 text-blue-600" />
+                    <h3 className="text-lg font-semibold">
+                      AI Quiz Summary Eligibility
+                    </h3>
+                  </div>
+                  {(() => {
+                    const { requirements, allMet } =
+                      getAISummaryQualification();
+
+                    return (
+                      <div
+                        className={
+                          allMet
+                            ? "border-green-200 bg-green-50"
+                            : "border-yellow-200 bg-yellow-50" +
+                              " border rounded-lg p-4"
+                        }
+                      >
+                        <div className="flex items-start space-x-2">
+                          {allMet ? (
+                            <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                          ) : (
+                            <Lightbulb className="h-5 w-5 text-yellow-600 mt-0.5" />
+                          )}
+                          <div className="flex-1">
+                            <h4
+                              className={`font-medium ${
+                                allMet ? "text-green-800" : "text-yellow-800"
+                              }`}
+                            >
+                              {allMet
+                                ? "✅ Quiz Qualifies for AI Summary!"
+                                : "📋 AI Summary Requirements"}
+                            </h4>
+                            <div className="mt-2 space-y-2">
+                              {requirements.map((req, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center space-x-2 flex-1 text-sm"
+                                >
+                                  {req.icon}
+                                  <span
+                                    className={
+                                      req.met
+                                        ? "text-green-700"
+                                        : "text-red-700"
+                                    }
+                                  >
+                                    {req.text}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                            {allMet && (
+                              <p className="mt-2 text-sm text-green-700">
+                                🎉 Your quiz meets all requirements for
+                                AI-powered summary generation!
+                              </p>
+                            )}
+                            {!allMet && (
+                              <p className="mt-2 text-sm text-yellow-700">
+                                💡 Configure your quiz to meet the above
+                                requirements to enable AI Summary features.
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </CardContent>
+
               <CardFooter>
                 <Button
                   type="button"

@@ -4,9 +4,10 @@ import * as React from "react";
 import {
   BookOpen,
   Bot,
-  Calendar1Icon,
+  CalendarSearchIcon,
   Command,
-  FilesIcon,
+  FileTextIcon,
+  LibraryBigIcon,
   LifeBuoy,
   ListTodoIcon,
   LucideCalculator,
@@ -31,6 +32,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/lib/context/auth-provider";
 import Link from "next/link";
+import { NavUiTM } from "./nav-uitm";
 
 const data = {
   navMain: [
@@ -75,10 +77,6 @@ const data = {
           url: "/dashboard/notes/browse",
         },
         {
-          title: "UiTM E-Library",
-          url: "/dashboard/notes/uitm-library",
-        },
-        {
           title: "Upload Notes",
           url: "/dashboard/notes/upload",
         },
@@ -97,10 +95,6 @@ const data = {
           title: "KawanStudy Paper",
           url: "/dashboard/past-year/browse",
         },
-        {
-          title: "UiTM Past Year",
-          url: "/dashboard/past-year/uitm-paper",
-        },
       ],
     },
     {
@@ -109,15 +103,12 @@ const data = {
       icon: LucideCalculator,
     },
     {
-      title: "UiTM ICRESS Schedule",
-      url: "/dashboard/uitm-schedule",
-      icon: Calendar1Icon,
-    },
-    {
       title: "Schedule Manager",
       url: "/dashboard/schedule-manager",
       icon: ListTodoIcon,
     },
+  ],
+  navSecondary: [
     {
       title: "Chat Center",
       url: "/dashboard/chat",
@@ -128,8 +119,6 @@ const data = {
       url: "/dashboard/leaderboard",
       icon: Trophy,
     },
-  ],
-  navSecondary: [
     {
       title: "Get Support",
       url: "/dashboard/support",
@@ -144,6 +133,23 @@ const data = {
       title: "Drop a Feedback",
       url: "/dashboard/feedback",
       icon: Send,
+    },
+  ],
+  navUiTM: [
+    {
+      title: "UiTM E-Book Library",
+      url: "/dashboard/notes/uitm-library",
+      icon: LibraryBigIcon,
+    },
+    {
+      title: "UiTM Past Year",
+      url: "/dashboard/past-year/uitm-paper",
+      icon: FileTextIcon,
+    },
+    {
+      title: "UiTM ICRESS Schedule",
+      url: "/dashboard/uitm-schedule",
+      icon: CalendarSearchIcon,
     },
   ],
 };
@@ -171,26 +177,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
       {...props}
     >
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Command className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <Text as="p" className="font-bold text-lg">
-                    kawanstudy
-                  </Text>
-                </div>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
+        <NavUiTM items={data.navUiTM} className="mt-2" />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

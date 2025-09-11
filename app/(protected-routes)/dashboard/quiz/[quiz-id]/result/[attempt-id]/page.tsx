@@ -209,9 +209,9 @@ const AttemptDetailPage: React.FC<AttemptDetailProps> = ({ params }) => {
     if (!wasAnswered) {
       // Not answered - show correct answers highlighted
       if (isCorrectAnswer) {
-        bgColor = "bg-green-100";
-        textColor = "text-green-800";
-        borderColor = "border-green-300";
+        bgColor = "bg-green-100 dark:bg-green-900";
+        textColor = "text-green-800 dark:text-green-400";
+        borderColor = "border-green-300 dark:border-green-700";
       }
     } else {
       // Was answered - show user vs correct
@@ -237,7 +237,7 @@ const AttemptDetailPage: React.FC<AttemptDetailProps> = ({ params }) => {
       <div
         key={index}
         className={cn(
-          "rounded-md border transition-all",
+          "rounded-md border transition-all p-4",
           bgColor,
           textColor,
           borderColor || "border-gray-200"

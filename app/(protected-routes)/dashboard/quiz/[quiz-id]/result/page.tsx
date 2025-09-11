@@ -15,8 +15,12 @@ import {
   BarChart3,
   Eye,
   Loader2,
-  SparkleIcon,
   SparklesIcon,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  Shuffle,
+  Lightbulb,
 } from "lucide-react";
 import {
   Card,
@@ -47,6 +51,8 @@ interface QuizInfo {
   subject: string;
   academic_level: string;
   total_questions: number;
+  is_randomized?: boolean;
+  time_limit?: number; // in minutes
 }
 
 interface QuizResultsData {
@@ -151,6 +157,66 @@ const QuizResultPage: React.FC<QuizResultProps> = ({ params }) => {
     return <Target className="h-5 w-5 text-gray-500" />;
   };
 
+  // Check if quiz meets AI Summary requirements
+  const meetsAISummaryRequirements = () => {
+    if (!quiz) return false;
+
+    const hasMinimumQuestions = quiz.total_questions >= 20;
+    const isRandomized = quiz.is_randomized === true;
+    const timePerQuestion = quiz.time_limit
+      ? quiz.time_limit / quiz.total_questions
+      : 0;
+    const hasValidTimeLimit = timePerQuestion <= 2.5; // 2.5 minutes per question
+
+    return hasMinimumQuestions && isRandomized && hasValidTimeLimit;
+  };
+
+  const getAISummaryRequirementStatus = () => {
+    if (!quiz) return [];
+
+    const requirements = [
+      {
+        met: quiz.total_questions >= 20,
+        text: `At least 20 questions (current: ${quiz.total_questions})`,
+        icon:
+          quiz.total_questions >= 20 ? (
+            <CheckCircle className="h-4 w-4 text-green-600" />
+          ) : (
+            <AlertCircle className="h-4 w-4 text-red-600" />
+          ),
+      },
+      {
+        met: quiz.is_randomized === true,
+        text: "Quiz must be randomized",
+        icon: quiz.is_randomized ? (
+          <CheckCircle className="h-4 w-4 text-green-600" />
+        ) : (
+          <AlertCircle className="h-4 w-4 text-red-600" />
+        ),
+      },
+      {
+        met: quiz.time_limit
+          ? quiz.time_limit / quiz.total_questions <= 2.5
+          : false,
+        text: `Maximum 2.5 minutes per question ${
+          quiz.time_limit
+            ? `(current: ${(quiz.time_limit / quiz.total_questions).toFixed(
+                1
+              )} min/question)`
+            : "(no time limit set)"
+        }`,
+        icon:
+          quiz.time_limit && quiz.time_limit / quiz.total_questions <= 2.5 ? (
+            <CheckCircle className="h-4 w-4 text-green-600" />
+          ) : (
+            <AlertCircle className="h-4 w-4 text-red-600" />
+          ),
+      },
+    ];
+
+    return requirements;
+  };
+
   if (isLoading) {
     return (
       <div className="container max-w-4xl mx-auto p-6">
@@ -233,13 +299,24 @@ const QuizResultPage: React.FC<QuizResultProps> = ({ params }) => {
       {/* Quiz Info */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <BookOpen className="h-5 w-5" />
-            <span>Quiz Information</span>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <BookOpen className="h-5 w-5" />
+              <span>Quiz Information</span>
+            </div>
+            {meetsAISummaryRequirements() && (
+              <Badge
+                variant="secondary"
+                className="bg-purple-100 text-purple-700"
+              >
+                <SparklesIcon className="h-3 w-3 mr-1" />
+                AI Summary Eligible
+              </Badge>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="flex items-center space-x-2">
               <Badge variant="secondary">{quiz.subject}</Badge>
               {quiz.academic_level && (
@@ -249,12 +326,42 @@ const QuizResultPage: React.FC<QuizResultProps> = ({ params }) => {
             <div className="flex items-center space-x-2 text-muted-foreground">
               <Target className="h-4 w-4" />
               <span>{quiz.total_questions} questions</span>
+              {quiz.total_questions >= 20 && (
+                <CheckCircle className="h-3 w-3 text-green-600" />
+              )}
             </div>
             <div className="flex items-center space-x-2 text-muted-foreground">
               <Users className="h-4 w-4" />
               <span>{total_attempts} attempts</span>
             </div>
+            <div className="flex items-center space-x-2 text-muted-foreground">
+              {quiz.is_randomized ? (
+                <>
+                  <Shuffle className="h-4 w-4" />
+                  <span>Randomized</span>
+                  <CheckCircle className="h-3 w-3 text-green-600" />
+                </>
+              ) : (
+                <>
+                  <Target className="h-4 w-4" />
+                  <span>Sequential</span>
+                </>
+              )}
+            </div>
           </div>
+          {quiz.time_limit && (
+            <div className="mt-4 flex items-center space-x-2 text-muted-foreground">
+              <Clock className="h-4 w-4" />
+              <span>
+                {quiz.time_limit} minutes total (
+                {(quiz.time_limit / quiz.total_questions).toFixed(1)}{" "}
+                min/question)
+              </span>
+              {quiz.time_limit / quiz.total_questions <= 2.5 && (
+                <CheckCircle className="h-3 w-3 text-green-600" />
+              )}
+            </div>
+          )}
           {quiz.description && (
             <p className="mt-4 text-muted-foreground">{quiz.description}</p>
           )}
@@ -266,7 +373,7 @@ const QuizResultPage: React.FC<QuizResultProps> = ({ params }) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Best Score */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader>
               <CardTitle className="text-lg flex items-center space-x-2">
                 <Trophy className="h-5 w-5 text-yellow-500" />
                 <span>Best Score</span>
@@ -293,7 +400,7 @@ const QuizResultPage: React.FC<QuizResultProps> = ({ params }) => {
 
           {/* Average Score */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader>
               <CardTitle className="text-lg flex items-center space-x-2">
                 <BarChart3 className="h-5 w-5 text-blue-500" />
                 <span>Average Score</span>
@@ -314,7 +421,7 @@ const QuizResultPage: React.FC<QuizResultProps> = ({ params }) => {
 
           {/* Improvement */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader>
               <CardTitle className="text-lg flex items-center space-x-2">
                 <TrendingUp className="h-5 w-5 text-purple-500" />
                 <span>Progress</span>
@@ -429,7 +536,69 @@ const QuizResultPage: React.FC<QuizResultProps> = ({ params }) => {
       </Card>
 
       {/* AI SUMMARY */}
-      <AISummaryComponent quizId={quizId} attemptsCount={total_attempts} />
+      {meetsAISummaryRequirements() ? (
+        <AISummaryComponent quizId={quizId} attemptsCount={total_attempts} />
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <SparklesIcon className="h-5 w-5 text-gray-400" />
+              <span>AI Summary</span>
+            </CardTitle>
+            <CardDescription>
+              AI-powered performance analysis and personalized recommendations
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <div className="space-y-3">
+                  <p className="font-medium">
+                    This quiz doesn't meet the requirements for AI Summary
+                    analysis.
+                  </p>
+                  <p className="text-sm">
+                    To enable AI Summary, the quiz must meet all of the
+                    following criteria:
+                  </p>
+                  <div className="space-y-2">
+                    {getAISummaryRequirementStatus().map(
+                      (requirement, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center space-x-2 text-sm"
+                        >
+                          {requirement.icon}
+                          <span
+                            className={
+                              requirement.met
+                                ? "text-green-700"
+                                : "text-red-700"
+                            }
+                          >
+                            {requirement.text}
+                          </span>
+                        </div>
+                      )
+                    )}
+                  </div>
+                  <div className="mt-4 p-3 bg-muted rounded-lg">
+                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                      <Lightbulb className="h-4 w-4" />
+                      <span>
+                        AI Summary provides detailed performance analysis,
+                        identifies knowledge gaps, and offers personalized study
+                        recommendations for comprehensive quizzes.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Actions */}
       <div className="flex justify-center space-x-4">

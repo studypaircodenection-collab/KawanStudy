@@ -70,7 +70,7 @@ export function SearchForm() {
   }, []);
 
   return (
-    <div className="sm:w-full w-auto max-w-sm">
+    <div className="sm:w-full w-auto max-w-lg">
       <div className="relative w-full ">
         <Input
           placeholder="Search"

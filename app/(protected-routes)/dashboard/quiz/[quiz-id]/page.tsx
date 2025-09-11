@@ -145,7 +145,7 @@ const QuizDetailPage: React.FC<QuizDetailProps> = ({ params }) => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
             <BookOpen className="h-4 w-4" />
             <span>{quiz.subject}</span>
             {quiz.academic_level && (
@@ -157,11 +157,11 @@ const QuizDetailPage: React.FC<QuizDetailProps> = ({ params }) => {
           </div>
           <div className="flex justify-between items-start mb-4">
             <div className="flex-1">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {quiz.title}
-              </h1>
+              <h1 className="text-3xl font-bold mb-2">{quiz.title}</h1>
               {quiz.description && (
-                <p className="text-gray-600 text-lg">{quiz.description}</p>
+                <p className="text-muted-foreground text-lg">
+                  {quiz.description}
+                </p>
               )}
             </div>
             {isOwner && (
@@ -176,11 +176,13 @@ const QuizDetailPage: React.FC<QuizDetailProps> = ({ params }) => {
         {/* Quiz Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
-            <CardContent className="pt-6">
+            <CardContent>
               <div className="flex items-center">
                 <Target className="h-8 w-8 text-blue-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Questions</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Questions
+                  </p>
                   <p className="text-2xl font-bold">{quiz.questions.length}</p>
                 </div>
               </div>
@@ -188,11 +190,13 @@ const QuizDetailPage: React.FC<QuizDetailProps> = ({ params }) => {
           </Card>
 
           <Card>
-            <CardContent className="pt-6">
+            <CardContent>
               <div className="flex items-center">
                 <Clock className="h-8 w-8 text-green-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Est. Time</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Est. Time
+                  </p>
                   <p className="text-2xl font-bold">
                     {quiz.timeLimitMinutes || quiz.questions.length * 2}m
                   </p>
@@ -202,11 +206,11 @@ const QuizDetailPage: React.FC<QuizDetailProps> = ({ params }) => {
           </Card>
 
           <Card>
-            <CardContent className="pt-6">
+            <CardContent>
               <div className="flex items-center">
                 <Users className="h-8 w-8 text-purple-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-muted-foreground">
                     Play Count
                   </p>
                   <p className="text-2xl font-bold">{quiz.playCount}</p>
@@ -216,11 +220,11 @@ const QuizDetailPage: React.FC<QuizDetailProps> = ({ params }) => {
           </Card>
 
           <Card>
-            <CardContent className="pt-6">
+            <CardContent>
               <div className="flex items-center">
                 <Award className="h-8 w-8 text-yellow-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-muted-foreground">
                     Difficulty
                   </p>
                   <Badge variant={getBadgeVariant("medium")} className="mt-1">
@@ -286,30 +290,17 @@ const QuizDetailPage: React.FC<QuizDetailProps> = ({ params }) => {
                     Read each question carefully before selecting your answer
                   </li>
                   <li>You can navigate between questions during the quiz</li>
-                  <li>Make sure to submit your quiz when you&aspos;re finished</li>
-                  <li>You can retake this quiz as many times as you&aspos;d like</li>
+                  <li>
+                    Make sure to submit your quiz when you&aspos;re finished
+                  </li>
+                  <li>
+                    You can retake this quiz as many times as you&aspos;d like
+                  </li>
                 </ul>
               </AlertDescription>
             </Alert>
           </CardContent>
         </Card>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button onClick={handleStartQuiz} size="lg" className="px-8">
-            <Play className="w-5 h-5 mr-2" />
-            Start Quiz
-          </Button>
-          <Button onClick={handleViewResults} variant="outline" size="lg">
-            <Award className="w-5 h-5 mr-2" />
-            View Results
-          </Button>
-          <Button onClick={handleBackToQuizzes} variant="outline" size="lg">
-            <BookOpen className="w-5 h-5 mr-2" />
-            Browse Quizzes
-          </Button>
-        </div>
-
         {/* Sample Questions Preview */}
         <Card className="mt-8">
           <CardHeader>
@@ -329,7 +320,7 @@ const QuizDetailPage: React.FC<QuizDetailProps> = ({ params }) => {
                           {index + 1}. {question.text || "Sample question"}
                         </h4>
                         {question.options && question.options.length > 0 && (
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-muted-foreground">
                             {question.options.length} answer choices
                           </div>
                         )}
@@ -358,6 +349,21 @@ const QuizDetailPage: React.FC<QuizDetailProps> = ({ params }) => {
             )}
           </CardContent>
         </Card>
+        {/* Action Buttons */}
+        <div className="flex flex-col mt-4 sm:flex-row gap-4 justify-center">
+          <Button onClick={handleStartQuiz} size="lg" className="px-8">
+            <Play className="w-5 h-5 mr-2" />
+            Start Quiz
+          </Button>
+          <Button onClick={handleViewResults} variant="outline" size="lg">
+            <Award className="w-5 h-5 mr-2" />
+            View Results
+          </Button>
+          <Button onClick={handleBackToQuizzes} variant="outline" size="lg">
+            <BookOpen className="w-5 h-5 mr-2" />
+            Browse Quizzes
+          </Button>
+        </div>
       </div>
     </div>
   );
