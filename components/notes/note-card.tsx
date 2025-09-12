@@ -1,16 +1,6 @@
 "use client";
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CustomizedAvatar } from "../ui/customized-avatar";
-import { useNoteUpload } from "@/hooks/use-notes";
-import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   BookOpen,
   Clock,
@@ -19,15 +9,36 @@ import {
   Heart,
   Download,
   Globe,
-  Edit,
-  Trash2,
+  Share2,
+  Copy,
+  Mail,
+  Twitter,
+  Facebook,
+  Linkedin,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { CustomizedAvatar } from "@/components/ui/customized-avatar";
 import { Text } from "@/components/ui/typography";
-import { formatDate } from "@/lib/constant";
-import { useState } from "react";
-
+import { formatDateShort } from "@/lib/constant";
+import { formatCount } from "@/lib/constant";
+import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import Link from "next/link";
 interface NoteCardData {
   id: string;
   title: string;
@@ -53,33 +64,6 @@ interface NoteCardData {
   };
 }
 
-const formatCount = (count?: number) => {
-  if (!count) return "0";
-  if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}k`;
-  }
-  return count.toString();
-};
-
-const getDifficultyColor = (difficulty?: string) => {
-  if (!difficulty)
-    return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200";
-
-  switch (difficulty.toLowerCase()) {
-    case "beginner":
-    case "easy":
-      return "bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 border-green-200 dark:border-green-700";
-    case "intermediate":
-    case "medium":
-      return "bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-700";
-    case "advanced":
-    case "hard":
-      return "bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300 border-red-200 dark:border-red-700";
-    default:
-      return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-600";
-  }
-};
-
 const formatAcademicLevel = (level?: string) => {
   if (!level) return "";
   return level.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase());
@@ -102,63 +86,166 @@ const formatLanguage = (language?: string) => {
 };
 
 const NoteCard = ({ note }: { note: NoteCardData }) => {
-  console.log("NoteCard Rendered:", note.id);
   const router = useRouter();
-  const { deleteNote } = useNoteUpload();
-  const { toast } = useToast();
-  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleClick = () => {
+  const handleViewNote = () => {
     router.push(`/dashboard/notes/${note.id}`);
   };
+  const handleViewProfile = () => {
+    if (note.userProfile)
+      router.push(`/dashboard/notes/${note.userProfile?.username}`);
 
-  const handleDelete = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card click
-    if (
-      !confirm(
-        "Are you sure you want to delete this note? This action cannot be undone."
-      )
-    ) {
-      return;
-    }
+    return null;
+  };
 
-    setIsDeleting(true);
+  // Share functionality
+  const copyToClipboard = async () => {
     try {
-      await deleteNote(note.id);
-      toast({
-        title: "Note deleted",
-        description: "Your note has been successfully deleted.",
-      });
-      // Refresh the page or trigger a parent component update
-      window.location.reload();
+      const url = window.location.href;
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied to clipboard!");
     } catch (error) {
-      console.error("Failed to delete note:", error);
-      toast({
-        title: "Delete failed",
-        description: "Failed to delete the note. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsDeleting(false);
+      toast.error("Failed to copy link");
+      console.error("Error copying to clipboard:", error);
+    }
+  };
+
+  const shareViaEmail = () => {
+    const subject = encodeURIComponent(`Check out this note: ${note.title}`);
+    const body = encodeURIComponent(
+      `I found this interesting note on KawanStudy:\n\n${note.title}\n${note.description}\n\n${window.location.href}`
+    );
+    window.open(`mailto:?subject=${subject}&body=${body}`);
+  };
+
+  const shareOnTwitter = () => {
+    const text = encodeURIComponent(`Check out this note: ${note.title}`);
+    const url = encodeURIComponent(window.location.href);
+    window.open(
+      `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
+      "_blank"
+    );
+  };
+
+  const shareOnFacebook = () => {
+    const url = encodeURIComponent(window.location.href);
+    window.open(
+      `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+      "_blank"
+    );
+  };
+
+  const shareOnLinkedIn = () => {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(note.title);
+    const summary = encodeURIComponent(note.description);
+    window.open(
+      `https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}&summary=${summary}`,
+      "_blank"
+    );
+  };
+
+  const shareNative = async () => {
+    if (
+      typeof window !== "undefined" &&
+      "share" in navigator &&
+      navigator.share
+    ) {
+      try {
+        await navigator.share({
+          title: note.title,
+          text: note.description,
+          url: window.location.href,
+        });
+        toast.success("Shared successfully!");
+      } catch (error) {
+        if (error instanceof Error && error.name !== "AbortError") {
+          toast.error("Failed to share");
+        }
+      }
+    } else {
+      copyToClipboard();
     }
   };
 
   return (
-    <Card
-      key={note.id}
-      onClick={handleClick}
-      className="pt-0 group transition-all duration-300 cursor-pointer overflow-hidden"
-    >
+    <Card key={note.id} className="pt-0 group overflow-hidden">
       {/* Header Image */}
-      <CardHeader className="h-fit p-0 relative overflow-hidden">
-        <div className="aspect-[16/9] bg-background w-ful flex items-center justify-center relative">
+      <CardHeader className="h-fit p-0 gap-0 relative overflow-hidden">
+        {/* Author Section */}
+        {note.userProfile && (
+          <div className="flex justify-between items-center gap-2 px-4 py-3">
+            <div className="flex items-center gap-2 ">
+              <CustomizedAvatar
+                src={note.userProfile.avatarUrl}
+                userId={note.userProfile.id}
+                size="sm"
+              />
+              <Link href={`/dashboard/profile/${note.userProfile.username}`}>
+                <Text
+                  as="p"
+                  className="text-sm truncate hover:underline cursor-pointer"
+                >
+                  @{note.userProfile.username}
+                </Text>
+              </Link>
+            </div>
+            <div className="flex gap-2 items-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Share
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel>Share this note</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {typeof window !== "undefined" && "share" in navigator && (
+                    <>
+                      <DropdownMenuItem onClick={shareNative}>
+                        <Share2 className="h-4 w-4 mr-2" />
+                        Share...
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  <DropdownMenuItem onClick={copyToClipboard}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy link
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={shareViaEmail}>
+                    <Mail className="h-4 w-4 mr-2" />
+                    Email
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={shareOnTwitter}>
+                    <Twitter className="h-4 w-4 mr-2" />
+                    Twitter
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={shareOnFacebook}>
+                    <Facebook className="h-4 w-4 mr-2" />
+                    Facebook
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={shareOnLinkedIn}>
+                    <Linkedin className="h-4 w-4 mr-2" />
+                    LinkedIn
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        )}
+
+        <div className="aspect-[16/9] dark:bg-background bg-white w-full flex items-center justify-center relative">
           {note.thumbnailUrl ? (
             <Image
               src={note.thumbnailUrl}
               alt={note.title}
               width={400}
+              onClick={handleViewNote}
               height={225}
-              className="w-full h-full object-cover"
+              className="w-full h-full cursor-pointer object-cover group-hover:scale-105 transition-transform duration-300"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
                 e.currentTarget.nextElementSibling?.classList.remove("hidden");
@@ -168,7 +255,8 @@ const NoteCard = ({ note }: { note: NoteCardData }) => {
           <div
             className={`${
               note.thumbnailUrl ? "hidden" : ""
-            } flex flex-col items-center justify-center`}
+            } flex flex-col items-center justify-center w-full h-full cursor-pointer`}
+            onClick={handleViewNote}
           >
             <div className="w-16 h-16  bg-primary/20 rounded-full flex items-center justify-center mb-2">
               <BookOpen className="w-8 h-8 text-primary" />
@@ -176,6 +264,20 @@ const NoteCard = ({ note }: { note: NoteCardData }) => {
             <Text as="p" styleVariant="muted">
               {note.subject}
             </Text>
+          </div>
+
+          <div className="flex absolute top-3 right-3 items-center gap-2 bg-primary/50 backdrop-blur-xl rounded-xl pl-2">
+            <div className="text-right">
+              <Text
+                as="p"
+                className="text-sm font-medium text-gray-900 dark:text-white"
+              >
+                {note.subject}
+              </Text>
+            </div>
+            <div className="w-8 h-8 bg-primary/20 rounded-xl flex items-center justify-center">
+              <BookOpen className="w-4 h-4 text-secondary" />
+            </div>
           </div>
 
           {/* Overlay badges */}
@@ -186,24 +288,6 @@ const NoteCard = ({ note }: { note: NoteCardData }) => {
             >
               {note.noteType}
             </Badge>
-            {note.difficultyLevel && (
-              <Badge
-                className={`text-xs font-medium backdrop-blur-lg ${getDifficultyColor(
-                  note.difficultyLevel
-                )}`}
-              >
-                {note.difficultyLevel.charAt(0).toUpperCase() +
-                  note.difficultyLevel.slice(1)}
-              </Badge>
-            )}
-          </div>
-          <div className="absolute top-3 right-3">
-            <div className="flex items-center gap-1 backdrop-blur-md bg-white/90 dark:bg-card/50 px-2 py-1 rounded-full text-xs">
-              <Clock className="w-3 h-3" />
-              <Text as="p" className="text-xs">
-                {note.estimatedReadTime}m
-              </Text>
-            </div>
           </div>
         </div>
         {/* STATISTIC */}
@@ -242,16 +326,16 @@ const NoteCard = ({ note }: { note: NoteCardData }) => {
             className="flex items-center gap-1 text-xs bg-card/50 rounded-md px-2 py-1 backdrop-blur-xl"
           >
             <Calendar className="w-3 h-3" />
-            {formatDate(note.createdAt)}
+            {formatDateShort(note.createdAt)}
           </Text>
         </div>
       </CardHeader>
 
-      <CardContent>
+      <CardContent onClick={handleViewNote} className="cursor-pointer">
         {/* Title and Description */}
         <div className="flex items-start justify-between mb-2 gap-2">
           <div>
-            <CardTitle className="text-xl font-bold line-clamp-2 group-hover:text-primary transition-colors leading-tight">
+            <CardTitle className="max-w-2/3 text-md font-bold line-clamp-2 group-hover:text-primary transition-colors leading-tight">
               {note.title}
             </CardTitle>
 
@@ -280,26 +364,7 @@ const NoteCard = ({ note }: { note: NoteCardData }) => {
         </div>
 
         {/* Academic Info Row */}
-        <div className="flex items-center justify-between my-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
-              <BookOpen className="w-4 h-4 text-primary" />
-            </div>
-            <div>
-              <Text
-                as="p"
-                className="text-sm font-semibold text-gray-900 dark:text-white"
-              >
-                {note.subject}
-              </Text>
-              {note.academicLevel && (
-                <Text as="p" styleVariant="muted" className="text-xs">
-                  {formatAcademicLevel(note.academicLevel)}
-                </Text>
-              )}
-            </div>
-          </div>
-
+        <div className="flex items-center justify-between mt-4">
           {note.language && (
             <Text
               as="p"
@@ -313,25 +378,6 @@ const NoteCard = ({ note }: { note: NoteCardData }) => {
         </div>
 
         {/* Stats Row */}
-
-        {/* Author Section */}
-        {note.userProfile && (
-          <div className="flex items-center gap-3 p-2 bg-primary/10 rounded-lg">
-            <CustomizedAvatar
-              src={note.userProfile.avatarUrl}
-              userId={note.userProfile.id}
-              size="md"
-            />
-            <div className="flex-1 min-w-0">
-              <Text as="p" className="truncate">
-                {note.userProfile.fullName || note.userProfile.username}
-              </Text>
-              <Text as="p" styleVariant="muted" className="text-xs truncate">
-                @{note.userProfile.username}
-              </Text>
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

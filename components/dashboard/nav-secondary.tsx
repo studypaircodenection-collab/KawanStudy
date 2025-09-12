@@ -17,6 +17,7 @@ export function NavSecondary({
     title: string;
     url: string;
     icon: LucideIcon;
+    iconColor?: string;
   }[];
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   return (
@@ -27,7 +28,7 @@ export function NavSecondary({
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild size="sm">
                 <Link href={item.url}>
-                  <item.icon />
+                  <item.icon className={item.iconColor} />
                   <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>

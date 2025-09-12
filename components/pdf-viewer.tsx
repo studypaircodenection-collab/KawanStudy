@@ -4,8 +4,6 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
-  ZoomIn,
-  ZoomOut,
   Download,
   Maximize,
   Loader2,
@@ -26,13 +24,8 @@ export default function PDFViewer({
   onDownload,
   className = "",
 }: PDFViewerProps) {
-  const [scale, setScale] = useState<number>(100);
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
-
-  const zoomIn = () => setScale((prev) => Math.min(prev + 25, 200));
-  const zoomOut = () => setScale((prev) => Math.max(prev - 25, 50));
 
   const openInNewTab = () => {
     window.open(fileUrl, "_blank");
@@ -81,41 +74,13 @@ export default function PDFViewer({
 
   return (
     <div className={`space-y-4 ${className}`}>
-      {/* PDF Controls */}
-      <Card className="p-3">
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          {/* Zoom Controls */}
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={zoomOut}>
-              <ZoomOut className="h-4 w-4" />
-            </Button>
-            <span className="text-sm text-muted-foreground min-w-16 text-center">
-              {scale}%
-            </span>
-            <Button variant="outline" size="sm" onClick={zoomIn}>
-              <ZoomIn className="h-4 w-4" />
-            </Button>
-          </div>
-
-          {/* Action Controls */}
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={openInNewTab}>
-              <Maximize className="h-4 w-4 mr-1" />
-              Full Screen
-            </Button>
-
-            {onDownload && (
-              <Button size="sm" onClick={onDownload}>
-                <Download className="h-4 w-4 mr-1" />
-                Download
-              </Button>
-            )}
-          </div>
-        </div>
-      </Card>
+      <Button variant="outline" size="sm" onClick={openInNewTab}>
+        <Maximize className="h-4 w-4 mr-1" />
+        Full Screen
+      </Button>
 
       {/* PDF Document */}
-      <Card className="relative overflow-hidden">
+      <Card className="relative overflow-hidden p-0">
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
             <div className="flex items-center gap-2">
@@ -127,9 +92,9 @@ export default function PDFViewer({
           </div>
         )}
 
-        <div className="p-4" style={{ zoom: `${scale}%` }}>
+        <div className="p-4" style={{ zoom: `100%` }}>
           <iframe
-            src={`${fileUrl}#toolbar=1&navpanes=1&scrollbar=1&page=${currentPage}&view=FitH`}
+            src={`${fileUrl}#toolbar=1&navpanes=1&scrollbar=1&page=${1}&view=FitH`}
             className="w-full border-0 shadow-sm rounded h-[1000px]"
             onLoad={handleIframeLoad}
             onError={handleIframeError}

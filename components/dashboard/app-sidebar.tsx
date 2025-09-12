@@ -40,6 +40,7 @@ const data = {
       title: "Class Tutor",
       url: "/dashboard/tutor",
       icon: SquareTerminal,
+      iconColor: "text-blue-500",
       isActive: true,
       items: [
         {
@@ -56,6 +57,7 @@ const data = {
       title: "Quiz",
       url: "/dashboard/quiz",
       icon: Bot,
+      iconColor: "text-green-500",
       items: [
         {
           title: "Browse Quiz",
@@ -71,6 +73,7 @@ const data = {
       title: "Notes",
       url: "/dashboard/notes",
       icon: NotebookTabsIcon,
+      iconColor: "text-pink-500",
       items: [
         {
           title: "KawanStudy Notes",
@@ -90,6 +93,7 @@ const data = {
       title: "Past Year Paper",
       url: "/dashboard/past-year",
       icon: BookOpen,
+      iconColor: "text-purple-500",
       items: [
         {
           title: "KawanStudy Paper",
@@ -101,11 +105,13 @@ const data = {
       title: "CarryMark Calculator",
       url: "/dashboard/carrymark-calculator",
       icon: LucideCalculator,
+      iconColor: "text-teal-500",
     },
     {
       title: "Schedule Manager",
       url: "/dashboard/schedule-manager",
       icon: ListTodoIcon,
+      iconColor: "text-amber-500",
     },
   ],
   navSecondary: [
@@ -113,16 +119,19 @@ const data = {
       title: "Chat Center",
       url: "/dashboard/chat",
       icon: MessageCircle,
+      iconColor: "text-cyan-500",
     },
     {
       title: "Leaderboard",
       url: "/dashboard/leaderboard",
       icon: Trophy,
+      iconColor: "text-amber-500",
     },
     {
       title: "Get Support",
       url: "/dashboard/support",
       icon: LifeBuoy,
+      iconColor: "text-pink-500",
     },
     // {
     //   title: "View Documentation",
@@ -133,6 +142,7 @@ const data = {
       title: "Drop a Feedback",
       url: "/dashboard/feedback",
       icon: Send,
+      iconColor: "text-indigo-500",
     },
   ],
   navUiTM: [
@@ -140,16 +150,19 @@ const data = {
       title: "UiTM E-Book Library",
       url: "/dashboard/notes/uitm-library",
       icon: LibraryBigIcon,
+      iconColor: "text-emerald-500",
     },
     {
       title: "UiTM Past Year",
       url: "/dashboard/past-year/uitm-paper",
       icon: FileTextIcon,
+      iconColor: "text-violet-500",
     },
     {
       title: "UiTM ICRESS Schedule",
       url: "/dashboard/uitm-schedule",
       icon: CalendarSearchIcon,
+      iconColor: "text-teal-500",
     },
   ],
 };

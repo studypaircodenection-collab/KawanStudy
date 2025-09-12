@@ -205,7 +205,7 @@ export default function ProtectedPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-6 space-y-8">
+      <div className="container mx-auto space-y-8">
         {/* Hero Header */}
         <div className="relative overflow-hidden rounded-lg bg-primary p-8 text-primary-foreground">
           <div className="relative z-10">
@@ -266,7 +266,7 @@ export default function ProtectedPage() {
               key={index}
               className="relative overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
             >
-              <CardContent className="p-6">
+              <CardContent>
                 <div
                   className={`absolute inset-0 ${stat.bgColor} opacity-50`}
                 ></div>

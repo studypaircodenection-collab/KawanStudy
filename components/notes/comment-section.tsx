@@ -106,8 +106,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({
         ) : comments.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-30" />
-            <Text as="p" className="mb-2">No comments yet</Text>
-            <Text as="p" className="text-sm">Be the first to share your thoughts!</Text>
+            <Text as="p" className="mb-2">
+              No comments yet
+            </Text>
+            <Text as="p" className="text-sm">
+              Be the first to share your thoughts!
+            </Text>
           </div>
         ) : (
           <ScrollArea className="h-[400px] pr-4">

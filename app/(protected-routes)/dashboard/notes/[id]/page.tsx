@@ -8,9 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import Image from "next/image";
+import { formatCount, formatDateShort } from "@/lib/constant";
+import { Text } from "@/components/ui/typography";
 import { CustomizedAvatar } from "@/components/ui/customized-avatar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +32,6 @@ import {
   Building,
   Calendar,
   Tag,
-  Globe,
   FileText,
   MessageCircle,
   Eye,
@@ -42,6 +42,7 @@ import {
   Twitter,
   Facebook,
   Linkedin,
+  Clock,
 } from "lucide-react";
 import { notesService } from "@/lib/services/notes";
 import { useNoteUpload } from "@/hooks/use-notes";
@@ -71,6 +72,7 @@ interface NoteData {
   allow_download: boolean;
   allow_comments: boolean;
   source_type?: string;
+  thumbnail_url?: string;
   source_reference?: string;
   file_url?: string;
   estimated_read_time: number;
@@ -269,189 +271,208 @@ export default function NoteDetailsPage() {
         {/* Main Content */}
         <div className="xl:col-span-2 space-y-6">
           {/* Note Content Tabs */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="space-y-2 flex-1">
-                  <h1 className="text-2xl font-bold">{note.title}</h1>
-                  <p className="text-muted-foreground">{note.description}</p>
+          <Card className="pt-0">
+            <CardHeader className="p-0 relative">
+              {note.thumbnail_url && (
+                <Image
+                  src={note.thumbnail_url}
+                  alt={note.title}
+                  className="w-full aspect-16/9 bg-background object-cover rounded"
+                  width={400}
+                  height={225}
+                />
+              )}
+              <div className="flex items-center justify-between absolute bottom-1 px-2 w-full py-2">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 bg-card/50 rounded-full pr-2 backdrop-blur-xl">
+                    <div className="w-6 h-6  rounded-full flex items-center justify-center">
+                      <Eye className="w-3 h-3 text-cyan-500" />
+                    </div>
+                    <Text as="p" className="text-xs">
+                      {formatCount(note.view_count)}
+                    </Text>
+                  </div>
+
+                  <div className="flex items-center gap-1 bg-card/50 rounded-full pr-2 backdrop-blur-xl">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center">
+                      <Heart className="w-3 h-3 text-red-500" />
+                    </div>
+                    <Text as="p" className="text-xs">
+                      {formatCount(note.like_count)}
+                    </Text>
+                  </div>
+
+                  <div className="flex items-center gap-1 bg-card/50  rounded-full pr-2 backdrop-blur-xl">
+                    <div className="w-6 h-6  rounded-full flex items-center justify-center">
+                      <Download className="w-3 h-3 text-primary" />
+                    </div>
+                    <Text as="p" className="text-xs">
+                      {formatCount(note.download_count)}
+                    </Text>
+                  </div>
                 </div>
+
+                <Text
+                  as="p"
+                  className="flex items-center gap-1 text-xs bg-card/50 rounded-md px-2 py-1 backdrop-blur-xl"
+                >
+                  <Calendar className="w-3 h-3" />
+                  {formatDateShort(note.created_at)}
+                </Text>
+              </div>
+              <div className="absolute top-3 left-3 flex gap-2">
+                <Badge
+                  variant="secondary"
+                  className="bg-white/90 text-gray-800 text-xs font-medium"
+                >
+                  {note.note_type}
+                </Badge>
               </div>
             </CardHeader>
-            <Tabs defaultValue="overview" className="w-full">
-              <CardHeader>
-                <TabsList className="grid w-full grid-cols-2 bg-background">
-                  <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="content">Content</TabsTrigger>
-                </TabsList>
-              </CardHeader>
 
-              <CardContent>
-                <TabsContent value="overview" className="space-y-6 mt-0">
-                  {/* Quick Stats */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center p-3 rounded-lg bg-blue-50">
-                      <Eye className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-blue-600">
-                        {note.view_count?.toLocaleString() || 0}
-                      </p>
-                      <p className="text-xs text-blue-600">Views</p>
-                    </div>
-                    <div className="text-center p-3 rounded-lg bg-green-50">
-                      <Download className="h-6 w-6 text-green-600 mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-green-600">
-                        {note.download_count || 0}
-                      </p>
-                      <p className="text-xs text-green-600">Downloads</p>
-                    </div>
-                    <div className="text-center p-3 rounded-lg bg-red-50">
-                      <Heart className="h-6 w-6 text-red-600 mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-red-600">{likes}</p>
-                      <p className="text-xs text-red-600">Likes</p>
-                    </div>
-                    <div className="text-center p-3 rounded-lg bg-purple-50">
-                      <MessageCircle className="h-6 w-6 text-purple-600 mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-purple-600">0</p>
-                      <p className="text-xs text-purple-600">Comments</p>
-                    </div>
-                  </div>
-
-                  {/* Tags */}
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Tags</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {note.tags.map((tag, index) => (
-                        <Badge
-                          key={index}
-                          variant="secondary"
-                          className="flex items-center gap-1"
-                        >
-                          <Tag className="h-3 w-3" />
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Academic Information */}
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3">
-                        Academic Context
-                      </h3>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <BookOpen className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">
-                            Subject:
-                          </span>
-                          <Badge variant="outline">{note.subject}</Badge>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">
-                            Level:
-                          </span>
-                          <Badge variant="outline">
-                            {note.academic_level?.replace("-", " ")}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Building className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">
-                            Institution:
-                          </span>
-                          <span className="text-sm">
-                            {note.institution || "Not specified"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3">
-                        Course Information
-                      </h3>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">
-                            Course:
-                          </span>
-                          <span className="text-sm">
-                            {note.course || "Not specified"}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">
-                            Professor:
-                          </span>
-                          <span className="text-sm">
-                            {note.professor || "Not specified"}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">
-                            Semester:
-                          </span>
-                          <span className="text-sm">
-                            {note.semester || "Not specified"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="content" className="mt-0">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Note Content</h3>
-                      <div className="flex items-center gap-2">
-                        {/* Edit button - only show for note owner */}
-                        {currentUser && note.user_id === currentUser.id && (
-                          <Button
-                            variant="outline"
-                            className="flex items-center gap-2"
-                            onClick={() =>
-                              router.push(`/dashboard/notes/${noteId}/edit`)
-                            }
-                          >
-                            <Edit className="h-4 w-4" />
-                            Edit Note
-                          </Button>
-                        )}
-                        {note.allow_download && note.file_url && (
-                          <Button
-                            className="flex items-center gap-2"
-                            onClick={handleDownload}
-                          >
-                            <Download className="h-4 w-4" />
-                            Download {note.content_type.toUpperCase()}
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Mock PDF Viewer */}
-                    {note.content_type === "pdf" && note.file_url ? (
-                      <PDFViewer fileUrl={note.file_url} className="h-fit" />
-                    ) : (
-                      <TextContentViewer
-                        content={note.content || note.description}
-                      />
-                    )}
-                  </div>
-                </TabsContent>
-              </CardContent>
-            </Tabs>
+            <CardContent>
+              {/* Mock PDF Viewer */}
+              {note.content_type === "pdf" && note.file_url ? (
+                <PDFViewer fileUrl={note.file_url} />
+              ) : (
+                <TextContentViewer content={note.content || note.description} />
+              )}
+            </CardContent>
           </Card>
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* Author Profile */}
+          <Card>
+            <CardContent className="space-y-8">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <CustomizedAvatar
+                    src={note.profiles.avatar_url}
+                    userId={note.profiles.id}
+                    size="lg"
+                  />
+                  <div>
+                    <Link
+                      href={`/dashboard/profile/${note.profiles.username}`}
+                      className="font-medium hover:underline"
+                    >
+                      {note.profiles.full_name || note.profiles.username}
+                    </Link>
+                    <p className="text-sm text-muted-foreground">
+                      @{note.profiles.username}
+                    </p>
+                  </div>
+                </div>
+                {currentUser && note.user_id === currentUser.id && (
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2"
+                    onClick={() =>
+                      router.push(`/dashboard/notes/${noteId}/edit`)
+                    }
+                  >
+                    <Edit className="h-4 w-4" />
+                    Edit Note
+                  </Button>
+                )}
+              </div>
+              <div className=" space-y-2 flex-1">
+                <h1 className="text-2xl font-bold">{note.title}</h1>
+                <p className="text-muted-foreground">{note.description}</p>
+              </div>
+              <div className="space-y-4">
+                <div className="w-full flex flex-wrap gap-2">
+                  {note.tags.map((tag, index) => (
+                    <Badge
+                      key={index}
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
+                      <Tag className="h-3 w-3" />
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              {/* Academic Information */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">
+                    Academic Context
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        Subject:
+                      </span>
+                      <Badge variant="outline">{note.subject}</Badge>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        Level:
+                      </span>
+                      <Badge variant="outline">
+                        {note.academic_level?.replace("-", " ")}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Building className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        Institution:
+                      </span>
+                      <span className="text-sm">
+                        {note.institution || "Not specified"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">
+                    Course Information
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        Course:
+                      </span>
+                      <span className="text-sm">
+                        {note.course || "Not specified"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        Professor:
+                      </span>
+                      <span className="text-sm">
+                        {note.professor || "Not specified"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        Semester:
+                      </span>
+                      <span className="text-sm">
+                        {note.semester || "Not specified"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          {/* Comment Section */}
+          <CommentSection
+            noteId={note.id}
+            allowComments={note.allow_comments}
+          />
           {/* Quick Actions */}
           <Card>
             <CardHeader className="flex justify-between items-center gap-2">
@@ -533,51 +554,6 @@ export default function NoteDetailsPage() {
               </Button>
             </CardContent>
           </Card>
-          {/* Author Profile */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">About the Author</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-3 mb-4">
-                <CustomizedAvatar
-                  src={note.profiles.avatar_url}
-                  userId={note.profiles.id}
-                  size="md"
-                />
-                <div>
-                  <Link
-                    href={`/dashboard/profile/${note.profiles.username}`}
-                    className="font-medium hover:underline"
-                  >
-                    {note.profiles.full_name || note.profiles.username}
-                  </Link>
-                  <p className="text-sm text-muted-foreground">
-                    @{note.profiles.username}
-                  </p>
-                </div>
-              </div>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Notes shared:</span>
-                  <span className="font-medium">47</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Total likes:</span>
-                  <span className="font-medium">1,234</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Joined:</span>
-                  <span className="font-medium">Jan 2024</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          {/* Comment Section */}
-          <CommentSection
-            noteId={note.id}
-            allowComments={note.allow_comments}
-          />
         </div>
       </div>
     </div>
