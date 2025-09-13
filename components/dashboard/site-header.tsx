@@ -8,7 +8,6 @@ import {
   SidebarIcon,
   Trophy,
 } from "lucide-react";
-import DashboardBreadcrumbs from "@/components/dashboard/dashboard-breadcrumbs";
 import { SearchForm } from "@/components/dashboard/search-form";
 import NotificationPopup from "./notification-popup";
 import { Button } from "@/components/ui/button";
@@ -39,43 +38,50 @@ export function SiteHeader() {
   const { userStats, statsLoading, refreshStats } = useGamification();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Real-time updates for points
+  // Real-time updates for points - optimized to reduce API calls
   useEffect(() => {
     if (!claims) return;
 
     // Refresh stats immediately when component mounts
     refreshStats();
 
-    // not up periodic refresh every 30 seconds
+    // Reduce periodic refresh to every 5 minutes instead of 30 seconds
     intervalRef.current = setInterval(() => {
       refreshStats();
-    }, 30000);
+    }, 300000); // 5 minutes
 
-    // Listen for custom points update events
+    // Listen for custom points update events (most important)
     const handlePointsUpdate = () => {
       refreshStats();
     };
 
-    // Listen for page visibility changes to refresh when user comes back
+    // Only refresh when user comes back after being away (debounced)
+    let visibilityTimeout: NodeJS.Timeout | null = null;
     const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        refreshStats();
+      if (!document.hidden && visibilityTimeout === null) {
+        // Debounce to prevent multiple calls
+        visibilityTimeout = setTimeout(() => {
+          refreshStats();
+          visibilityTimeout = null;
+        }, 2000); // Wait 2 seconds before refreshing
       }
     };
 
     // Add event listeners
     window.addEventListener("points-updated", handlePointsUpdate);
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("focus", handlePointsUpdate);
+    // Remove focus listener as it's redundant with visibility change
 
     // Cleanup function
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
+      if (visibilityTimeout) {
+        clearTimeout(visibilityTimeout);
+      }
       window.removeEventListener("points-updated", handlePointsUpdate);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("focus", handlePointsUpdate);
     };
   }, [claims, refreshStats]);
 
@@ -155,9 +161,6 @@ export function SiteHeader() {
                     <Link href={"/dashboard/store"}>Point Store</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href={"/dashboard/chat"}>Messages</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
                     <Link href={"/dashboard/notifications"}>Notifications</Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
@@ -204,11 +207,6 @@ export function SiteHeader() {
                   </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Button size={"icon"} variant={"ghost"} asChild>
-                <Link href="/dashboard/chat">
-                  <MessageCircleIcon />
-                </Link>
-              </Button>
               <NotificationPopup />
             </div>
           </div>
